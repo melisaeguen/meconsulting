@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ME Consultora — Consultoría Estratégica para PYMES</title>
+<meta name="description" content="Transformamos empresas desordenadas en empresas gestionadas. Consultoría financiera y estratégica para PYMES argentinas. MBA · FP&A Global · Accenture · Satellogic · Globant."/>
+<meta property="og:title" content="Melisa Eguen — Consultoría para PYMES"/>
+<meta property="og:description" content="Metodologías corporativas adaptadas a la realidad de las PYMES. Diagnóstico 360, Implementación y CFO Estratégico."/>
+<meta property="og:type" content="website"/>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%231b2340'/><polygon points='16,4 28,16 16,28 4,16' fill='%23c9a96e'/></svg>"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet"/>
+<style>
+/* ══ RESET & BASE ══ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1b2340; --navy2:#2d3a5c; --navy3:#3d4f7c;
+  --gold:#c9a96e; --gold-l:#e8d5b0; --gold-xl:#f7f0e4;
+  --cream:#faf9f7; --cream2:#f2efe9; --cream3:#e8e4dc;
+  --text:#1a1a1a; --muted:#6b6b6b; --light:#a0a0a0;
+  --border:rgba(0,0,0,0.08); --border2:rgba(0,0,0,0.14);
+  --ok:#2d7a4f; --ok-bg:#e8f5ee; --ok-b:#a0d8b8;
+  --warn:#8a5c00; --warn-bg:#fff8e1; --warn-b:#f0c040;
+  --err:#8a2020; --err-bg:#fdecea; --err-b:#f5c6c6;
+  --info:#1b4a8a; --info-bg:#e8f0fb; --info-b:#b5d4f4;
+  --purple:#5a2d8a; --purple-bg:#f0e8fb;
+  --r:10px; --r-lg:14px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.serif{font-family:'Playfair Display',serif}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;font-family:'DM Sans',sans-serif}
+input,select,textarea{font-family:'DM Sans',sans-serif;outline:none}
+img{display:block;max-width:100%}
+
+/* ══ TYPOGRAPHY ══ */
+.label{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;font-weight:500}
+.section-label{font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px}
+
+/* ══ LAYOUT ══ */
+.container{max-width:860px;margin:0 auto;padding:0 1.5rem}
+.container-sm{max-width:560px;margin:0 auto;padding:0 1.5rem}
+section{padding:5rem 0}
+
+/* ══ NAV ══ */
+.nav{
+  background:var(--navy);
+  height:58px; position:sticky; top:0; z-index:200;
+  border-bottom:0.5px solid rgba(255,255,255,0.06);
+}
+.nav-inner{
+  max-width:1000px;margin:0 auto;padding:0 1.5rem;
+  height:100%;display:flex;align-items:center;justify-content:space-between;
+}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-mark{
+  width:32px;height:32px;border-radius:50%;
+  background:rgba(201,169,110,0.15);border:1px solid var(--gold);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:600;color:var(--gold);
+  font-family:'Playfair Display',serif;flex-shrink:0;
+}
+.logo-name{color:#fff;font-size:15px;font-weight:500;font-family:'Playfair Display',serif}
+.logo-sub{color:var(--gold);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;opacity:0.75;margin-left:8px}
+.nav-cta{
+  background:var(--gold);color:var(--navy);
+  border:none;border-radius:7px;padding:8px 18px;
+  font-size:13px;font-weight:600;white-space:nowrap;
+}
+.nav-cta:hover{background:#b8924a}
+
+/* ══ HERO ══ */
+.hero{
+  background:var(--navy);
+  padding:5rem 0 4rem;
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 60% at 80% 50%, rgba(201,169,110,0.08) 0%, transparent 70%);
+  pointer-events:none;
+}
+.hero-grid{display:grid;grid-template-columns:1fr 380px;gap:3rem;align-items:center}
+.hero-eyebrow{color:var(--gold);font-size:11px;letter-spacing:2.5px;text-transform:uppercase;font-weight:500;margin-bottom:1.2rem}
+.hero-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(2rem,4vw,3rem);line-height:1.2;
+  color:#fff;font-weight:600;margin-bottom:1.2rem;
+}
+.hero-title em{color:var(--gold);font-style:italic}
+.hero-sub{font-size:16px;color:rgba(255,255,255,0.65);line-height:1.8;margin-bottom:2rem;max-width:440px}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:2rem}
+.hero-proof{display:flex;gap:2rem;flex-wrap:wrap}
+.proof-item{display:flex;flex-direction:column}
+.proof-num{font-family:'Playfair Display',serif;font-size:22px;font-weight:600;color:var(--gold);line-height:1}
+.proof-label{font-size:11px;color:rgba(255,255,255,0.45);margin-top:3px;line-height:1.4}
+.hero-card{
+  background:rgba(255,255,255,0.05);
+  border:0.5px solid rgba(255,255,255,0.1);
+  border-radius:var(--r-lg);padding:1.5rem;
+  backdrop-filter:blur(8px);
+}
+.hero-card-title{color:var(--gold);font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:500;margin-bottom:1rem}
+.funnel-mini{display:flex;flex-direction:column;gap:8px}
+.funnel-mini-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:8px;
+  background:rgba(255,255,255,0.04);
+  border:0.5px solid rgba(255,255,255,0.08);
+}
+.funnel-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.funnel-mini-name{font-size:13px;color:rgba(255,255,255,0.85);font-weight:500;flex:1}
+.funnel-mini-tag{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;flex-shrink:0}
+.tag-free{background:rgba(45,122,79,0.25);color:#6ddba0}
+.tag-pago{background:rgba(201,169,110,0.2);color:var(--gold)}
+.tag-retainer{background:rgba(90,45,138,0.25);color:#c0a0f0}
+
+/* ══ PAIN POINTS ══ */
+.pain-section{background:var(--cream2);padding:4rem 0}
+.pain-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:1.5rem}
+.pain-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:12px 14px;background:#fff;border-radius:8px;
+  border:0.5px solid var(--border);
+}
+.pain-x{color:#c0392b;font-weight:700;font-size:14px;flex-shrink:0;margin-top:1px}
+.pain-text{font-size:13px;line-height:1.55}
+
+/* ══ FUNNEL / CÓMO TRABAJAMOS ══ */
+.funnel-section{background:#fff;padding:5rem 0}
+.funnel-steps{display:flex;flex-direction:column;gap:0;margin-top:2rem}
+.funnel-step{
+  display:grid;grid-template-columns:56px 1fr auto;
+  gap:0 1.2rem;align-items:stretch;
+  position:relative;
+}
+.funnel-step:not(:last-child)::after{
+  content:'';position:absolute;
+  left:27px;top:56px;bottom:0;width:1px;
+  background:var(--cream3);
+}
+.step-number-col{display:flex;flex-direction:column;align-items:center;padding:0 0 2rem}
+.step-num-circle{
+  width:40px;height:40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display',serif;font-size:16px;font-weight:600;
+  flex-shrink:0;z-index:1;
+}
+.step-body{padding:0 0 2rem}
+.step-header{display:flex;align-items:center;gap:10px;margin-bottom:6px;margin-top:8px;flex-wrap:wrap}
+.step-name{font-size:16px;font-weight:500;color:var(--navy)}
+.step-sub{font-size:11px;color:var(--light)}
+.step-desc{font-size:13px;color:var(--muted);line-height:1.7;max-width:480px}
+.step-entregables{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.entregable{font-size:11px;padding:2px 9px;border-radius:20px;background:var(--cream2);border:0.5px solid var(--border);color:var(--muted)}
+.step-price-col{padding:8px 0 2rem;text-align:right;display:flex;flex-direction:column;justify-content:flex-start;padding-top:14px}
+.step-price{font-size:14px;font-weight:600;color:var(--navy);white-space:nowrap}
+.step-dur{font-size:11px;color:var(--light);margin-top:2px}
+
+/* ══ SERVICIOS ══ */
+.servicios-section{background:var(--cream);padding:5rem 0}
+.servicios-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:2rem}
+.servicio-card{
+  background:#fff;border-radius:var(--r-lg);
+  border:0.5px solid var(--border);
+  padding:1.4rem 1.5rem;
+  transition:border-color 0.2s;
+}
+.servicio-card:hover{border-color:var(--gold-l)}
+.servicio-card.featured{border-color:var(--gold);border-width:1px}
+.servicio-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.servicio-name{font-size:15px;font-weight:600;color:var(--navy)}
+.servicio-price{font-size:14px;font-weight:600;color:var(--navy);text-align:right;white-space:nowrap;margin-left:10px}
+.servicio-price-sub{font-size:10px;color:var(--light);margin-top:1px}
+.servicio-desc{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:10px}
+.servicio-ents{display:flex;flex-wrap:wrap;gap:5px}
+
+/* ══ POR QUÉ YO ══ */
+.porque-section{background:var(--navy);padding:5rem 0}
+.porque-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2.5rem}
+.porque-item{padding:1.5rem;background:rgba(255,255,255,0.04);border-radius:var(--r);border:0.5px solid rgba(255,255,255,0.08)}
+.porque-arrow{color:var(--gold);font-size:18px;margin-bottom:8px}
+.porque-title{font-size:15px;font-weight:500;color:#fff;margin-bottom:6px}
+.porque-text{font-size:13px;color:rgba(255,255,255,0.55);line-height:1.7}
+.creds-row{display:flex;gap:2rem;margin-top:2.5rem;flex-wrap:wrap}
+.cred-item{display:flex;flex-direction:column;align-items:center;flex:1;min-width:100px}
+.cred-num{font-family:'Playfair Display',serif;font-size:26px;font-weight:600;color:var(--gold);line-height:1}
+.cred-label{font-size:11px;color:rgba(255,255,255,0.45);margin-top:4px;text-align:center;line-height:1.4}
+
+/* ══ CTA SECTION ══ */
+.cta-section{background:var(--cream2);padding:5rem 0;text-align:center}
+.cta-title{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3.5vw,2.4rem);color:var(--navy);margin-bottom:1rem;font-weight:600;line-height:1.3}
+.cta-sub{font-size:15px;color:var(--muted);margin-bottom:2rem;line-height:1.8;max-width:480px;margin-left:auto;margin-right:auto}
+
+/* ══ BUTTONS ══ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:12px 24px;border-radius:8px;font-size:14px;font-weight:500;
+  font-family:'DM Sans',sans-serif;cursor:pointer;border:none;
+  transition:all 0.15s;white-space:nowrap;
+}
+.btn:disabled{opacity:0.5;cursor:not-allowed}
+.btn-navy{background:var(--navy);color:#fff}
+.btn-navy:hover:not(:disabled){background:var(--navy2)}
+.btn-gold{background:var(--gold);color:var(--navy);font-weight:600}
+.btn-gold:hover:not(:disabled){background:#b8924a}
+.btn-outline{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,0.4)}
+.btn-outline:hover:not(:disabled){border-color:#fff;background:rgba(255,255,255,0.06)}
+.btn-outline-navy{background:transparent;color:var(--navy);border:1.5px solid var(--navy)}
+.btn-outline-navy:hover:not(:disabled){background:var(--navy);color:#fff}
+.btn-ghost{background:transparent;color:var(--muted);border:0.5px solid var(--border2)}
+.btn-ghost:hover:not(:disabled){background:var(--cream2)}
+.btn-lg{padding:14px 32px;font-size:15px}
+.btn-full{width:100%}
+
+/* ══ TEST SECTION (pantalla separada) ══ */
+#test-screen{display:none;min-height:100vh;background:var(--cream)}
+.test-main{max-width:580px;margin:0 auto;padding:2.5rem 1.5rem 4rem}
+
+/* Stepper en test */
+.test-header{
+  background:var(--navy);height:54px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 1.5rem;position:sticky;top:0;z-index:100;
+  border-bottom:0.5px solid rgba(255,255,255,0.06);
+}
+.test-back{
+  background:transparent;border:none;color:rgba(255,255,255,0.55);
+  font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;
+  font-family:'DM Sans',sans-serif;padding:0;
+}
+.test-back:hover{color:#fff}
+.stepper{display:flex;align-items:center;gap:4px}
+.step-dot-sm{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;transition:all 0.3s}
+.step-dot-sm.done{background:var(--gold);color:var(--navy)}
+.step-dot-sm.active{background:#fff;color:var(--navy)}
+.step-dot-sm.pending{background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.4)}
+.step-conn{width:18px;height:1px;transition:background 0.3s}
+.step-conn.done{background:var(--gold)}
+.step-conn.pending{background:rgba(255,255,255,0.15)}
+
+/* ══ FORM FIELDS ══ */
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:5px}
+.field input,.field select{
+  width:100%;padding:11px 14px;
+  border:0.5px solid var(--border2);border-radius:8px;
+  font-size:14px;background:#fff;color:var(--text);
+  transition:border-color 0.15s;-webkit-appearance:none;
+}
+.field input:focus,.field select:focus{border-color:var(--navy)}
+.field input.error,.field select.error{border-color:var(--err)}
+.field-error{font-size:11px;color:var(--err);margin-top:4px}
+.field-hint{font-size:11px;color:var(--light);margin-top:4px;line-height:1.5}
+
+/* ══ TEST UI ══ */
+.progress-wrap{margin-bottom:1.5rem}
+.progress-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.progress-meta span{font-size:12px;color:var(--muted)}
+.progress-track{height:3px;background:var(--cream3);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:var(--gold);border-radius:2px;transition:width 0.5s ease}
+.dim-mini-row{display:flex;gap:12px;flex-wrap:wrap}
+.dim-mini-item{font-size:10px;color:var(--light);font-weight:400;transition:color 0.2s}
+.dim-mini-item.active{color:var(--text);font-weight:500}
+.dim-mini-item.done{font-weight:500}
+
+.dim-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:10px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:1.2rem}
+.question-text{font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:400;color:var(--navy);line-height:1.45;margin-bottom:1.5rem}
+.options{display:flex;flex-direction:column;gap:9px}
+.option-btn{
+  text-align:left;width:100%;padding:13px 18px;
+  background:#fff;color:var(--text);
+  border:0.5px solid var(--border2);border-radius:10px;
+  font-size:13.5px;font-family:'DM Sans',sans-serif;line-height:1.5;
+  transition:all 0.15s;cursor:pointer;
+  display:flex;align-items:flex-start;gap:12px;
+}
+.option-btn:hover{border-color:var(--navy);background:var(--cream)}
+.option-btn.selected{background:var(--navy);color:#fff;border-color:var(--navy)}
+.option-letter{opacity:0.4;font-size:10px;font-weight:600;margin-top:2px;flex-shrink:0}
+.option-btn.selected .option-letter{opacity:0.55}
+.question-nav{display:flex;justify-content:space-between;align-items:center;margin-top:1.2rem}
+
+/* ══ GENERATING ══ */
+.generating-wrap{text-align:center;padding:3rem 0}
+.spinner-circle{width:64px;height:64px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem}
+.gen-stages{list-style:none}
+.gen-stage{font-size:13px;margin-bottom:7px;transition:all 0.3s}
+.gen-stage.done{color:var(--ok)}
+.gen-stage.active{color:var(--text);font-weight:500}
+.gen-stage.pending{color:var(--light);opacity:0.4}
+
+/* ══ RESULT ══ */
+.score-circle-wrap{position:relative;width:120px;height:120px;flex-shrink:0}
+.score-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-num-big{font-family:'Playfair Display',serif;font-size:32px;font-weight:600;color:var(--navy);line-height:1}
+.score-denom{font-size:11px;color:var(--light)}
+.dim-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.dim-bar-label{font-size:11px;font-weight:500;color:var(--navy);width:82px;flex-shrink:0}
+.dim-bar-track{flex:1;height:5px;background:var(--cream3);border-radius:3px;overflow:hidden}
+.dim-bar-fill{height:100%;border-radius:3px;transition:width 1.2s ease}
+.dim-bar-score{font-size:12px;font-weight:600;min-width:26px;text-align:right}
+.diag-dim-block{display:flex;gap:10px;margin-bottom:12px}
+.diag-dim-line{width:3px;border-radius:2px;flex-shrink:0}
+.diag-dim-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px}
+.diag-dim-text{font-size:13px;color:var(--text);line-height:1.7}
+.palanca-box{border-radius:var(--r);padding:1.2rem 1.4rem;border-left:3px solid var(--gold);background:var(--warn-bg);margin-bottom:10px}
+.palanca-label{font-size:10px;font-weight:600;color:var(--warn);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px}
+.palanca-title{font-size:14px;font-weight:600;color:var(--navy);margin-bottom:6px}
+.palanca-desc{font-size:13px;color:var(--muted);line-height:1.7}
+.qw-item{background:var(--cream);border-radius:var(--r);padding:12px 14px;border:0.5px solid var(--border);margin-bottom:8px}
+.qw-num{font-size:10px;font-weight:600;color:var(--gold);margin-bottom:3px;letter-spacing:0.5px;text-transform:uppercase}
+.qw-title{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:5px}
+.qw-desc{font-size:12px;color:var(--muted);line-height:1.65;margin-bottom:7px}
+.badge{display:inline-block;font-size:10px;font-weight:500;padding:2px 9px;border-radius:20px;margin-right:5px}
+.cierre-box{background:var(--info-bg);border-radius:var(--r);padding:14px 18px;border:0.5px solid var(--info-b);margin-bottom:10px}
+.cierre-text{font-size:13px;color:var(--info);line-height:1.75;font-style:italic}
+.email-status{padding:12px 16px;border-radius:var(--r);font-size:13px;margin-bottom:10px;transition:all 0.3s}
+.email-status.idle{background:var(--cream2);color:var(--muted);border:0.5px solid var(--border)}
+.email-status.sending{background:var(--info-bg);color:var(--info);border:0.5px solid var(--info-b)}
+.email-status.done{background:var(--ok-bg);color:var(--ok);border:0.5px solid var(--ok-b)}
+.email-status.error{background:var(--err-bg);color:var(--err);border:0.5px solid var(--err-b)}
+.result-cta-box{background:var(--navy);border-radius:var(--r-lg);padding:1.8rem 1.5rem;text-align:center;margin-top:12px}
+
+/* ══ FOOTER ══ */
+.footer{background:var(--navy);padding:2.5rem 0;border-top:0.5px solid rgba(255,255,255,0.08)}
+.footer-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+.footer-text{font-size:12px;color:rgba(255,255,255,0.4);line-height:1.8}
+.footer-text a{color:var(--gold)}
+.footer-text strong{color:rgba(255,255,255,0.7)}
+
+/* ══ ANIMATIONS ══ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.fade-up{animation:fadeUp 0.4s ease forwards}
+.spin-anim{animation:spin 1s linear infinite;display:inline-block}
+.pulse-anim{animation:pulse 1.4s ease infinite}
+
+/* ══ UTILITIES ══ */
+.card{background:#fff;border-radius:var(--r);border:0.5px solid var(--border);padding:1.5rem}
+.surface{background:var(--cream2);border-radius:var(--r);padding:1.25rem 1.5rem}
+.divider{height:0.5px;background:var(--border);margin:1rem 0}
+.text-center{text-align:center}
+.mt-1{margin-top:0.5rem}.mt-2{margin-top:1rem}.mt-3{margin-top:1.5rem}.mt-4{margin-top:2rem}
+.mb-1{margin-bottom:0.5rem}.mb-2{margin-bottom:1rem}.mb-3{margin-bottom:1.5rem}
+
+/* ══ RESPONSIVE ══ */
+@media(max-width:720px){
+  .hero-grid{grid-template-columns:1fr}
+  .hero-card{display:none}
+  .servicios-grid{grid-template-columns:1fr}
+  .porque-grid{grid-template-columns:1fr}
+  .funnel-step{grid-template-columns:40px 1fr}
+  .step-price-col{display:none}
+  section{padding:3.5rem 0}
+}
+@media(max-width:480px){
+  .container,.container-sm{padding:0 1rem}
+  .hero{padding:3rem 0}
+  .hero-actions{flex-direction:column}
+  .creds-row{gap:1rem}
+  .footer-inner{flex-direction:column;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════ -->
+<!-- LANDING PAGE                          -->
+<!-- ══════════════════════════════════════ -->
+<div id="landing-screen">
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <div class="logo">
+        <div class="logo-mark">
+          <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="8,1 15,8 8,15 1,8" fill="#c9a96e"/>
+          </svg>
+        </div>
+        <span class="logo-name">ME Consultora</span>
+      </div>
+      <div style="display:flex;gap:4px;align-items:center">
+        <a href="#como-trabajamos" style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.6);padding:6px 14px;border-radius:6px;transition:color 0.15s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Cómo trabajamos</a>
+        <a href="#experiencia" style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.6);padding:6px 14px;border-radius:6px;transition:color 0.15s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Experiencia</a>
+        <a onclick="showTest()" style="font-size:12px;font-weight:600;color:var(--navy);background:var(--gold);padding:7px 16px;border-radius:7px;margin-left:6px;transition:background 0.15s;cursor:pointer;" onmouseover="this.style.background='#b8924a'" onmouseout="this.style.background='var(--gold)'">Comenzar hoy</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-grid">
+        <div>
+          <p class="hero-eyebrow">Consultoría Estratégica para PYMES</p>
+          <h1 class="hero-title">
+            De gestionar sin datos<br/>
+            a tomar decisiones con<br/>
+            <em>claridad estratégica</em>
+          </h1>
+          <p class="hero-sub">Metodologías de gestión corporativa, adaptadas a la realidad y escala de tu empresa. Sin teoría. Sin soluciones genéricas. Desde el diagnóstico real de tu negocio.</p>
+          <div class="hero-actions">
+            <button class="btn btn-gold btn-lg" onclick="showTest()">Descubrí la salud de tu negocio →</button>
+          </div>
+          <p style="margin-top:0.8rem"><a href="#como-trabajamos" style="font-size:13px;color:rgba(255,255,255,0.55);text-decoration:underline;text-underline-offset:3px;">Conocé más sobre cómo trabajamos ↓</a></p>
+
+        </div>
+        <div class="hero-card">
+          <p class="hero-card-title">Cómo trabajamos</p>
+          <div class="funnel-mini">
+            <div class="funnel-mini-item">
+              <div class="funnel-dot" style="background:#6ddba0"></div>
+              <span class="funnel-mini-name">Test de Salud</span>
+              <span class="funnel-mini-tag tag-free">FREE</span>
+            </div>
+            <div class="funnel-mini-item">
+              <div class="funnel-dot" style="background:#6ddba0"></div>
+              <span class="funnel-mini-name">Sesión Estratégica 30min</span>
+              <span class="funnel-mini-tag tag-free">FREE</span>
+            </div>
+            <div class="funnel-mini-item">
+              <div class="funnel-dot" style="background:var(--gold)"></div>
+              <span class="funnel-mini-name">Diagnóstico 360</span>
+              <span class="funnel-mini-tag tag-pago">PAGO</span>
+            </div>
+            <div class="funnel-mini-item">
+              <div class="funnel-dot" style="background:var(--gold)"></div>
+              <span class="funnel-mini-name">Implementación de Soluciones</span>
+              <span class="funnel-mini-tag tag-pago">PAGO</span>
+            </div>
+            <div class="funnel-mini-item">
+              <div class="funnel-dot" style="background:var(--gold)"></div>
+              <span class="funnel-mini-name">Partner Estratégico</span>
+              <span class="funnel-mini-tag tag-pago">PAGO</span>
+            </div>
+          </div>
+          <p style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:1rem;text-align:center">Sin compromiso · Los primeros pasos son gratuitos</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SÍNTOMAS / PAIN POINTS -->
+  <section class="pain-section">
+    <div class="container">
+      <p class="label" style="color:var(--muted);margin-bottom:0.5rem">¿Tu negocio tiene alguno de estos síntomas?</p>
+      <div class="pain-grid">
+        <div class="pain-item"><span class="pain-x">×</span><span class="pain-text">No sé exactamente cuánto gano —  ni si realmente estoy ganando</span></div>
+        <div class="pain-item"><span class="pain-x">×</span><span class="pain-text">Tomo decisiones "a ojo", sin datos que las respalden</span></div>
+        <div class="pain-item"><span class="pain-x">×</span><span class="pain-text">Vendo más, pero la rentabilidad no mejora</span></div>
+        <div class="pain-item"><span class="pain-x">×</span><span class="pain-text">Mi negocio depende todo de mí — no puedo delegar</span></div>
+        <div class="pain-item"><span class="pain-x">×</span><span class="pain-text">Las finanzas del negocio están mezcladas con las personales</span></div>
+        <div class="pain-item"><span class="pain-x">×</span><span class="pain-text">No tengo métricas claras para saber si voy bien o mal</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CÓMO TRABAJAMOS / FUNNEL -->
+  <section class="funnel-section" id="como-trabajamos">
+    <div class="container">
+      <p class="label" style="color:var(--gold);margin-bottom:0.4rem">Proceso</p>
+      <h2 class="serif" style="font-size:clamp(1.6rem,3vw,2.2rem);color:var(--navy);margin-bottom:0.4rem;font-weight:600">Cómo trabajamos</h2>
+      <p style="font-size:14px;color:var(--muted);max-width:480px;line-height:1.7">Un proceso en 5 etapas diseñado para ir del diagnóstico a la implementación real. Los primeros dos pasos son gratuitos y sin compromiso.</p>
+
+      <div class="funnel-steps">
+
+        <!-- 01 -->
+        <div class="funnel-step">
+          <div class="step-number-col">
+            <div class="step-num-circle" style="background:#e8f5ee;color:#2d7a4f">01</div>
+          </div>
+          <div class="step-body">
+            <div class="step-header">
+              <span class="step-name">Test de Salud de tu Negocio</span>
+              <span class="funnel-mini-tag tag-free" style="font-size:11px;padding:3px 10px;border-radius:20px">FREE</span>
+              <span class="step-sub">5 min · Online · Automático</span>
+            </div>
+            <p class="step-desc">Diagnóstico rápido del estado actual de tu negocio en 4 dimensiones: finanzas, operaciones, gestión y estrategia. Nuestra herramienta analiza tus respuestas específicas y genera un scorecard personalizado.</p>
+            <div class="step-entregables">
+              <span class="entregable">✓ Scorecard</span>
+              <span class="entregable">✓ Diagnóstico por dimensión</span>
+              <span class="entregable">✓ Palanca principal de mejora</span>
+            </div>
+          </div>
+          <div class="step-price-col">
+            <span class="step-price" style="color:#2d7a4f">Gratis</span>
+            <span class="step-dur">Inmediato</span>
+          </div>
+        </div>
+
+        <!-- 02 -->
+        <div class="funnel-step">
+          <div class="step-number-col">
+            <div class="step-num-circle" style="background:#e8f5ee;color:#2d7a4f">02</div>
+          </div>
+          <div class="step-body">
+            <div class="step-header">
+              <span class="step-name">Sesión Estratégica</span>
+              <span class="funnel-mini-tag tag-free" style="font-size:11px;padding:3px 10px;border-radius:20px">FREE</span>
+              <span class="step-sub">30 min · Virtual</span>
+            </div>
+            <p class="step-desc">Revisamos tu scorecard juntos. Identificamos la mayor palanca de tu negocio. Te llevás 2–3 acciones concretas para arrancar. Sin compromiso — te vas con valor igual aunque no sigamos.</p>
+            <div class="step-entregables">
+              <span class="entregable">✓ Revisión del scorecard</span>
+              <span class="entregable">✓ Palanca principal identificada</span>
+              <span class="entregable">✓ 2–3 acciones para arrancar</span>
+            </div>
+          </div>
+          <div class="step-price-col">
+            <span class="step-price" style="color:#2d7a4f">Gratis</span>
+            <span class="step-dur">30 minutos</span>
+          </div>
+        </div>
+
+        <!-- 03 -->
+        <div class="funnel-step">
+          <div class="step-number-col">
+            <div class="step-num-circle" style="background:var(--gold-xl);color:var(--warn)">03</div>
+          </div>
+          <div class="step-body">
+            <div class="step-header">
+              <span class="step-name">Diagnóstico 360</span>
+              <span class="funnel-mini-tag tag-pago" style="font-size:11px;padding:3px 10px;border-radius:20px">PAGO</span>
+              <span class="step-sub">2–3 semanas</span>
+            </div>
+            <p class="step-desc">Radiografía completa del negocio: finanzas, operaciones y gestión. Entrevistas en profundidad, análisis de información real. Terminás con un diagnóstico claro y un roadmap priorizado.</p>
+            <div class="step-entregables">
+              <span class="entregable">✓ Diagnóstico financiero</span>
+              <span class="entregable">✓ Diagnóstico operativo</span>
+              <span class="entregable">✓ Diagnóstico de gestión</span>
+              <span class="entregable">✓ Roadmap priorizado</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 04 -->
+        <div class="funnel-step">
+          <div class="step-number-col">
+            <div class="step-num-circle" style="background:var(--gold-xl);color:var(--warn)">04</div>
+          </div>
+          <div class="step-body">
+            <div class="step-header">
+              <span class="step-name">Implementación de Soluciones</span>
+              <span class="funnel-mini-tag tag-pago" style="font-size:11px;padding:3px 10px;border-radius:20px">PAGO</span>
+              <span class="step-sub">3–6 meses</span>
+            </div>
+            <p class="step-desc">Implementamos las soluciones del diagnóstico. Ordenamos la gestión y sumamos herramientas que te dan visibilidad real y te ahorran tiempo, desde planillas básicas hasta automatizaciones y uso de IA.</p>
+            <div class="step-entregables">
+              <span class="entregable">✓ Control y seguimiento de resultados</span>
+              <span class="entregable">✓ Procesos documentados y estandarizados</span>
+              <span class="entregable">✓ Automatización de tareas operativas</span>
+              <span class="entregable">✓ Implementación de herramientas y apps con IA</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 05 -->
+        <div class="funnel-step">
+          <div class="step-number-col">
+            <div class="step-num-circle" style="background:var(--gold-xl);color:var(--warn)">05</div>
+          </div>
+          <div class="step-body">
+            <div class="step-header">
+              <span class="step-name">Partner Estratégico</span>
+              <span class="funnel-mini-tag tag-pago" style="font-size:11px;padding:3px 10px;border-radius:20px">PAGO</span>
+              <span class="step-sub">Mensual continuo</span>
+            </div>
+            <p class="step-desc">Acompañamiento estratégico continuo. Somos parte de tu equipo sin el costo de un empleado full-time. Reuniones recurrentes, análisis de performance, soporte en decisiones.</p>
+            <div class="step-entregables">
+              <span class="entregable">✓ Reuniones mensuales</span>
+              <span class="entregable">✓ Análisis financiero continuo</span>
+              <span class="entregable">✓ Soporte en decisiones</span>
+              <span class="entregable">✓ Revisión de Reportes</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- POR QUÉ ESTA CONSULTORA -->
+  <section class="porque-section" id="experiencia">
+    <div class="container">
+      <p class="label" style="color:var(--gold);margin-bottom:0.4rem">Por qué esta consultoría</p>
+      <h2 class="serif" style="font-size:clamp(1.6rem,3vw,2.2rem);color:#fff;margin-bottom:0.4rem;font-weight:600">Experiencia corporativa global,<br/>aplicada a tu escala</h2>
+
+      <div class="porque-grid">
+        <div class="porque-item">
+          <div class="porque-arrow">→</div>
+          <div class="porque-title">Sin teoría. Sin soluciones genéricas.</div>
+          <div class="porque-text">Cada recomendación surge de entender cómo funciona tu negocio hoy. No aplicamos recetas — construimos soluciones desde tu realidad concreta.</div>
+        </div>
+        <div class="porque-item">
+          <div class="porque-arrow">→</div>
+          <div class="porque-title">Decisiones basadas en números reales.</div>
+          <div class="porque-text">Ordenamos la información de tu negocio para que puedas ver con claridad qué está pasando, por qué, y qué hacer. Sin intuición. Con datos.</div>
+        </div>
+        <div class="porque-item">
+          <div class="porque-arrow">→</div>
+          <div class="porque-title">Herramientas de alta exigencia, a tu escala.</div>
+          <div class="porque-text">Aplicamos formas de trabajo y metodologías de entornos de alta exigencia, adaptadas al tamaño, ritmo y contexto de tu empresa.</div>
+        </div>
+        <div class="porque-item">
+          <div class="porque-arrow">→</div>
+          <div class="porque-title">Acompañamiento real, no asesoría puntual.</div>
+          <div class="porque-text">No somos un informe que queda en un cajón. Estamos en cada etapa — desde el primer diagnóstico hasta que los cambios se traducen en resultados concretos.</div>
+        </div>
+      </div>
+
+      <div class="creds-row" style="justify-content:center;margin-top:2rem">
+        <div class="cred-item">
+          <span class="cred-num">+15</span>
+          <span class="cred-label">años de<br/>experiencia</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA FINAL -->
+  <section class="cta-section" id="comenzar">
+    <div class="container">
+      <h2 class="cta-title">¿Cuál es la salud<br/>real de tu negocio?</h2>
+      <p class="cta-sub">Completá el test gratuito en 5 minutos. Recibís un scorecard personalizado con diagnóstico por dimensión, la palanca principal de mejora y 3 acciones concretas para arrancar.</p>
+      <button class="btn btn-navy btn-lg" onclick="showTest()" style="margin-bottom:12px">Hacer el Test Gratis →</button>
+      <p style="font-size:11px;color:var(--light);margin-top:14px">Sin spam · Sin compromiso · Los primeros pasos son siempre gratuitos</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+  </footer>
+
+</div><!-- /landing-screen -->
+
+
+<!-- ══════════════════════════════════════ -->
+<!-- TEST SCREEN                           -->
+<!-- ══════════════════════════════════════ -->
+<div id="test-screen">
+  <div class="test-header">
+    <button class="test-back" onclick="showLanding()">← Volver al sitio</button>
+    <div class="stepper" id="stepper"></div>
+    <div style="width:80px"></div>
+  </div>
+  <div class="test-main">
+    <div id="test-app"></div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════ -->
+<!-- JAVASCRIPT                            -->
+<!-- ══════════════════════════════════════ -->
+<script>
+// ══ FUNCIONES GLOBALES — definidas primero para que los onclick del HTML las encuentren ══
+window.showTest = function() {
+  document.getElementById('landing-screen').style.display = 'none';
+  document.getElementById('test-screen').style.display = 'block';
+  window.scrollTo(0,0);
+  if(typeof testState !== 'undefined') { testState.screen = 'contact'; renderTest(); }
+  else { document.addEventListener('appReady', function(){ testState.screen='contact'; renderTest(); }); }
+};
+window.showLanding = function() {
+  document.getElementById('test-screen').style.display = 'none';
+  document.getElementById('landing-screen').style.display = 'block';
+  window.scrollTo(0,0);
+};
+</script>
+<script>
+// ══ CONFIG ══
+const CALENDLY  = 'https://calendly.com/melisaeguen/30min';
+const API_URL   = '/api/diagnostico';
+const GMAIL_MCP = 'https://gmail.mcp.claude.com/mcp';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyWvm7ncy4KnNlmdlzPfBMTAvewdSj_mfzgiajUDI6xCOzvyxoxjzeB3Q2F3fob8Qu1RA/exec';
+
+// ══ DATA ══
+const DIMS = [
+  { key:'finanzas',    label:'Finanzas',    color:'#1b4a8a', bg:'#e8f0fb' },
+  { key:'operaciones', label:'Operaciones', color:'#2d7a4f', bg:'#e8f5ee' },
+  { key:'gestion',     label:'Gestión',     color:'#8a5c00', bg:'#fff8e1' },
+  { key:'estrategia',  label:'Estrategia',  color:'#5a2d8a', bg:'#f0e8fb' },
+];
+
+const QUESTIONS = [
+  { id:1,  dim:'finanzas',    short:'Control de ganancia',           text:'¿Sabés exactamente cuánto ganás por mes, después de todos los gastos?',          opts:['Sí, lo controlo con precisión','Tengo una idea aproximada','Raramente lo sé con exactitud','No tengo idea'] },
+  { id:2,  dim:'finanzas',    short:'Separación finanzas personales', text:'¿Separás el dinero del negocio del dinero personal?',                           opts:['Sí, cuentas completamente separadas','Parcialmente separadas','Casi siempre mezcladas','Completamente mezcladas'] },
+  { id:3,  dim:'finanzas',    short:'Proyección de ingresos',         text:'¿Con cuánta anticipación podés estimar cuánto dinero vas a tener disponible?',  opts:['Más de 3 meses','1 a 3 meses','Menos de 1 mes','No lo estimo'] },
+  { id:4,  dim:'finanzas',    short:'Rentabilidad por producto',      text:'¿Sabés cuánto ganás con cada producto o servicio que vendés?',                  opts:['Sí, lo mido regularmente','Sé algunos, no todos','Tengo una idea pero sin números','No lo sé'] },
+  { id:5,  dim:'operaciones', short:'Documentación de procesos',      text:'¿Tus procesos principales están escritos y alguien puede seguirlos sin vos?',   opts:['Sí, documentados y probados','Algunos están escritos','Están en mi cabeza','No hay nada definido'] },
+  { id:6,  dim:'operaciones', short:'Dependencia operativa',          text:'¿Cuánto tiempo semanal dedicás a tareas que podría hacer otra persona?',        opts:['Menos del 20% — delego bien','Entre 20% y 40%','Entre 40% y 60%','Más del 60% — hago casi todo yo'] },
+  { id:7,  dim:'operaciones', short:'Herramientas de gestión',        text:'¿Usás alguna herramienta para organizar y seguir el trabajo del equipo?',       opts:['Sí, una herramienta clara y adoptada','Herramientas básicas (WhatsApp/Excel)','Algo informal','Todo de palabra o de memoria'] },
+  { id:8,  dim:'operaciones', short:'Continuidad sin el dueño',       text:'¿Qué pasa si vos no estás disponible una semana entera?',                       opts:['El negocio funciona bien sin mí','Funciona con algunas dificultades','Hay problemas importantes','El negocio se para'] },
+  { id:9,  dim:'gestion',     short:'Claridad de roles',              text:'¿Cada persona del equipo sabe exactamente qué tiene que hacer y qué se espera de ella?', opts:['Sí, muy claro para todos','Los roles están claros pero los objetivos no','Hay poca claridad','No hay claridad de roles'] },
+  { id:10, dim:'gestion',     short:'Toma de decisiones',             text:'¿Cómo tomás las decisiones importantes del negocio?',                           opts:['Con datos y análisis','Combinando datos e intuición','Principalmente por intuición','Por urgencia o reacción'] },
+  { id:11, dim:'gestion',     short:'Reuniones de seguimiento',       text:'¿Tenés reuniones regulares de seguimiento con tu equipo?',                      opts:['Sí, reuniones organizadas y frecuentes','Reuniones ocasionales','Solo cuando hay problemas','No tenemos reuniones regulares'] },
+  { id:12, dim:'gestion',     short:'Capacidad de delegar',           text:'¿Podés delegar tareas y confiar en que se van a hacer bien?',                   opts:['Sí, delego con confianza real','Delego pero reviso todo','Delego poco por miedo a errores','No puedo delegar'] },
+  { id:13, dim:'estrategia',  short:'Objetivos claros',               text:'¿Tenés objetivos claros para tu negocio con formas de medir si los estás logrando?', opts:['Sí, objetivos claros y con seguimiento','Objetivos claros pero sin forma de medirlos','Objetivos vagos','No hay objetivos definidos'] },
+  { id:14, dim:'estrategia',  short:'Análisis de desempeño',          text:'¿Con qué frecuencia revisás cómo le está yendo al negocio?',                   opts:['Semanalmente o más','Mensualmente','Cada tanto','Raramente o nunca'] },
+  { id:15, dim:'estrategia',  short:'Diferenciación competitiva',     text:'¿Sabés claramente qué hace diferente a tu negocio frente a otros similares?',   opts:['Sí, muy claro y comunicado al equipo','Lo sé pero no está formalizado','Tengo ideas pero no es claro','No lo tengo definido'] },
+];
+const SCORES = [100,66,33,0];
+
+// ══ NAVIGATION (ya definidas en window arriba, acá completamos con el estado) ══
+function showTest() { window.showTest(); }
+function showLanding() { window.showLanding(); }
+
+// ══ TEST STATE ══
+let testState = {
+  screen: 'contact',
+  contact: null,
+  answers: {},
+  current: 0,
+  scores: null,
+  diag: null,
+  emailState: 'idle',
+};
+
+// ══ UTILS ══
+function calcScores(answers) {
+  const raw = {};
+  DIMS.forEach(d => { raw[d.key] = {total:0,count:0}; });
+  QUESTIONS.forEach(q => {
+    if (answers[q.id] !== undefined) { raw[q.dim].total += SCORES[answers[q.id]]; raw[q.dim].count++; }
+  });
+  const dims = {};
+  DIMS.forEach(d => { dims[d.key] = raw[d.key].count > 0 ? Math.round(raw[d.key].total/raw[d.key].count) : 0; });
+  const total = Math.round(Object.values(dims).reduce((a,b)=>a+b,0)/DIMS.length);
+  return {dims, total};
+}
+function getProfile(total) {
+  if (total>=75) return {label:'Negocio Ordenado',      sub:'Tu empresa tiene bases sólidas. El foco es optimizar y escalar.',               color:'#2d7a4f',bg:'#e8f5ee',border:'#a0d8b8'};
+  if (total>=55) return {label:'En Desarrollo',         sub:'Hay estructura básica pero con brechas que limitan el crecimiento.',            color:'#8a5c00',bg:'#fff8e1',border:'#f0c040'};
+  if (total>=35) return {label:'Alta Oportunidad',      sub:'El negocio tiene potencial real, pero opera sin los sistemas que necesita.',    color:'#1b4a8a',bg:'#e8f0fb',border:'#b5d4f4'};
+  return          {label:'Intervención Prioritaria',sub:'Hay señales críticas. Un diagnóstico estructurado es el primer paso.',         color:'#8a2020',bg:'#fdecea',border:'#f5c6c6'};
+}
+function buildAnswerCtx(answers) {
+  return QUESTIONS.map(q => {
+    const ai = answers[q.id];
+    return `- ${q.short} [${DIMS.find(d=>d.key===q.dim).label}]: "${ai!==undefined?q.opts[ai]:'Sin responder'}" (score: ${ai!==undefined?SCORES[ai]:0}/100)`;
+  }).join('\n');
+}
+
+// ══ GUARDAR EN GOOGLE SHEETS ══
+function saveToSheets(contact, answers, scores, diag) {
+  try {
+    const profile = getProfile(scores.total);
+
+    // Pregunta con menor score por dimensión
+    function weakestQ(dim) {
+      const dimQs = QUESTIONS.filter(q => q.dim === dim);
+      let worst = null; let worstScore = 999;
+      dimQs.forEach(q => {
+        const ans = answers[q.id];
+        const s = ans !== undefined ? [100,66,33,0][ans] : 0;
+        if (s < worstScore) { worstScore = s; worst = q; }
+      });
+      return { pregunta: worst ? worst.text : '—', score: worstScore === 999 ? 0 : worstScore };
+    }
+
+    const payload = JSON.stringify({
+      nombre:      contact.name,
+      empresa:     contact.company     || '',
+      email:       contact.email,
+      celular:     contact.phone       || '',
+      industria:   contact.industry    || '',
+      descripcion: contact.description || '',
+      scoreTotal:  scores.total,
+      perfil:      profile.label,
+      scores: {
+        finanzas:    scores.dims.finanzas,
+        operaciones: scores.dims.operaciones,
+        gestion:     scores.dims.gestion,
+        estrategia:  scores.dims.estrategia,
+      },
+      preguntaDebil: {
+        finanzas:    weakestQ('finanzas'),
+        operaciones: weakestQ('operaciones'),
+        gestion:     weakestQ('gestion'),
+        estrategia:  weakestQ('estrategia'),
+      },
+      diagnostico: {
+        resumen:       diag.resumen_ejecutivo       || '',
+        palancaTitulo: diag.palanca_principal?.titulo      || '',
+        palancaDesc:   diag.palanca_principal?.descripcion || '',
+        fraseCierre:   diag.frase_cierre            || '',
+      },
+    });
+
+    // Usa iframe + form para evitar CORS desde file://
+    // Google Apps Script acepta POST via form con campo 'payload'
+    const iframe = document.createElement('iframe');
+    iframe.name = 'gs_iframe_' + Date.now();
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = SHEETS_URL;
+    form.target = iframe.name;
+    form.style.display = 'none';
+
+    const input = document.createElement('input');
+    input.type  = 'hidden';
+    input.name  = 'payload';
+    input.value = payload;
+    form.appendChild(input);
+
+    document.body.appendChild(form);
+    form.submit();
+
+    // Limpieza después de enviar
+    setTimeout(() => {
+      document.body.removeChild(form);
+      document.body.removeChild(iframe);
+    }, 5000);
+
+  } catch(e) {
+    console.warn('saveToSheets error:', e);
+  }
+}
+
+// ══ DIAGNÓSTICO LOCAL (fallback sin API) ══
+function buildLocalDiag(contact, answers, scores) {
+  const worstDim = DIMS.reduce((a,b)=>scores.dims[a.key]<scores.dims[b.key]?a:b);
+  const bestDim  = DIMS.reduce((a,b)=>scores.dims[a.key]>scores.dims[b.key]?a:b);
+  const name = contact.name.split(' ')[0];
+
+  // Lee respuestas clave para personalizar
+  const a = (id) => answers[id] !== undefined ? answers[id] : 3; // 3 = peor opción como default
+  const finScore = scores.dims.finanzas;
+  const opScore  = scores.dims.operaciones;
+  const gesScore = scores.dims.gestion;
+  const estScore = scores.dims.estrategia;
+
+  // Diagnóstico por dimensión basado en score real
+  const dimTexts = {
+    finanzas: finScore >= 70
+      ? 'El control financiero muestra buenas bases. El foco está en afinar la visión a futuro.'
+      : finScore >= 40
+      ? `Las finanzas del negocio tienen áreas sin claridad. ${a(2) >= 2 ? 'El dinero personal y del negocio se mezclan, lo que dificulta saber el resultado real.' : 'La proyección de ingresos futuros es limitada.'}`
+      : `No hay claridad sobre la ganancia real del negocio. ${a(2) >= 2 ? 'El dinero personal y del negocio está mezclado, lo que impide ver el resultado real.' : 'Falta visibilidad sobre cuánto genera el negocio por producto o servicio.'}`,
+
+    operaciones: opScore >= 70
+      ? 'Los procesos están bien organizados y el equipo puede operar con autonomía. El desafío es seguir escalando.'
+      : opScore >= 40
+      ? `Los procesos dependen demasiado del dueño. ${a(6) >= 2 ? 'Más del 40% del tiempo operativo queda en manos de quien dirige.' : 'Hay tareas que podrían delegarse pero aún no están documentadas.'}`
+      : `El negocio no puede funcionar sin el dueño presente. ${a(8) >= 2 ? 'Una semana de ausencia generaría problemas importantes.' : 'Los procesos están en la cabeza de una sola persona.'}`,
+
+    gestion: gesScore >= 70
+      ? 'El equipo tiene claridad de roles y hay seguimiento regular. La gestión está en buen nivel.'
+      : gesScore >= 40
+      ? `Los roles del equipo no están del todo claros. ${a(10) >= 2 ? 'Las decisiones importantes se toman más por intuición que por datos.' : 'Falta un sistema de seguimiento regular con el equipo.'}`
+      : `El equipo opera sin estructura clara de roles ni objetivos. ${a(12) >= 2 ? 'Delegar es difícil porque no hay confianza en el proceso.' : 'Las decisiones se toman de forma reactiva, sin información de base.'}`,
+
+    estrategia: estScore >= 70
+      ? 'El negocio tiene dirección clara y seguimiento de resultados. El reto es sostener el rumbo.'
+      : estScore >= 40
+      ? `Hay objetivos pero no se miden con regularidad. ${a(14) >= 2 ? 'El desempeño se revisa poco, lo que hace difícil corregir a tiempo.' : 'La diferenciación frente a la competencia no está formalizada.'}`
+      : `No hay objetivos claros ni forma de medir si el negocio va bien. ${a(15) >= 2 ? 'La diferenciación frente a la competencia no está definida.' : 'Las decisiones estratégicas se toman sin datos de respaldo.'}`,
+  };
+
+  // Resumen ejecutivo según perfil general
+  const profile = getProfile(scores.total);
+  const resumen = scores.total >= 70
+    ? `${name}, tu negocio tiene una base sólida en comparación con la mayoría. La mayor oportunidad está en sistematizar lo que ya funciona para que escale sin depender de vos.`
+    : scores.total >= 50
+    ? `${name}, tu negocio está en crecimiento pero enfrenta cuellos de botella que limitan el siguiente paso. La clave es ordenar las áreas más débiles para que el crecimiento sea sostenible.`
+    : scores.total >= 35
+    ? `${name}, tu negocio tiene potencial real pero opera sin los sistemas que necesita para crecer. Hay oportunidades claras de mejora en varias dimensiones.`
+    : `${name}, el diagnóstico muestra señales importantes en múltiples áreas. Ordenar las prioridades es el primer paso para recuperar el control del negocio.`;
+
+  // Palanca según la dimensión más débil
+  const palancas = {
+    finanzas: {
+      titulo: 'Finanzas sin visibilidad: el negocio no sabe si gana dinero',
+      descripcion: 'Sin claridad financiera, todas las demás mejoras quedan en el aire. Es el punto de partida para tomar decisiones con información real.',
+    },
+    operaciones: {
+      titulo: 'Operación dependiente del dueño: el techo está en una persona',
+      descripcion: 'Cuando todo pasa por el dueño, el negocio no puede crecer más que su energía disponible. Resolver esto libera capacidad para todo lo demás.',
+    },
+    gestion: {
+      titulo: 'Gestión sin estructura: el equipo no sabe qué se espera',
+      descripcion: 'Sin roles claros y seguimiento, el esfuerzo del equipo se dispersa. Definir estructura básica multiplica el impacto de cada persona.',
+    },
+    estrategia: {
+      titulo: 'Sin dirección clara: el negocio avanza sin rumbo definido',
+      descripcion: 'Un negocio sin objetivos medibles toma decisiones en el vacío. Definir hacia dónde ir es lo que da sentido a todas las demás mejoras.',
+    },
+  };
+
+  return {
+    resumen_ejecutivo: resumen,
+    diagnostico_por_dimension: dimTexts,
+    palanca_principal: {
+      dimension: worstDim.label,
+      ...palancas[worstDim.key],
+    },
+    quick_wins: [],
+    frase_cierre: `En la sesión estratégica revisamos este diagnóstico juntos y definimos los primeros pasos concretos para ${name} y ${contact.company || 'tu empresa'}.`,
+  };
+}
+
+// ══ API ══
+async function generateDiag(contact, answers, scores) {
+  const profile  = getProfile(scores.total);
+  const worstDim = DIMS.reduce((a,b)=>scores.dims[a.key]<scores.dims[b.key]?a:b);
+  const bestDim  = DIMS.reduce((a,b)=>scores.dims[a.key]>scores.dims[b.key]?a:b);
+  const prompt = `Sos una consultora financiera y estratégica especializada en PYMES argentinas. Tu nombre es Melisa Eguen, más de 9 años en FP&A global (Accenture, Satellogic, Globant).
+Tus análisis son específicos, directos y accionables. NUNCA frases genéricas. Cada insight surge de las respuestas concretas.
+
+PROSPECTO: ${contact.name}${contact.company?` · Empresa: ${contact.company}`:''}${contact.industry?` · Industria: ${contact.industry}`:''}${contact.description?`\nDescripción del negocio: ${contact.description}`:''}
+
+RESPUESTAS:
+${buildAnswerCtx(answers)}
+
+SCORES: total ${scores.total}/100 (${profile.label}) · Finanzas ${scores.dims.finanzas} · Operaciones ${scores.dims.operaciones} · Gestión ${scores.dims.gestion} · Estrategia ${scores.dims.estrategia}
+Más débil: ${worstDim.label} (${scores.dims[worstDim.key]}) · Más fuerte: ${bestDim.label} (${scores.dims[bestDim.key]})
+
+REGLAS ESTRICTAS PARA diagnostico_por_dimension Y palanca_principal.descripcion:
+- EXACTAMENTE 2 oraciones. Ni más, ni menos.
+- Cada oración termina con punto. No con coma, no con "..." ni con nada que sugiera continuación.
+- Máximo 120 caracteres por campo total (las 2 oraciones juntas).
+- Las oraciones son cortas, directas, concretas. Sin adjetivos innecesarios.
+- PROHIBIDO: texto que parezca cortado, frases que arrancan y no terminan, puntos suspensivos.
+- EJEMPLO CORRECTO: "No hay separación entre el dinero del negocio y el personal. Esto impide saber si el negocio realmente gana dinero."
+- EJEMPLO INCORRECTO: "El control financiero necesita estructurarse para tener visibilidad real de la rentabilidad y el flujo de caja, lo cual es fundamental para..."
+
+Respondé SOLO con JSON válido (sin markdown):
+{"resumen_ejecutivo":"2-3 oraciones directas sobre el patrón principal.","diagnostico_por_dimension":{"finanzas":"2 oraciones cortas. Máx 120 caracteres total.","operaciones":"2 oraciones. Si el dueño es cuello de botella, decirlo directo.","gestion":"2 oraciones concretas.","estrategia":"2 oraciones concretas."},"palanca_principal":{"dimension":"${worstDim.label}","titulo":"Frase corta con sustantivo","descripcion":"2 oraciones explicando el impacto. Máx 120 caracteres total."},"quick_wins":[{"titulo":"Acción con verbo","descripcion":"1 oración.","impacto":"Resultado","esfuerzo":"bajo"},{"titulo":"Acción #2","descripcion":"1 oración.","impacto":"Resultado","esfuerzo":"bajo"},{"titulo":"Acción #3","descripcion":"1 oración.","impacto":"Resultado","esfuerzo":"medio"}],"frase_cierre":"1 oración conectando con la sesión estratégica."}`;
+  const resp = await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,messages:[{role:'user',content:prompt}]})});
+  const data = await resp.json();
+  const raw = data.content?.[0]?.text||'{}';
+  return JSON.parse(raw.replace(/```json|```/g,'').trim());
+}
+
+function buildEmailHTML(contact, scores, diag) {
+  const profile = getProfile(scores.total);
+  const eb = {bajo:'#e8f5ee',medio:'#fff8e1',alto:'#fdecea'};
+  const ec = {bajo:'#2d7a4f',medio:'#8a5c00',alto:'#8a2020'};
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"/><style>body{font-family:Georgia,serif;background:#faf9f7;margin:0;padding:0;color:#1a1a1a}.w{max-width:580px;margin:0 auto;background:#fff}.hdr{background:#1b2340;padding:28px 36px}.hdr h1{color:#c9a96e;font-size:20px;font-weight:400;margin:0}.hdr p{color:rgba(255,255,255,0.5);font-size:10px;margin:5px 0 0;letter-spacing:2px;text-transform:uppercase}.body{padding:32px 36px}p{font-size:14px;line-height:1.85;color:#2a2a2a;margin:0 0 14px}h3{font-size:11px;font-weight:500;color:#6b6b6b;text-transform:uppercase;letter-spacing:1px;margin:0 0 10px}.pb{background:${profile.bg};border-radius:10px;padding:20px 24px;margin:20px 0;border-left:3px solid ${profile.color}}.pb h2{font-size:22px;color:${profile.color};margin:0 0 5px}.pb p{font-size:13px;color:#555;margin:0;line-height:1.6}.sr{display:flex;align-items:center;margin-bottom:9px}.sl{font-size:12px;color:#1b2340;font-weight:500;width:90px}.sw{flex:1;height:5px;background:#f0ede8;border-radius:3px;overflow:hidden;margin:0 10px}.sf{height:100%;border-radius:3px}.sn{font-size:12px;font-weight:600;width:28px;text-align:right}.db{display:flex;gap:10px;margin-bottom:12px}.dl{width:3px;border-radius:2px;flex-shrink:0}.dlb{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px}.dlt{font-size:13px;color:#2a2a2a;line-height:1.7;margin:0}.pal{background:#fff8e1;border-radius:10px;padding:18px 22px;margin:20px 0;border-left:3px solid #c9a96e}.qw{background:#faf9f7;border-radius:8px;padding:14px 16px;margin-bottom:8px;border:0.5px solid #e8e6e0}.qwn{font-size:10px;font-weight:600;color:#c9a96e;margin-bottom:3px;text-transform:uppercase}.qwt{font-size:13px;font-weight:600;color:#1b2340;margin-bottom:5px}.qwd{font-size:12px;color:#555;line-height:1.65;margin-bottom:7px}.badge{display:inline-block;font-size:10px;padding:2px 9px;border-radius:20px;font-weight:500;margin-right:5px}.ci{background:#e8f0fb;border-radius:10px;padding:16px 20px;margin:20px 0}.ci p{font-size:13px;color:#1b4a8a;font-style:italic;margin:0;line-height:1.7}.cta{display:block;background:#1b2340;color:#fff;text-align:center;padding:15px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:500;margin:24px 0;font-family:sans-serif}.ftr{border-top:1px solid #f0ede8;padding:20px 36px;text-align:center}.ftr p{font-size:11px;color:#a0a0a0;line-height:1.9;margin:0}</style></head><body><div class="w"><div class="hdr"><h1>Melisa Eguen</h1><p>Consultoría Financiera &amp; Estratégica · PYMES</p></div><div class="body"><p>Hola ${contact.name.split(' ')[0]},</p><p>Procesé tu <strong>Test de Salud de tu Negocio</strong>. Acá está tu scorecard con un análisis basado en tus respuestas específicas.</p><div class="pb"><h2>${scores.total}/100 — ${profile.label}</h2><p>${profile.sub}</p></div><h3>Resultado por dimensión</h3>${DIMS.map(d=>`<div class="sr"><div class="sl">${d.label}</div><div class="sw"><div class="sf" style="width:${scores.dims[d.key]}%;background:${d.color}"></div></div><div class="sn" style="color:${d.color}">${scores.dims[d.key]}</div></div>`).join('')}<p style="margin-top:18px">${diag.resumen_ejecutivo}</p><h3 style="margin-top:20px">Por área</h3>${DIMS.map(d=>`<div class="db"><div class="dl" style="background:${d.color}"></div><div><div class="dlb" style="color:${d.color}">${d.label} — ${scores.dims[d.key]}/100</div><p class="dlt">${diag.diagnostico_por_dimension[d.key]}</p></div></div>`).join('')}<div class="pal"><p style="font-size:10px;font-weight:600;color:#8a5c00;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px">Palanca principal</p><p style="font-size:15px;font-weight:600;color:#1b2340;margin-bottom:6px">${diag.palanca_principal.titulo}</p><p style="font-size:13px;color:#555;margin:0;line-height:1.65">${diag.palanca_principal.descripcion}</p></div><h3>3 acciones para arrancar esta semana</h3>${diag.quick_wins.map((qw,i)=>`<div class="qw"><div class="qwn">Acción ${i+1}</div><div class="qwt">${qw.titulo}</div><div class="qwd">${qw.descripcion}</div><span class="badge" style="background:${eb[qw.esfuerzo]};color:${ec[qw.esfuerzo]}">Esfuerzo ${qw.esfuerzo}</span><span class="badge" style="background:#f2efe9;color:#6b6b6b">→ ${qw.impacto}</span></div>`).join('')}<div class="ci"><p>${diag.frase_cierre}</p></div><a href="${CALENDLY}" class="cta">Agendar sesión estratégica gratuita (30 min) →</a><p style="font-size:12px;color:#888;text-align:center">Sin compromiso. Te vas con valor aunque no sigamos.</p></div><div class="ftr"><p><strong style="color:#1b2340">Melisa Eguen</strong> · MBA · FP&A Global Lead<br/>Accenture · Satellogic · Globant<br/>melisaeguen@gmail.com · +549 351 305-0183<br/><a href="${CALENDLY}" style="color:#c9a96e">calendly.com/melisaeguen/30min</a></p></div></div></body></html>`;
+}
+
+async function createDraft(contact, html) {
+  return fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,mcp_servers:[{type:'url',url:GMAIL_MCP,name:'gmail'}],messages:[{role:'user',content:`Usá gmail_create_draft:\nto: "${contact.email}"\nsubject: "Tu Scorecard de Salud Empresarial — ${contact.name.split(' ')[0]}"\ncontentType: "text/html"\nbody: ${JSON.stringify(html)}`}]})});
+}
+
+// ══ TEST RENDER ══
+function renderTest() {
+  const app = document.getElementById('test-app');
+  const STEPS = ['contact','test','generating','result'];
+  const idx = STEPS.indexOf(testState.screen);
+
+  // Stepper
+  const stepper = document.getElementById('stepper');
+  stepper.innerHTML = STEPS.map((s,i)=>{
+    const cls = i<idx?'done':i===idx?'active':'pending';
+    const cc  = i<idx?'done':'pending';
+    return `<div style="display:flex;align-items:center;gap:4px">
+      <div class="step-dot-sm ${cls}">${i<idx?'✓':i+1}</div>
+      ${i<STEPS.length-1?`<div class="step-conn ${cc}"></div>`:''}
+    </div>`;
+  }).join('');
+
+  // Screen content
+  switch(testState.screen) {
+    case 'contact':   app.innerHTML = renderContact();   break;
+    case 'test':      app.innerHTML = renderQuestion();  break;
+    case 'generating':app.innerHTML = renderGenerating(); startGen(); break;
+    case 'result':    app.innerHTML = renderResult();    initArcs(); break;
+    case 'error':     app.innerHTML = renderError();     break;
+  }
+  bindTestEvents();
+}
+
+function renderContact() {
+  const c = testState.contact || {};
+  return `<div class="fade-up">
+    <p style="font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);font-weight:500;text-align:center;margin-bottom:1rem">Test de Salud de tu Negocio</p>
+    <h2 class="serif" style="font-size:2.2rem;color:var(--navy);text-align:center;margin-bottom:2rem;font-weight:600;line-height:1.2">¿Cuál es la salud<br/>de tu negocio?</h2>
+    <div class="card">
+      <div class="field"><label>Nombre completo *</label><input type="text" id="f-name" value="${c.name||''}" placeholder="Ej: María García"/><div class="field-error" id="err-name"></div></div>
+      <div class="field"><label>Nombre de la empresa *</label><input type="text" id="f-company" value="${c.company||''}" placeholder="Ej: Distribuidora García"/><div class="field-error" id="err-company"></div></div>
+      <div class="field"><label>Email *</label><input type="email" id="f-email" value="${c.email||''}" placeholder="tu@empresa.com"/><div class="field-error" id="err-email"></div></div>
+      <div class="field"><label>Celular *</label><input type="tel" id="f-phone" value="${c.phone||''}" placeholder="Ej: +54 9 351 123-4567"/><div class="field-error" id="err-phone"></div></div>
+      <div class="field"><label>¿A qué se dedica tu empresa? *</label><textarea id="f-desc" rows="2" placeholder="Contanos brevemente qué hacés o vendés..." style="width:100%;padding:11px 14px;border:0.5px solid var(--border2);border-radius:8px;font-size:14px;resize:none;font-family:'DM Sans',sans-serif">${c.description||''}</textarea><div class="field-error" id="err-desc"></div></div>
+      <div class="field"><label>Industria *</label><select id="f-industry"><option value="">Seleccioná tu industria</option>${['Retail / Comercio','Gastronomía','Servicios profesionales','Construcción','Manufactura / Industria','Agro','Tecnología','Salud','Educación','Otro'].map(o=>`<option value="${o}" ${c.industry===o?'selected':''}>${o}</option>`).join('')}</select><div class="field-error" id="err-ind"></div></div>
+      <button class="btn btn-navy btn-full" id="btn-start" style="margin-top:0.5rem">Empezar el test →</button>
+    </div>
+  </div>`;
+}
+
+function renderQuestion() {
+  const q   = QUESTIONS[testState.current];
+  const dim = DIMS.find(d=>d.key===q.dim);
+  const pct = Math.round(((testState.current+1)/QUESTIONS.length)*100);
+  const answered = Object.keys(testState.answers).length;
+  const dimMini = DIMS.map(d=>{
+    const done = QUESTIONS.filter(x=>x.dim===d.key&&testState.answers[x.id]!==undefined).length;
+    const t = QUESTIONS.filter(x=>x.dim===d.key).length;
+    const isDone = done===t && t>0;
+    const isActive = d.key===dim.key;
+    return `<span class="dim-mini-item ${isDone?'done':''} ${isActive?'active':''}" style="${isDone?`color:${d.color}`:''}">
+      ${d.label.slice(0,3)} ${done}/${t}</span>`;
+  }).join('');
+  return `<div class="fade-up">
+    <div class="progress-wrap">
+      <div class="progress-meta"><span>Pregunta ${testState.current+1} de ${QUESTIONS.length}</span><div class="dim-mini-row">${dimMini}</div></div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+    </div>
+    <div class="dim-badge" style="background:${dim.bg};color:${dim.color}">${dim.label}</div>
+    <p class="question-text">${q.text}</p>
+    <div class="options" id="options">
+      ${q.opts.map((opt,i)=>`<button class="option-btn ${testState.answers[q.id]===i?'selected':''}" data-opt="${i}">
+        <span class="option-letter">${String.fromCharCode(65+i)}</span><span>${opt}</span>
+      </button>`).join('')}
+    </div>
+    <div class="question-nav">
+      <button class="btn btn-ghost" id="btn-prev" ${testState.current===0?'disabled':''} style="font-size:13px;padding:8px 14px">← Anterior</button>
+      <span style="font-size:11px;color:var(--light)">${answered} de ${QUESTIONS.length} respondidas</span>
+    </div>
+  </div>`;
+}
+
+function renderGenerating() {
+  const stages = ['Analizando tus respuestas…','Identificando patrones por dimensión…','Generando diagnóstico personalizado…','Preparando tu scorecard…'];
+  return `<div class="generating-wrap fade-up">
+    <div class="spinner-circle"><span class="spin-anim" style="font-size:24px;color:var(--gold)">⟳</span></div>
+    <h2 class="serif" style="font-size:1.5rem;color:var(--navy);margin-bottom:1rem">Generando tu diagnóstico</h2>
+    <ul class="gen-stages" id="gen-stages">
+      ${stages.map((s,i)=>`<li class="gen-stage ${i===0?'active':'pending'}" data-idx="${i}">${s}</li>`).join('')}
+    </ul>
+  </div>`;
+}
+
+let genTimer = null;
+async function startGen() {
+  const stages = document.querySelectorAll('.gen-stage');
+  let idx = 0;
+  genTimer = setInterval(()=>{
+    if(idx<stages.length-1){
+      stages[idx].className='gen-stage done';
+      stages[idx].textContent='✓ '+stages[idx].textContent.trim();
+      idx++;stages[idx].className='gen-stage active';
+    }
+  },1100);
+  try {
+    const scores = calcScores(testState.answers);
+    const diag   = await generateDiag(testState.contact, testState.answers, scores);
+    clearInterval(genTimer);
+    testState.scores=scores; testState.diag=diag; testState.screen='result'; renderTest();
+    saveToSheets(testState.contact, testState.answers, scores, diag);
+  } catch(e) {
+    clearInterval(genTimer);
+    const scores = calcScores(testState.answers);
+    testState.scores = scores;
+    testState.diag = buildLocalDiag(testState.contact, testState.answers, scores);
+    testState.screen = 'result';
+    renderTest();
+    saveToSheets(testState.contact, testState.answers, scores, testState.diag);
+  }
+}
+
+function renderResult() {
+  const {scores,diag,contact} = testState;
+  const profile = getProfile(scores.total);
+  const circ = 2*Math.PI*46;
+  const dash = ((100-scores.total)/100)*circ;
+  const eb={bajo:'var(--ok-bg)',medio:'var(--warn-bg)',alto:'var(--err-bg)'};
+  const ec={bajo:'var(--ok)',medio:'var(--warn)',alto:'var(--err)'};
+  const el={bajo:'Esfuerzo bajo',medio:'Esfuerzo medio',alto:'Esfuerzo alto'};
+  return `<div class="fade-up">
+    <p style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:500;text-align:center;margin-bottom:1.5rem">Tu scorecard</p>
+    <div class="card" style="display:flex;gap:1.5rem;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+      <div class="score-circle-wrap">
+        <svg width="120" height="120" viewBox="0 0 120 120" style="transform:rotate(-90deg)">
+          <circle cx="60" cy="60" r="46" fill="none" stroke="var(--cream3)" stroke-width="7"/>
+          <circle id="score-arc" cx="60" cy="60" r="46" fill="none" stroke="${profile.color}" stroke-width="7"
+            stroke-linecap="round" stroke-dasharray="${circ}" stroke-dashoffset="${circ}"
+            style="transition:stroke-dashoffset 1.4s ease"/>
+        </svg>
+        <div class="score-center">
+          <span class="score-num-big">${scores.total}</span>
+          <span class="score-denom">/100</span>
+        </div>
+      </div>
+      <div style="flex:1;min-width:180px">
+        <p style="font-size:13px;font-weight:600;color:${profile.color};margin-bottom:10px">${profile.label}</p>
+        ${DIMS.map(d=>`<div class="dim-bar-row">
+          <span class="dim-bar-label">${d.label}</span>
+          <div class="dim-bar-track"><div class="dim-bar-fill" id="bar-${d.key}" style="width:0%;background:${d.color}" data-w="${scores.dims[d.key]}"></div></div>
+          <span class="dim-bar-score" style="color:${d.color}">${scores.dims[d.key]}</span>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="surface" style="margin-bottom:10px">
+      <p class="section-label">Auto-Diagnóstico</p>
+      <p style="font-size:14px;color:var(--text);line-height:1.8;margin:0">${diag.resumen_ejecutivo}</p>
+    </div>
+    <div class="card" style="margin-bottom:10px">
+      <p class="section-label">Por dimensión</p>
+      ${DIMS.map(d=>`<div class="diag-dim-block">
+        <div class="diag-dim-line" style="background:${d.color}"></div>
+        <div style="flex:1;min-width:0">
+          <div class="diag-dim-label" style="color:${d.color}">${d.label} — ${scores.dims[d.key]}/100</div>
+          <div class="diag-dim-text">${diag.diagnostico_por_dimension[d.key]}</div>
+        </div>
+      </div>`).join('')}
+    </div>
+    <div class="palanca-box">
+      <div class="palanca-label">Palanca principal de mejora</div>
+      <div class="palanca-title">${diag.palanca_principal.titulo}</div>
+      <div class="palanca-desc">${diag.palanca_principal.descripcion}</div>
+    </div>
+    <div class="cierre-box"><div class="cierre-text">${diag.frase_cierre}</div></div>
+    <div class="card" style="margin-bottom:10px">
+      <p class="section-label">Descargar este diagnóstico</p>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6">Guardá tu scorecard completo con el diagnóstico y las áreas de mejora.</p>
+      <button class="btn btn-navy btn-full" id="btn-pdf" onclick="downloadPDF()">⬇ Descargar diagnóstico en PDF</button>
+    </div>
+    <div class="result-cta-box">
+      <p class="serif" style="color:#fff;font-size:1.15rem;margin-bottom:0.5rem;line-height:1.35">El paso siguiente es la sesión estratégica</p>
+      <p style="font-size:13px;color:rgba(255,255,255,0.65);margin-bottom:1.4rem;line-height:1.8">Gratuita · 30 min · Sin compromiso<br/>Revisamos tu diagnóstico juntos y te llevás<br/><strong style="color:var(--gold-l)">2 a 3 acciones concretas para implementar inmediatamente</strong></p>
+      <a href="${CALENDLY}" target="_blank" class="btn btn-gold btn-lg">Agendar sesión gratuita →</a>
+      <p style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:10px">Calendly · Melisa Eguen</p>
+    </div>
+  </div>`;
+}
+
+function initArcs() {
+  requestAnimationFrame(()=>{
+    setTimeout(()=>{
+      const arc = document.getElementById('score-arc');
+      if(arc){const circ=2*Math.PI*46;arc.style.strokeDashoffset=((100-testState.scores.total)/100)*circ;}
+      DIMS.forEach(d=>{const b=document.getElementById('bar-'+d.key);if(b)b.style.width=b.dataset.w+'%';});
+    },100);
+  });
+}
+
+function bindTestEvents() {
+  const btnStart = document.getElementById('btn-start');
+  if(btnStart) btnStart.addEventListener('click',()=>{
+    const name    = document.getElementById('f-name').value.trim();
+    const company = document.getElementById('f-company').value.trim();
+    const email   = document.getElementById('f-email').value.trim();
+    const phone   = document.getElementById('f-phone').value.trim();
+    const desc    = document.getElementById('f-desc').value.trim();
+    const ind     = document.getElementById('f-industry').value;
+    let ok=true;
+    if(!name){document.getElementById('err-name').textContent='Ingresá tu nombre';document.getElementById('f-name').classList.add('error');ok=false;}
+    else{document.getElementById('err-name').textContent='';document.getElementById('f-name').classList.remove('error');}
+    if(!company){document.getElementById('err-company').textContent='Ingresá el nombre de tu empresa';document.getElementById('f-company').classList.add('error');ok=false;}
+    else{document.getElementById('err-company').textContent='';document.getElementById('f-company').classList.remove('error');}
+    if(!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)){document.getElementById('err-email').textContent='Email inválido';document.getElementById('f-email').classList.add('error');ok=false;}
+    else{document.getElementById('err-email').textContent='';document.getElementById('f-email').classList.remove('error');}
+    if(!phone||phone.replace(/\D/g,'').length<8){document.getElementById('err-phone').textContent='Ingresá un celular válido';document.getElementById('f-phone').classList.add('error');ok=false;}
+    else{document.getElementById('err-phone').textContent='';document.getElementById('f-phone').classList.remove('error');}
+    if(!desc){document.getElementById('err-desc').textContent='Contanos brevemente a qué se dedica tu empresa';document.getElementById('f-desc').style.border='0.5px solid var(--err)';ok=false;}
+    else{document.getElementById('err-desc').textContent='';document.getElementById('f-desc').style.border='0.5px solid var(--border2)';}
+    if(!ind){document.getElementById('err-ind').textContent='Seleccioná una industria';document.getElementById('f-industry').classList.add('error');ok=false;}
+    else{document.getElementById('err-ind').textContent='';document.getElementById('f-industry').classList.remove('error');}
+    if(ok){testState.contact={name,company,email,phone,description:desc,industry:ind};testState.screen='test';testState.current=0;testState.answers={};renderTest();}
+  });
+
+  document.querySelectorAll('.option-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const v=parseInt(btn.dataset.opt);
+      const q=QUESTIONS[testState.current];
+      testState.answers[q.id]=v;
+      setTimeout(()=>{
+        if(testState.current<QUESTIONS.length-1){testState.current++;renderTest();}
+        else{testState.screen='generating';renderTest();}
+      },260);
+    });
+  });
+
+  const btnPrev=document.getElementById('btn-prev');
+  if(btnPrev) btnPrev.addEventListener('click',()=>{if(testState.current>0){testState.current--;renderTest();}});
+}
+
+// ══ ERROR SCREEN ══
+function renderError() {
+  return `<div class="fade-up" style="text-align:center;padding:3rem 1rem">
+    <div style="width:60px;height:60px;border-radius:50%;background:var(--err-bg);border:1px solid var(--err-b);display:flex;align-items:center;justify-content:center;margin:0 auto 1.2rem;font-size:24px">⚠</div>
+    <h2 class="serif" style="font-size:1.4rem;color:var(--navy);margin-bottom:0.8rem">Estamos con problemas técnicos</h2>
+    <p style="font-size:14px;color:var(--muted);line-height:1.75;margin-bottom:1.5rem;max-width:380px;margin-left:auto;margin-right:auto">No pudimos procesar tu diagnóstico en este momento. Por favor intentá de nuevo en unos minutos.</p>
+    <button class="btn btn-navy" onclick="testState.screen='contact';renderTest()">← Volver al inicio</button>
+  </div>`;
+}
+
+// ══ PDF DOWNLOAD ══
+window.downloadPDF = function() {
+  const {scores, diag, contact} = testState;
+  if(!scores || !diag || !contact) return;
+  const profile = getProfile(scores.total);
+  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"/>
+<title>Scorecard — ${contact.name}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Georgia,serif;background:#fff;color:#1a1a1a;padding:40px;max-width:680px;margin:0 auto;font-size:13px;line-height:1.7}
+h1{font-size:20px;color:#1b2340;margin-bottom:3px;font-weight:600}
+.meta{font-size:11px;color:#a0a0a0;letter-spacing:0.5px;margin-bottom:24px}
+.score-box{background:${profile.bg};border-left:4px solid ${profile.color};padding:16px 20px;border-radius:6px;margin-bottom:20px}
+.score-box h2{font-size:26px;color:${profile.color};margin-bottom:4px;font-weight:600}
+.score-box p{font-size:12px;color:#555}
+.section-title{font-size:10px;font-weight:bold;color:#a0a0a0;text-transform:uppercase;letter-spacing:1px;margin:20px 0 8px;border-bottom:1px solid #eee;padding-bottom:4px}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.bar-label{width:90px;font-size:12px;color:#1b2340;font-weight:bold}
+.bar-track{flex:1;height:5px;background:#f0ede8;border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px}
+.bar-num{font-size:12px;font-weight:bold;width:28px;text-align:right}
+.resumen{font-size:13px;color:#2a2a2a;line-height:1.75;margin-bottom:16px;padding:14px 16px;background:#f9f8f6;border-radius:6px}
+.dim-block{display:flex;gap:10px;margin-bottom:10px}
+.dim-line{width:3px;border-radius:2px;flex-shrink:0}
+.dim-label{font-size:10px;font-weight:bold;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px}
+.dim-text{font-size:12px;color:#444;line-height:1.6}
+.palanca{background:#fff8e1;border-left:3px solid #c9a96e;padding:14px 18px;border-radius:6px}
+.pal-lbl{font-size:10px;font-weight:bold;color:#8a5c00;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+.pal-title{font-size:14px;font-weight:bold;color:#1b2340;margin-bottom:4px}
+.pal-desc{font-size:12px;color:#555;line-height:1.6}
+.cierre{background:#e8f0fb;border-radius:6px;padding:14px 18px;margin-top:16px}
+.cierre p{font-size:12px;color:#1b4a8a;font-style:italic;line-height:1.65}
+.footer{margin-top:28px;padding-top:12px;border-top:1px solid #eee;font-size:10px;color:#bbb;text-align:center}
+@media print{body{padding:20px}}
+</style></head><body>
+<h1>Scorecard de Salud Empresarial</h1>
+<div class="meta">${contact.name}${contact.company?' · '+contact.company:''} · ${new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'})}</div>
+<div class="score-box">
+  <h2>${scores.total}/100 — ${profile.label}</h2>
+  <p>${profile.sub}</p>
+</div>
+<div class="section-title">Resultado por dimensión</div>
+${DIMS.map(d=>`<div class="bar-row">
+  <div class="bar-label">${d.label}</div>
+  <div class="bar-track"><div class="bar-fill" style="width:${scores.dims[d.key]}%;background:${d.color}"></div></div>
+  <div class="bar-num" style="color:${d.color}">${scores.dims[d.key]}</div>
+</div>`).join('')}
+<div class="section-title">Auto-Diagnóstico</div>
+<p class="resumen">${diag.resumen_ejecutivo}</p>
+<div class="section-title">Por dimensión</div>
+${DIMS.map(d=>`<div class="dim-block">
+  <div class="dim-line" style="background:${d.color}"></div>
+  <div>
+    <div class="dim-label" style="color:${d.color}">${d.label} — ${scores.dims[d.key]}/100</div>
+    <div class="dim-text">${diag.diagnostico_por_dimension[d.key]}</div>
+  </div>
+</div>`).join('')}
+<div class="section-title">Palanca principal de mejora</div>
+<div class="palanca">
+  <div class="pal-lbl">Mayor oportunidad</div>
+  <div class="pal-title">${diag.palanca_principal.titulo}</div>
+  <div class="pal-desc">${diag.palanca_principal.descripcion}</div>
+</div>
+<div class="cierre"><p>${diag.frase_cierre}</p></div>
+<div class="footer">ME Consultora · melisaeguen@gmail.com · calendly.com/melisaeguen/30min</div>
+</body></html>`;
+
+  const blob = new Blob([html], {type:'text/html'});
+  const url  = URL.createObjectURL(blob);
+  const win  = window.open(url, '_blank');
+  if(win) { win.addEventListener('load', ()=>{ setTimeout(()=>{ win.print(); }, 400); }); }
+  setTimeout(()=>URL.revokeObjectURL(url), 10000);
+};
+
+// Notificar que la app está lista
+document.dispatchEvent(new Event('appReady'));
+
+// Actualizar showTest con acceso completo al estado
+window.showTest = function() {
+  document.getElementById('landing-screen').style.display = 'none';
+  document.getElementById('test-screen').style.display = 'block';
+  window.scrollTo(0,0);
+  testState.screen = 'contact';
+  renderTest();
+};
+window.showLanding = function() {
+  document.getElementById('test-screen').style.display = 'none';
+  document.getElementById('landing-screen').style.display = 'block';
+  window.scrollTo(0,0);
+};
+</script>
+</body>
+</html>
