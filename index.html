@@ -107,7 +107,7 @@ section{padding:5rem 0}
   background:rgba(255,255,255,0.04);
   border:0.5px solid rgba(255,255,255,0.08);
 }
-.funnel-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.funnel-dot{width:18px;height:18px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--navy)}
 .funnel-mini-name{font-size:13px;color:rgba(255,255,255,0.85);font-weight:500;flex:1}
 .funnel-mini-tag{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;flex-shrink:0}
 .tag-free{background:rgba(45,122,79,0.25);color:#6ddba0}
@@ -343,6 +343,22 @@ section{padding:5rem 0}
   .hero-actions{flex-direction:column}
   .creds-row{gap:1rem}
   .footer-inner{flex-direction:column;text-align:center}
+  .pain-grid{grid-template-columns:1fr}
+  .servicios-grid{grid-template-columns:1fr}
+  .porque-grid{grid-template-columns:1fr}
+  .funnel-step{grid-template-columns:36px 1fr}
+  .dim-bar-label{width:70px;font-size:10px}
+  .test-main{padding:1.5rem 1rem 3rem}
+}
+/* Nav mobile: ocultar links, mostrar solo CTA */
+@media(max-width:640px){
+  .nav-links{display:none}
+  .nav-inner{justify-content:space-between}
+}
+/* Nosotros: colapsar a columna en mobile */
+@media(max-width:600px){
+  .nosotros-inner{flex-direction:column;align-items:center;text-align:center}
+  .nosotros-bio{text-align:center}
 }
 </style>
 </head>
@@ -359,10 +375,12 @@ section{padding:5rem 0}
         <span class="logo-name">ME Consultora</span>
       </div>
       <div style="display:flex;gap:4px;align-items:center">
-        <a href="#pain" style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.6);padding:6px 14px;border-radius:6px;transition:color 0.15s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Soluciones</a>
-        <a href="#como-trabajamos" style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.6);padding:6px 14px;border-radius:6px;transition:color 0.15s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Cómo trabajamos</a>
-        <a href="#soluciones" style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.6);padding:6px 14px;border-radius:6px;transition:color 0.15s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Tecnología AI</a>
-        <a href="#nosotros" style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.6);padding:6px 14px;border-radius:6px;transition:color 0.15s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Quiénes somos</a>
+        <div class="nav-links" style="display:flex;gap:4px;align-items:center">
+          <a href="#pain" style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.6);padding:6px 14px;border-radius:6px;transition:color 0.15s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Soluciones</a>
+          <a href="#como-trabajamos" style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.6);padding:6px 14px;border-radius:6px;transition:color 0.15s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Cómo trabajamos</a>
+          <a href="#soluciones" style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.6);padding:6px 14px;border-radius:6px;transition:color 0.15s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Tecnología AI</a>
+          <a href="#nosotros" style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.6);padding:6px 14px;border-radius:6px;transition:color 0.15s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Quiénes somos</a>
+        </div>
         <a onclick="showTest()" style="font-size:12px;font-weight:600;color:var(--navy);background:var(--gold);padding:7px 16px;border-radius:7px;margin-left:6px;transition:background 0.15s;cursor:pointer;" onmouseover="this.style.background='#b8924a'" onmouseout="this.style.background='var(--gold)'">Comenzar hoy</a>
       </div>
     </div>
@@ -387,32 +405,32 @@ section{padding:5rem 0}
           <p class="hero-card-title">Cómo trabajamos</p>
           <div class="funnel-mini">
             <div class="funnel-mini-item">
-              <div class="funnel-dot" style="background:#6ddba0"></div>
+              <div class="funnel-dot" style="background:#6ddba0">1</div>
               <span class="funnel-mini-name">Test de Salud</span>
-              <span class="funnel-mini-tag tag-free">Gratis</span>
+              <span class="funnel-mini-tag tag-free">GRATIS</span>
             </div>
             <div class="funnel-mini-item">
-              <div class="funnel-dot" style="background:#6ddba0"></div>
+              <div class="funnel-dot" style="background:#6ddba0">2</div>
               <span class="funnel-mini-name">Sesión Estratégica</span>
-              <span class="funnel-mini-tag tag-free">Gratis</span>
+              <span class="funnel-mini-tag tag-free">GRATIS</span>
             </div>
             <div class="funnel-mini-item">
-              <div class="funnel-dot" style="background:var(--gold)"></div>
+              <div class="funnel-dot" style="background:var(--gold)">3</div>
               <span class="funnel-mini-name">Diagnóstico 360</span>
               <span class="funnel-mini-tag tag-pago">PAGO</span>
             </div>
             <div class="funnel-mini-item">
-              <div class="funnel-dot" style="background:var(--gold)"></div>
+              <div class="funnel-dot" style="background:var(--gold)">4</div>
               <span class="funnel-mini-name">Implementación de Soluciones</span>
               <span class="funnel-mini-tag tag-pago">PAGO</span>
             </div>
             <div class="funnel-mini-item">
-              <div class="funnel-dot" style="background:var(--gold)"></div>
+              <div class="funnel-dot" style="background:var(--gold)">5</div>
               <span class="funnel-mini-name">Partner Estratégico</span>
               <span class="funnel-mini-tag tag-pago">PAGO</span>
             </div>
           </div>
-          <p style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:1rem;text-align:center">Sin compromiso · Los primeros pasos son gratuitos</p>
+          <p style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:1rem;text-align:left">Sin compromiso · Los primeros pasos son gratuitos</p>
         </div>
       </div>
     </div>
@@ -644,7 +662,7 @@ section{padding:5rem 0}
       <p class="label" style="color:var(--gold);margin-bottom:0.5rem;text-align:center">Quiénes somos</p>
       <h2 class="serif" style="font-size:clamp(1.4rem,2.8vw,2rem);color:var(--navy);margin-bottom:1.5rem;font-weight:600;text-align:center">Quién lidera esta consultoría</h2>
 
-      <div style="display:flex;gap:2rem;align-items:center;max-width:700px;margin:0 auto">
+      <div class="nosotros-inner" style="display:flex;gap:2rem;align-items:center;max-width:700px;margin:0 auto">
 
         <!-- Foto + datos -->
         <div style="flex-shrink:0;text-align:center;width:140px">
@@ -660,7 +678,7 @@ section{padding:5rem 0}
         </div>
 
         <!-- Bio -->
-        <div style="flex:1">
+        <div class="nosotros-bio" style="flex:1">
           <p style="font-size:15px;color:var(--text);line-height:1.85;text-align:left">
             Soy contadora pública y MBA, con más de 15 años de experiencia en finanzas, planificación estratégica y gestión. Trabajé liderando equipos y proyectos en entornos de alta exigencia — diseñando modelos financieros, implementando herramientas de gestión y acompañando decisiones de negocio con datos reales.
           </p>
@@ -940,7 +958,7 @@ REGLAS ESTRICTAS PARA diagnostico_por_dimension Y palanca_principal.descripcion:
 - EJEMPLO CORRECTO: "No hay separación entre el dinero del negocio y el personal. Esto impide saber si el negocio realmente gana dinero."
 - EJEMPLO INCORRECTO: "El control financiero necesita estructurarse para tener visibilidad real de la rentabilidad y el flujo de caja, lo cual es fundamental para..."
 Respondé SOLO con JSON válido (sin markdown):
-{"resumen_ejecutivo":"2-3 oraciones directas sobre el patrón principal.","diagnostico_por_dimension":{"finanzas":"2 oraciones cortas. Máx 120 caracteres total.","operaciones":"2 oraciones. Si el dueño es cuello de botella, decirlo directo.","gestion":"2 oraciones concretas.","estrategia":"2 oraciones concretas."},"palanca_principal":{"dimension":"${worstDim.label}","titulo":"Frase corta con sustantivo","descripcion":"2 oraciones explicando el impacto. Máx 120 caracteres total."},"quick_wins":[{"titulo":"Acción con verbo","descripcion":"1 oración.","impacto":"Resultado","esfuerzo":"bajo"},{"titulo":"Acción #2","descripcion":"1 oración.","impacto":"Resultado","esfuerzo":"bajo"},{"titulo":"Acción #3","descripcion":"1 oración.","impacto":"Resultado","esfuerzo":"medio"}],"frase_cierre":"1 oración conectando con la sesión estratégica."}`;
+{"resumen_ejecutivo":"2-3 oraciones directas sobre el patrón principal.","diagnostico_por_dimension":{"finanzas":"2 oraciones cortas. Máx 120 caracteres total.","operaciones":"2 oraciones. Si el dueño es cuello de botella, decirlo directo.","gestion":"2 oraciones concretas.","estrategia":"2 oraciones concretas."},"palanca_principal":{"dimension":"${worstDim.label}","titulo":"Frase corta con sustantivo","descripcion":"2 oraciones explicando el impacto. Máx 120 caracteres total."},"quick_wins":[{"titulo":"Acción con verbo","descripcion":"1 oración.","impacto":"Resultado","esfuerzo":"bajo"},{"titulo":"Acción #2","descripcion":"1 oración.","impacto":"Resultado","esfuerzo":"bajo"},{"titulo":"Acción #3","descripcion":"1 oración.","impacto":"Resultado","esfuerzo":"medio"}],"frase_cierre":"1 oración conectando con la sesión estratégica.","proximo_paso":"1 oración concreta y personalizada sobre el beneficio específico que obtendrá este negocio en la sesión estratégica, basada en su problema principal y dimensión más débil. Sin porcentajes. Directa y accionable."}`;
   const resp = await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1200,messages:[{role:'user',content:prompt}]})});
   const data = await resp.json();
   const raw = data.content?.[0]?.text||'{}';
@@ -1175,33 +1193,18 @@ function renderResultError() {
   </div>`;
 }
 function buildProximoPaso(scores, diag, contact) {
-  const worst = DIMS.reduce((a,b)=>scores.dims[a.key]<scores.dims[b.key]?a:b);
   const oq = contact.openQuestion || '';
-  // Estadísticas y frases dinámicas según dimensión más débil y score
-  const stats = {
-    finanzas:    {pct:'78%', accion:'claridad financiera',       plazo:'primeros 30 días'},
-    operaciones: {pct:'71%', accion:'capacidad de delegación',   plazo:'primeras 6 semanas'},
-    gestion:     {pct:'74%', accion:'claridad en roles y metas', plazo:'primer mes'},
-    estrategia:  {pct:'69%', accion:'dirección estratégica',     plazo:'primeros 45 días'},
-  };
-  const s = stats[worst.key];
-  // Frase que conecta con la respuesta abierta si existe
   const oqLine = oq
     ? `<p style="font-size:12px;color:var(--muted);font-style:italic;margin-bottom:12px;line-height:1.65;border-left:2px solid var(--gold-l);padding-left:10px">"${oq.length > 120 ? oq.slice(0,120)+'…' : oq}"</p>`
     : '';
+  const proximoPaso = diag.proximo_paso || 'En la sesión estratégica definimos juntos los primeros pasos concretos para tu negocio.';
   return `<div style="background:#fff;border-radius:14px;border:1.5px solid var(--gold-l);padding:1.4rem 1.5rem;margin-bottom:10px">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-      <span style="font-size:16px">⏱</span>
       <span style="font-size:10px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:1px">Próximo paso recomendado</span>
     </div>
     ${oqLine}
-    <p style="font-size:14px;color:var(--navy);font-weight:500;line-height:1.7;margin-bottom:6px">
-      El <strong>${s.pct}</strong> de las empresas con tu perfil mejoran su ${s.accion} en los ${s.plazo} de trabajo.
-    </p>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.65">
-      → Reservá tu sesión estratégica de 30 minutos <strong style="color:var(--navy)">sin cargo</strong>
-    </p>
-    <a href="${CALENDLY}" target="_blank" style="display:block;background:var(--navy);color:#fff;text-align:center;padding:12px;border-radius:8px;font-size:14px;font-weight:500;text-decoration:none;margin-bottom:12px">Agendar ahora →</a>
+    <p style="font-size:14px;color:var(--navy);font-weight:500;line-height:1.7;margin-bottom:14px">${proximoPaso}</p>
+    <a href="${CALENDLY}" target="_blank" style="display:block;background:var(--navy);color:#fff;text-align:center;padding:12px;border-radius:8px;font-size:14px;font-weight:500;text-decoration:none;margin-bottom:12px">Agendar sesión gratuita →</a>
     <div style="background:var(--cream);border-radius:8px;padding:12px 14px">
       <p style="font-size:11px;font-weight:600;color:var(--navy);margin-bottom:6px">En esa sesión vamos a:</p>
       <div style="display:flex;flex-direction:column;gap:5px">
@@ -1263,19 +1266,12 @@ function renderResult() {
       <div class="palanca-title">${diag.palanca_principal.titulo}</div>
       <div class="palanca-desc">${diag.palanca_principal.descripcion}</div>
     </div>
-    <div class="cierre-box"><div class="cierre-text">${diag.frase_cierre}</div></div>
     <div class="card" style="margin-bottom:10px">
       <p class="section-label">Descargar este diagnóstico</p>
       <p style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6">Guardá tu scorecard completo con el diagnóstico y las áreas de mejora.</p>
       <button class="btn btn-navy btn-full" id="btn-pdf" onclick="downloadPDF()">⬇ Descargar diagnóstico en PDF</button>
     </div>
     ${buildProximoPaso(scores, diag, contact)}
-    <div class="result-cta-box">
-      <p class="serif" style="color:#fff;font-size:1.15rem;margin-bottom:0.5rem;line-height:1.35">El paso siguiente es la sesión estratégica</p>
-      <p style="font-size:13px;color:rgba(255,255,255,0.65);margin-bottom:1.4rem;line-height:1.8">Gratuita · 30 min · Sin compromiso<br/>Revisamos tu diagnóstico juntos y te llevás<br/><strong style="color:var(--gold-l)">2 a 3 acciones concretas para implementar inmediatamente</strong></p>
-      <a href="${CALENDLY}" target="_blank" class="btn btn-gold btn-lg">Agendar sesión gratuita →</a>
-      <p style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:10px">Calendly · Melisa Eguen</p>
-    </div>
   </div>`;
 }
 function initArcs() {
