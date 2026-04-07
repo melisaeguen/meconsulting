@@ -350,15 +350,21 @@ section{padding:5rem 0}
   .dim-bar-label{width:70px;font-size:10px}
   .test-main{padding:1.5rem 1rem 3rem}
 }
-/* Nav mobile: ocultar links, mostrar solo CTA */
+/* Nav mobile: ocultar links y botón CTA */
 @media(max-width:640px){
   .nav-links{display:none}
-  .nav-inner{justify-content:space-between}
+  .nav-cta-mobile{display:none}
+  .nav-inner{justify-content:flex-start}
+  .test-header-spacer{display:none}
 }
 /* Nosotros: colapsar a columna en mobile */
 @media(max-width:600px){
   .nosotros-inner{flex-direction:column;align-items:center;text-align:center}
   .nosotros-bio{text-align:center}
+}
+/* Porque section: párrafo arriba, caja abajo en mobile */
+@media(max-width:640px){
+  .porque-inner{grid-template-columns:1fr!important;display:flex!important;flex-direction:column!important}
 }
 </style>
 </head>
@@ -381,7 +387,7 @@ section{padding:5rem 0}
           <a href="#soluciones" style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.6);padding:6px 14px;border-radius:6px;transition:color 0.15s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Tecnología AI</a>
           <a href="#nosotros" style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.6);padding:6px 14px;border-radius:6px;transition:color 0.15s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Quiénes somos</a>
         </div>
-        <a onclick="showTest()" style="font-size:12px;font-weight:600;color:var(--navy);background:var(--gold);padding:7px 16px;border-radius:7px;margin-left:6px;transition:background 0.15s;cursor:pointer;" onmouseover="this.style.background='#b8924a'" onmouseout="this.style.background='var(--gold)'">Comenzar hoy</a>
+        <a onclick="showTest()" class="nav-cta-mobile" style="font-size:12px;font-weight:600;color:var(--navy);background:var(--gold);padding:7px 16px;border-radius:7px;margin-left:6px;transition:background 0.15s;cursor:pointer;" onmouseover="this.style.background='#b8924a'" onmouseout="this.style.background='var(--gold)'">Comenzar hoy</a>
       </div>
     </div>
   </nav>
@@ -614,7 +620,7 @@ section{padding:5rem 0}
       <p class="label" style="color:var(--gold);margin-bottom:0.8rem">Lo que nos hace distintos</p>
       <h2 class="serif" style="font-size:clamp(1.4rem,2.8vw,2rem);color:#fff;margin-bottom:1.5rem;font-weight:600;line-height:1.25">Tecnología AI<br/>+ criterio humano</h2>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:center">
+      <div class="porque-inner" style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:center">
 
         <!-- Texto principal -->
         <div>
@@ -703,7 +709,7 @@ section{padding:5rem 0}
   <div class="test-header">
     <button class="test-back" onclick="showLanding()">← Volver al sitio</button>
     <div class="stepper" id="stepper"></div>
-    <div style="width:80px"></div>
+    <div class="test-header-spacer" style="width:80px"></div>
   </div>
   <div class="test-main">
     <div id="test-app"></div>
@@ -958,7 +964,7 @@ REGLAS ESTRICTAS PARA diagnostico_por_dimension Y palanca_principal.descripcion:
 - EJEMPLO CORRECTO: "No hay separación entre el dinero del negocio y el personal. Esto impide saber si el negocio realmente gana dinero."
 - EJEMPLO INCORRECTO: "El control financiero necesita estructurarse para tener visibilidad real de la rentabilidad y el flujo de caja, lo cual es fundamental para..."
 Respondé SOLO con JSON válido (sin markdown):
-{"resumen_ejecutivo":"2-3 oraciones directas sobre el patrón principal.","diagnostico_por_dimension":{"finanzas":"2 oraciones cortas. Máx 120 caracteres total.","operaciones":"2 oraciones. Si el dueño es cuello de botella, decirlo directo.","gestion":"2 oraciones concretas.","estrategia":"2 oraciones concretas."},"palanca_principal":{"dimension":"${worstDim.label}","titulo":"Frase corta con sustantivo","descripcion":"2 oraciones explicando el impacto. Máx 120 caracteres total."},"quick_wins":[{"titulo":"Acción con verbo","descripcion":"1 oración.","impacto":"Resultado","esfuerzo":"bajo"},{"titulo":"Acción #2","descripcion":"1 oración.","impacto":"Resultado","esfuerzo":"bajo"},{"titulo":"Acción #3","descripcion":"1 oración.","impacto":"Resultado","esfuerzo":"medio"}],"frase_cierre":"1 oración conectando con la sesión estratégica.","proximo_paso":"1 oración concreta y personalizada sobre el beneficio específico que obtendrá este negocio en la sesión estratégica, basada en su problema principal y dimensión más débil. Sin porcentajes. Directa y accionable."}`;
+{"resumen_ejecutivo":"2-3 oraciones directas sobre el patrón principal.","diagnostico_por_dimension":{"finanzas":"2 oraciones cortas. Máx 120 caracteres total.","operaciones":"2 oraciones. Si el dueño es cuello de botella, decirlo directo.","gestion":"2 oraciones concretas.","estrategia":"2 oraciones concretas."},"palanca_principal":{"dimension":"${worstDim.label}","titulo":"Frase corta con sustantivo que nombra el problema","descripcion":"2 oraciones que explican por qué esto frena al negocio. SIN dar soluciones ni acciones. Solo describir el impacto del problema. Máx 120 caracteres total."},"quick_wins":[{"titulo":"Acción con verbo","descripcion":"1 oración.","impacto":"Resultado","esfuerzo":"bajo"},{"titulo":"Acción #2","descripcion":"1 oración.","impacto":"Resultado","esfuerzo":"bajo"},{"titulo":"Acción #3","descripcion":"1 oración.","impacto":"Resultado","esfuerzo":"medio"}],"frase_cierre":"1 oración conectando con la sesión estratégica.","proximo_paso":"1 oración genérica y motivadora que invita a agendar la sesión gratuita. Sin mencionar acciones específicas ni detalles de lo que se hará. Cálida y directa."}`;
   const resp = await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1200,messages:[{role:'user',content:prompt}]})});
   const data = await resp.json();
   const raw = data.content?.[0]?.text||'{}';
@@ -1266,10 +1272,8 @@ function renderResult() {
       <div class="palanca-title">${diag.palanca_principal.titulo}</div>
       <div class="palanca-desc">${diag.palanca_principal.descripcion}</div>
     </div>
-    <div class="card" style="margin-bottom:10px">
-      <p class="section-label">Descargar este diagnóstico</p>
-      <p style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6">Guardá tu scorecard completo con el diagnóstico y las áreas de mejora.</p>
-      <button class="btn btn-navy btn-full" id="btn-pdf" onclick="downloadPDF()">⬇ Descargar diagnóstico en PDF</button>
+    <div style="margin-bottom:10px;padding:10px 0;text-align:center">
+      <button onclick="downloadPDF()" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--muted);text-decoration:underline;text-underline-offset:3px">⬇ Descargar diagnóstico en PDF</button>
     </div>
     ${buildProximoPaso(scores, diag, contact)}
   </div>`;
