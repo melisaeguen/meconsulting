@@ -935,7 +935,7 @@ REGLAS ESTRICTAS PARA diagnostico_por_dimension Y palanca_principal.descripcion:
 
 Respondé SOLO con JSON válido (sin markdown):
 {"resumen_ejecutivo":"2-3 oraciones directas sobre el patrón principal.","diagnostico_por_dimension":{"finanzas":"2 oraciones cortas. Máx 120 caracteres total.","operaciones":"2 oraciones. Si el dueño es cuello de botella, decirlo directo.","gestion":"2 oraciones concretas.","estrategia":"2 oraciones concretas."},"palanca_principal":{"dimension":"${worstDim.label}","titulo":"Frase corta con sustantivo","descripcion":"2 oraciones explicando el impacto. Máx 120 caracteres total."},"quick_wins":[{"titulo":"Acción con verbo","descripcion":"1 oración.","impacto":"Resultado","esfuerzo":"bajo"},{"titulo":"Acción #2","descripcion":"1 oración.","impacto":"Resultado","esfuerzo":"bajo"},{"titulo":"Acción #3","descripcion":"1 oración.","impacto":"Resultado","esfuerzo":"medio"}],"frase_cierre":"1 oración conectando con la sesión estratégica."}`;
-  const resp = await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-3-5-sonnet-20241022',max_tokens:1200,messages:[{role:'user',content:prompt}]})});
+  const resp = await fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-3-haiku-20240307',max_tokens:1200,messages:[{role:'user',content:prompt}]})});
   const data = await resp.json();
   const raw = data.content?.[0]?.text||'{}';
   return JSON.parse(raw.replace(/```json|```/g,'').trim());
@@ -949,7 +949,7 @@ function buildEmailHTML(contact, scores, diag) {
 }
 
 async function createDraft(contact, html) {
-  return fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-3-5-sonnet-20241022',max_tokens:300,mcp_servers:[{type:'url',url:GMAIL_MCP,name:'gmail'}],messages:[{role:'user',content:`Usá gmail_create_draft:\nto: "${contact.email}"\nsubject: "Tu Scorecard de Salud Empresarial — ${contact.name.split(' ')[0]}"\ncontentType: "text/html"\nbody: ${JSON.stringify(html)}`}]})});
+  return fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-3-haiku-20240307',max_tokens:300,mcp_servers:[{type:'url',url:GMAIL_MCP,name:'gmail'}],messages:[{role:'user',content:`Usá gmail_create_draft:\nto: "${contact.email}"\nsubject: "Tu Scorecard de Salud Empresarial — ${contact.name.split(' ')[0]}"\ncontentType: "text/html"\nbody: ${JSON.stringify(html)}`}]})});
 }
 
 // ══ TEST RENDER ══
