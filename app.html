@@ -12,7 +12,7 @@
   --navy:#1b2340; --gold:#c9a96e; --cream:#faf9f7; --bg:#f0ede8;
   --white:#fff; --muted:#8a8a8a; --border:#e5e0d8; --err:#dc2626;
   --shadow:0 1px 3px rgba(0,0,0,.08); --shadow-md:0 4px 8px rgba(0,0,0,.1);
-  --shadow-lg:0 10px 20px rgba(0,0,0,.12); --radius:10px; --panel-w:800px;
+  --shadow-lg:0 10px 20px rgba(0,0,0,.12); --radius:10px; --panel-w:75vw;
 }
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--navy);min-height:100vh}
 button{font-family:'DM Sans',sans-serif;cursor:pointer}
@@ -125,6 +125,8 @@ a{color:inherit;text-decoration:none}
 .btn-regen-item{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 9px;font-size:12px;color:var(--muted);flex-shrink:0;transition:all .15s;margin-top:1px}
 .btn-regen-item:hover{border-color:var(--navy);color:var(--navy)}
 .btn-regen-item:disabled{opacity:.4;cursor:default}
+.pq-dim-group{margin-bottom:14px}
+.pq-dim-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px;padding:4px 8px;border-radius:4px;background:rgba(0,0,0,.04);display:inline-block}
 
 /* ── STAGE SUBTABS ── */
 .stage-tabs{display:flex;gap:0;border-bottom:1.5px solid var(--border);margin-bottom:18px;background:var(--bg);border-radius:8px 8px 0 0;overflow:hidden}
@@ -851,9 +853,25 @@ function parseNumberedList(text) {
   return parts.map(p => p.replace(/^\d+\.\s*/, '').trim()).filter(Boolean);
 }
 
+const DIMS_ORDER = ['Finanzas','Operaciones','Gestión','Estrategia'];
+const DIMS_COLORS = {Finanzas:'#1b5e20',Operaciones:'#0d47a1',Gestión:'#6a1b9a',Estrategia:'#b71c1c'};
+
 function renderPreguntas(email) {
   const crm = getCRM(email);
-  const items = Array.isArray(crm.aiOutputs?.preguntas) ? crm.aiOutputs.preguntas : [];
+  // items can be array of {dim, q} objects OR legacy flat strings
+  const raw = crm.aiOutputs?.preguntas || [];
+  const isStructured = raw.length > 0 && typeof raw[0] === 'object';
+
+  // Build flat index list for regen button (always 0-7)
+  let dimGroups = {};
+  if (isStructured) {
+    raw.forEach((item, i) => {
+      const d = item.dim || 'General';
+      if (!dimGroups[d]) dimGroups[d] = [];
+      dimGroups[d].push({q: item.q, i});
+    });
+  }
+
   return `
   <div class="cop-action" id="ca-preguntas">
     <div class="cop-action-hdr">
@@ -861,21 +879,29 @@ function renderPreguntas(email) {
         <span class="cop-icon">💬</span>
         <div class="cop-title-text">
           <strong>Preguntas para la sesión</strong>
-          <span>5 preguntas para la reunión estratégica</span>
+          <span>2 preguntas por dimensión — 8 en total</span>
         </div>
       </div>
       <button class="btn-gen" id="bg-preguntas" onclick="runCopilot('${email}','preguntas')">
-        ${items.length ? 'Regenerar todas' : 'Generar'}
+        ${raw.length ? 'Regenerar todas' : 'Generar'}
       </button>
     </div>
-    ${items.length ? `
+    ${isStructured ? `
       <div class="cop-result" id="cr-preguntas">
-        ${items.map((q,i) => `
-          <div class="cop-item">
-            <span class="cop-item-num">${i+1}.</span>
-            <div class="cop-item-text" id="pq-${i}">${esc(q)}</div>
-            <button class="btn-regen-item" id="brq-${i}" onclick="regenItem('${email}','pregunta',${i})">↺</button>
-          </div>`).join('')}
+        ${DIMS_ORDER.map(dim => {
+          const group = dimGroups[dim] || [];
+          if (!group.length) return '';
+          const color = DIMS_COLORS[dim] || '#333';
+          return `
+          <div class="pq-dim-group">
+            <div class="pq-dim-label" style="color:${color}">${dim}</div>
+            ${group.map(({q, i}) => `
+              <div class="cop-item">
+                <div class="cop-item-text" id="pq-${i}">${esc(q)}</div>
+                <button class="btn-regen-item" id="brq-${i}" onclick="regenItem('${email}','pregunta',${i})">↺</button>
+              </div>`).join('')}
+          </div>`;
+        }).join('')}
       </div>` : `<div id="cr-preguntas" style="display:none"></div>`}
   </div>`;
 }
@@ -1243,13 +1269,17 @@ async function regenItem(email, type, index) {
   const btnId = type==='pregunta' ? `brq-${index}` : `brqw-${index}`;
   const btn = document.getElementById(btnId);
   if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner dark"></span>';}
-  const items = [...(type==='pregunta' ? (crm.aiOutputs?.preguntas||[]) : (crm.aiOutputs?.quickwins||[]))];
+  const rawItems = [...(type==='pregunta' ? (crm.aiOutputs?.preguntas||[]) : (crm.aiOutputs?.quickwins||[]))];
+  // For structured preguntas: pass flat text list, preserve dim info
+  const isStructured = type==='pregunta' && rawItems.length > 0 && typeof rawItems[0] === 'object';
+  const existingItems = isStructured ? rawItems.map(x => x.q) : rawItems;
+  const currentDim   = isStructured ? (rawItems[index]?.dim || '') : '';
   try {
     const res = await fetch('/api/copilot',{
       method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         action: type==='pregunta' ? 'pregunta_individual' : 'quickwin_individual',
-        stage: crm.stage, index, existingItems: items,
+        stage: crm.stage, index, existingItems, currentDim,
         client:{nombre:cl.nombre,empresa:cl.empresa,industria:cl.industria,
           descripcion:cl.descripcion,scoreTotal:cl.scoreTotal,scoreFinanzas:cl.scoreFinanzas,
           scoreOps:cl.scoreOps,scoreGestion:cl.scoreGestion,scoreEst:cl.scoreEst,
@@ -1257,12 +1287,17 @@ async function regenItem(email, type, index) {
       })
     });
     const data = await res.json();
-    items[index] = data.result || items[index];
+    const newQ = data.result?.trim() || existingItems[index];
+    if (isStructured) {
+      rawItems[index] = {...rawItems[index], q: newQ};
+    } else {
+      rawItems[index] = newQ;
+    }
     const field = type==='pregunta' ? 'preguntas' : 'quickwins';
-    const ao = {...(crm.aiOutputs||{}), [field]:items};
+    const ao = {...(crm.aiOutputs||{}), [field]: rawItems};
     updateCRM(email, {aiOutputs:ao});
     const textEl = document.getElementById((type==='pregunta'?'pq-':'qw-')+index);
-    if(textEl) textEl.textContent = items[index];
+    if(textEl) textEl.textContent = newQ;
   } catch(err){ showToast('Error al regenerar',true); }
   if(btn){btn.disabled=false;btn.innerHTML='↺';}
 }
@@ -1363,10 +1398,23 @@ async function runCopilot(email, actionId) {
     const data = await res.json();
     const result = data.result || 'Sin respuesta';
 
-    // Special handling for array-based actions
-    if (actionId === 'preguntas' || actionId === 'quickwins') {
+    // Special handling for structured preguntas
+    if (actionId === 'preguntas') {
+      // API returns JSON array of {dim, q} objects
+      let items;
+      try { items = JSON.parse(result); } catch(e) { items = []; }
+      if (!Array.isArray(items) || !items.length) {
+        // fallback: plain numbered list → wrap as generic items
+        items = parseNumberedList(result).map(q => ({dim:'General', q}));
+      }
+      const ao = {...(crm.aiOutputs||{}), preguntas: items};
+      updateCRM(email, {aiOutputs: ao});
+      renderTabContent(email);
+      return;
+    }
+    if (actionId === 'quickwins') {
       const items = parseNumberedList(result);
-      const ao = {...(crm.aiOutputs||{}), [actionId]: items};
+      const ao = {...(crm.aiOutputs||{}), quickwins: items};
       updateCRM(email, {aiOutputs: ao});
       renderTabContent(email);
       return;

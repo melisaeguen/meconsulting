@@ -10,13 +10,14 @@ export default async function handler(req, res) {
   if (req.method !== 'POST')    return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { action, stage, client, index, existingItems } = req.body;
+    const { action, stage, client, index, existingItems, currentDim } = req.body;
     if (!action || !client) return res.status(400).json({ error: 'Faltan parámetros' });
 
     // Inject extra context for individual regeneration actions
     if (action === 'pregunta_individual') {
       client.indice = index ?? 0;
       client.preguntasExistentes = existingItems || [];
+      client.currentDim = currentDim || '';
     }
     if (action === 'quickwin_individual') {
       client.indice = index ?? 0;
@@ -107,21 +108,24 @@ Estás por tener una sesión estratégica de 30 minutos con este cliente.
 
 ${context}
 
-Generá exactamente 5 preguntas para la sesión.
+Generá exactamente 8 preguntas para la sesión: 2 por cada dimensión (Finanzas, Operaciones, Gestión, Estrategia).
 Reglas:
 - Cada pregunta: máximo 1 línea, directa y concreta
 - Explorá causas raíz, no síntomas superficiales
-- Específicas para su industria y sus problemas reales
-- Sin preámbulos ni conectores — ir directo al punto
+- Específicas para la industria y los problemas reales de este cliente
+- Sin preámbulos ni conectores
 
-Formato de respuesta — SOLO las preguntas numeradas, sin explicaciones ni texto adicional:
-1. [Pregunta]
-2. [Pregunta]
-3. [Pregunta]
-4. [Pregunta]
-5. [Pregunta]
-
-Respondé directamente sin introducción ni cierre.`,
+Respondé ÚNICAMENTE con un JSON válido. Sin texto antes ni después. Formato exacto:
+[
+  {"dim":"Finanzas","q":"Pregunta 1"},
+  {"dim":"Finanzas","q":"Pregunta 2"},
+  {"dim":"Operaciones","q":"Pregunta 3"},
+  {"dim":"Operaciones","q":"Pregunta 4"},
+  {"dim":"Gestión","q":"Pregunta 5"},
+  {"dim":"Gestión","q":"Pregunta 6"},
+  {"dim":"Estrategia","q":"Pregunta 7"},
+  {"dim":"Estrategia","q":"Pregunta 8"}
+]`,
 
     pregunta_individual: `
 Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.
@@ -131,8 +135,8 @@ ${context}
 Ya tenés estas preguntas preparadas para la sesión:
 ${(c.preguntasExistentes || []).map((p, i) => `${i + 1}. ${p}`).join('\n')}
 
-Regenerá la pregunta número ${c.indice + 1} con una alternativa diferente y mejor.
-Debe ser profunda, específica para su industria y distinta a las demás.
+Regenerá la pregunta número ${c.indice + 1}${c.currentDim ? ` (dimensión: ${c.currentDim})` : ''} con una alternativa diferente y mejor.
+Debe ser directa (máx 1 línea), específica para su industria${c.currentDim ? `, enfocada en ${c.currentDim}` : ''} y distinta a las demás.
 
 Respondé SOLO con el texto de la nueva pregunta, sin número ni explicación.`,
 
