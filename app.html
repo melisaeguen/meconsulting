@@ -435,7 +435,18 @@ async function importClients() {
     if (!Array.isArray(data)) throw new Error(data.error || 'Respuesta inválida');
 
     // Load CRM state from sheet — index by BOTH clientId AND email for flexible lookup
+    // When there are duplicates, keep the entry with most data (avoid overwriting with empty)
     const sheetCRM = {};
+    const crmRichness = key => {
+      const d = sheetCRM[key];
+      if (!d) return -1;
+      return Object.keys(d.aiOutputs || {}).length + (d.notes ? 1 : 0) + (d.stage > 1 ? 10 : 0);
+    };
+    const maybeStore = (key, parsed) => {
+      if (!sheetCRM[key]) { sheetCRM[key] = parsed; return; }
+      const newRich = Object.keys(parsed.aiOutputs || {}).length + (parsed.notes ? 1 : 0) + (parsed.stage > 1 ? 10 : 0);
+      if (newRich >= crmRichness(key)) sheetCRM[key] = parsed;
+    };
     if (Array.isArray(crmData)) {
       crmData.forEach(row => {
         const parsed = {
@@ -446,8 +457,9 @@ async function importClients() {
           transcripts:   tryParse(row.transcripts, []),
           aiOutputs:     tryParse(row.aiOutputs, {}),
         };
-        if (row.clientId) sheetCRM[row.clientId] = parsed;
-        if (row.email)    sheetCRM[row.email]    = parsed; // fallback key
+        // Index by all possible keys for maximum compatibility
+        if (row.clientId) maybeStore(String(row.clientId), parsed);
+        if (row.email)    maybeStore(String(row.email),    parsed);
       });
     }
 
@@ -478,11 +490,15 @@ async function importClients() {
       added++;
     });
 
-    // Remove superseded email-only keys
+    // Remove any legacy email|empresa keys now that we have numeric IDs
     Object.keys(S.clients).forEach(k => {
-      if (!k.includes('|')) {
-        const hasNewKey = Object.keys(S.clients).some(k2 => k2.includes('|') && k2.startsWith(k + '|'));
-        if (hasNewKey) delete S.clients[k];
+      if (k.includes('|') || (k.includes('@') && !Object.values(S.clients).some(c => c.clientId === k && c.email !== k))) {
+        // If a numeric-keyed version of this client now exists, remove the old key
+        const hasNumericKey = Object.keys(S.clients).some(k2 => /^\d+$/.test(k2) && S.clients[k2].email === (S.clients[k]?.email || ''));
+        if (hasNumericKey) {
+          delete S.clients[k];
+          delete S.crm[k];
+        }
       }
     });
 
@@ -526,8 +542,9 @@ function normalizeClient(r) {
   };
   const emailVal   = String(g('Email','email') || '').toLowerCase().trim();
   const empresaVal = g('Empresa','empresa');
-  const empresaSlug = empresaVal.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
-  const clientId   = emailVal + (empresaSlug ? '|' + empresaSlug : '');
+  // Use numeric ID from sheet as stable key; fallback to email if no ID yet
+  const rawId    = g('ID','id');
+  const clientId = rawId ? String(rawId) : emailVal;
   return {
     clientId,
     email:          emailVal,
