@@ -56,7 +56,7 @@ a{color:inherit;text-decoration:none}
 .board-scroll::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:3px}
 
 /* ── COLUMN ── */
-.k-col{flex-shrink:0;width:268px;display:flex;flex-direction:column;background:var(--white);border-radius:var(--radius);border:1.5px solid var(--border);max-height:calc(100vh - 82px);transition:border-color .15s}
+.k-col{flex-shrink:0;width:300px;display:flex;flex-direction:column;background:var(--white);border-radius:var(--radius);border:1.5px solid var(--border);max-height:calc(100vh - 82px);transition:border-color .15s}
 .k-col.drag-over{border-color:var(--gold);background:#fffcf5}
 .col-hdr{padding:11px 13px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .col-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
@@ -72,8 +72,8 @@ a{color:inherit;text-decoration:none}
 .k-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);border-color:rgba(201,169,110,.5)}
 .k-card.dragging{opacity:.35;transform:rotate(1.5deg)}
 .k-card.active-card{border-color:var(--navy);box-shadow:0 0 0 2px rgba(27,35,64,.12)}
-.card-co{font-size:13px;font-weight:700;color:var(--navy);line-height:1.2;margin-bottom:2px}
-.card-nm{font-size:11px;color:var(--muted);margin-bottom:8px}
+.card-co{font-size:14px;font-weight:700;color:var(--navy);line-height:1.2;margin-bottom:3px}
+.card-nm{font-size:12px;color:var(--muted);margin-bottom:9px}
 .card-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .card-score{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px}
 .card-ind{font-size:10px;color:var(--muted);background:var(--bg);padding:2px 7px;border-radius:20px}
@@ -109,6 +109,24 @@ a{color:inherit;text-decoration:none}
 .panel-body{flex:1;overflow-y:auto;padding:20px}
 .panel-body::-webkit-scrollbar{width:4px}
 .panel-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.1);border-radius:2px}
+
+/* ── STAGE SUBTABS ── */
+.stage-tabs{display:flex;gap:0;border-bottom:1.5px solid var(--border);margin-bottom:18px;background:var(--bg);border-radius:8px 8px 0 0;overflow:hidden}
+.stab{flex:1;padding:9px 4px;font-size:11px;font-weight:500;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);transition:all .15s;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:-1.5px}
+.stab.done{color:var(--navy);opacity:.7}
+.stab.done:hover{opacity:1;border-bottom-color:rgba(27,35,64,.3)}
+.stab.active{color:var(--navy);font-weight:700;border-bottom-color:var(--navy);background:var(--white)}
+.stab.locked{opacity:.3;cursor:default}
+/* ── CLICKABLE DIMS ── */
+.dim-wrap{cursor:pointer;border-radius:6px;padding:4px 6px;margin:-4px -6px;transition:background .15s}
+.dim-wrap:hover{background:rgba(0,0,0,.04)}
+.dim-detail{display:none;font-size:11px;color:var(--muted);margin-top:4px;margin-left:104px;line-height:1.55;font-style:italic;padding-right:40px}
+.dim-detail.open{display:block}
+/* ── SAVE BTN ── */
+.btn-save-session{background:none;border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.8);border-radius:7px;padding:6px 14px;font-size:12px;transition:all .15s}
+.btn-save-session:hover{border-color:rgba(255,255,255,.6);color:white}
+.btn-save-session.dirty{border-color:var(--gold);color:var(--gold)}
+.btn-save-session:disabled{opacity:.5;cursor:default}
 
 /* ── RESUMEN TAB ── */
 .sec{margin-bottom:22px}
@@ -243,6 +261,7 @@ a{color:inherit;text-decoration:none}
       <button class="btn-import" id="btn-import" onclick="importClients()">
         <span id="import-icon">⬇</span> Importar clientes
       </button>
+      <button class="btn-save-session" id="btn-save" onclick="saveSession()">Guardar sesión</button>
       <button class="btn-logout" onclick="doLogout()">Salir</button>
     </div>
   </header>
@@ -325,9 +344,11 @@ let S = {
   clients: {},    // email → normalized client obj
   crm: {},        // email → {stage, notes, links, transcripts, aiOutputs}
   active: null,   // active email
-  tab: 'resumen',
+  tab: 'info',
+  subtab: 'test', // active stage subtab inside Información
   drag: null,
   trModalEmail: null,
+  dirty: false,   // unsaved changes flag
 };
 
 // ══ AUTH ═════════════════════════════════════════════════════════════════════
@@ -434,8 +455,12 @@ function normalizeClient(r) {
     palancaTitulo:  g('Palanca — Título','Palanca — Titulo','Palanca Título','palancaTitulo'),
     palancaDesc:    g('Palanca — Descripción','Palanca — Descripcion','Palanca Descripción','palancaDesc'),
     fraseCierre:    g('Frase cierre','Frase Cierre','fraseCierre'),
-    problemaAbierto: g('Problema principal (pregunta abierta)','problemaAbierto'),
-    timestamp:      g('Fecha','Timestamp','timestamp'),
+    problemaAbierto:         g('Problema principal (pregunta abierta)','problemaAbierto'),
+    preguntaDebilFinanzas:   g('Pregunta débil — Finanzas','preguntaDebilFinanzas'),
+    preguntaDebilOps:        g('Pregunta débil — Operaciones','preguntaDebilOps'),
+    preguntaDebilGestion:    g('Pregunta débil — Gestión','Pregunta débil — Gestion','preguntaDebilGestion'),
+    preguntaDebilEstrategia: g('Pregunta débil — Estrategia','preguntaDebilEstrategia'),
+    timestamp:               g('Fecha','Timestamp','timestamp'),
   };
 }
 
@@ -451,16 +476,31 @@ function getCRM(email) {
 function updateCRM(email, patch) {
   S.crm[email] = {...getCRM(email), ...patch};
   saveStorage();
-  syncCRM(email);
+  markDirty();
 }
-async function syncCRM(email) {
+function markDirty() {
+  S.dirty = true;
+  const btn = document.getElementById('btn-save');
+  if (btn) { btn.classList.add('dirty'); btn.textContent = 'Guardar sesión ●'; }
+}
+async function saveSession() {
+  const btn = document.getElementById('btn-save');
+  if (btn) { btn.disabled = true; btn.textContent = 'Guardando...'; }
   try {
-    await fetch('/api/crm', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({action:'updateCRM', email, data: S.crm[email]}),
-    });
-  } catch(e){ /* silent – localStorage is source of truth */ }
+    const emails = Object.keys(S.crm);
+    for (const email of emails) {
+      await fetch('/api/crm', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({action:'updateCRM', email, data: S.crm[email]}),
+      });
+    }
+    S.dirty = false;
+    showToast('Sesión guardada ✓');
+  } catch(e) {
+    showToast('Error al guardar', true);
+  }
+  if (btn) { btn.disabled = false; btn.classList.remove('dirty'); btn.textContent = 'Guardar sesión'; }
 }
 function moveStage(email, stageId) {
   const crm = getCRM(email);
@@ -551,7 +591,10 @@ function onDrop(e, stageId) {
 // ══ PANEL ════════════════════════════════════════════════════════════════════
 function openPanel(email) {
   S.active = email;
-  S.tab = 'resumen';
+  S.tab = 'info';
+  const crm = getCRM(email);
+  const effectiveStage = (crm.stage === 6 || crm.stage === 7) ? (crm.stageAnterior || 1) : crm.stage;
+  S.subtab = ['test','sesion','diagnostico','implementacion','partner'][Math.min(effectiveStage,5)-1] || 'test';
   document.getElementById('panel-backdrop').classList.add('open');
   document.getElementById('side-panel').classList.add('open');
   renderPanel(email);
@@ -598,8 +641,7 @@ function renderPanel(email) {
     </div>`;
 
   const tabs = [
-    {id:'resumen',  label:'Resumen'},
-    {id:'copilot',  label:'✦ Copilot'},
+    {id:'info',     label:'Información'},
     {id:'docs',     label:'Docs'},
     {id:'reuniones',label:'Reuniones'},
   ];
@@ -612,16 +654,78 @@ function renderPanel(email) {
 
 function switchTab(tabId, email) {
   S.tab = tabId;
-  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.textContent.trim() === (tabId==='resumen'?'Resumen':tabId==='copilot'?'✦ Copilot':tabId==='docs'?'Docs':'Reuniones')));
+  document.querySelectorAll('.tab').forEach(b => {
+    const map = {info:'Información', docs:'Docs', reuniones:'Reuniones'};
+    b.classList.toggle('on', b.textContent.trim() === map[tabId]);
+  });
+  renderTabContent(email);
+}
+function switchSubtab(subtabId, email) {
+  S.subtab = subtabId;
   renderTabContent(email);
 }
 
 function renderTabContent(email) {
   const body = document.getElementById('panel-body');
-  if (S.tab === 'resumen')   { body.innerHTML = renderResumen(email); initDimBars(email); }
-  if (S.tab === 'copilot')   body.innerHTML = renderCopilot(email);
+  if (S.tab === 'info')      { body.innerHTML = renderInfo(email); if(S.subtab==='test') initDimBars(email); }
   if (S.tab === 'docs')      body.innerHTML = renderDocs(email);
   if (S.tab === 'reuniones') body.innerHTML = renderReuniones();
+}
+
+// ══ INFORMACIÓN TAB (stage subtabs) ══════════════════════════════════════════
+const SUBTAB_STAGES = [
+  {id:'test',          label:'Test',          stage:1},
+  {id:'sesion',        label:'Sesión',        stage:2},
+  {id:'diagnostico',   label:'Diagnóstico',   stage:3},
+  {id:'implementacion',label:'Implementación',stage:4},
+  {id:'partner',       label:'Partner',       stage:5},
+];
+
+function renderInfo(email) {
+  const crm = getCRM(email);
+  const effectiveStage = (crm.stage === 6 || crm.stage === 7) ? (crm.stageAnterior || 1) : crm.stage;
+
+  const subtabs = SUBTAB_STAGES.map(st => {
+    const isDone    = effectiveStage > st.stage;
+    const isCurrent = effectiveStage === st.stage;
+    const isLocked  = effectiveStage < st.stage;
+    const isActive  = S.subtab === st.id;
+    let cls = 'stab';
+    if (isActive)     cls += ' active';
+    else if (isDone)  cls += ' done';
+    else if (isLocked)cls += ' locked';
+    const label = isDone ? `${st.label} ✓` : isCurrent ? st.label : st.label;
+    const click = isLocked ? '' : `onclick="switchSubtab('${st.id}','${email}')"`;
+    return `<button class="${cls}" ${click}>${label}</button>`;
+  }).join('');
+
+  let content = '';
+  if (S.subtab === 'test') {
+    content = renderResumen(email);
+  } else {
+    const stageMap = {sesion:2, diagnostico:3, implementacion:4, partner:5};
+    const stageId = stageMap[S.subtab];
+    if (stageId && effectiveStage >= stageId) {
+      content = renderCopilotForStage(email, stageId);
+    } else {
+      content = `<div style="text-align:center;padding:40px 20px;color:var(--muted);font-size:13px">Stage no disponible aún</div>`;
+    }
+  }
+
+  return `
+    <div class="stage-tabs">${subtabs}</div>
+    ${content}
+  `;
+}
+
+function renderCopilotForStage(email, stageId) {
+  // Temporarily override crm.stage for renderCopilot
+  const crm = getCRM(email);
+  const origStage = crm.stage;
+  crm.stage = stageId;
+  const html = renderCopilot(email);
+  crm.stage = origStage;
+  return html;
 }
 
 // ══ RESUMEN TAB ═══════════════════════════════════════════════════════════════
@@ -649,12 +753,18 @@ function renderResumen(email) {
       <span style="font-size:13px;font-weight:600;color:${scoreStyle(cl.scoreTotal).color}">${scoreStyle(cl.scoreTotal).label}</span>
     </div>
     <div class="dim-bars">
-      ${DIMS.map(d => `
-        <div class="dim-row">
-          <div class="dim-lbl" style="color:${d.color}">${d.label}</div>
-          <div class="dim-track"><div class="dim-fill" id="df-${d.key}" style="background:${d.color}"></div></div>
-          <div class="dim-num" style="color:${d.color}" id="dn-${d.key}">0</div>
-        </div>`).join('')}
+      ${DIMS.map(d => {
+        const weakQ = {finanzas: cl.preguntaDebilFinanzas, operaciones: cl.preguntaDebilOps, gestion: cl.preguntaDebilGestion, estrategia: cl.preguntaDebilEstrategia}[d.key] || '';
+        return `
+        <div class="dim-wrap" onclick="toggleDimDetail('${d.key}')">
+          <div class="dim-row">
+            <div class="dim-lbl" style="color:${d.color}">${d.label}</div>
+            <div class="dim-track"><div class="dim-fill" id="df-${d.key}" style="background:${d.color}"></div></div>
+            <div class="dim-num" style="color:${d.color}" id="dn-${d.key}">0</div>
+          </div>
+          ${weakQ ? `<div class="dim-detail" id="dd-${d.key}">⚠ Pregunta más débil: ${esc(weakQ)}</div>` : ''}
+        </div>`;
+      }).join('')}
     </div>
   </div>
   ${cl.resumen ? `
@@ -962,6 +1072,10 @@ function renderReuniones() {
 }
 
 // ══ HELPERS ══════════════════════════════════════════════════════════════════
+function toggleDimDetail(key) {
+  const el = document.getElementById('dd-' + key);
+  if (el) el.classList.toggle('open');
+}
 function scoreStyle(s) {
   if (s >= 75) return {color:'#16a34a', bg:'#dcfce7', label:'Saludable'};
   if (s >= 50) return {color:'#d97706', bg:'#fef3c7', label:'En desarrollo'};
