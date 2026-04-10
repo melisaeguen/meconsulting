@@ -886,22 +886,31 @@ function renderPreguntas(email) {
         ${raw.length ? 'Regenerar todas' : 'Generar'}
       </button>
     </div>
-    ${isStructured ? `
+    ${raw.length ? `
       <div class="cop-result" id="cr-preguntas">
-        ${DIMS_ORDER.map(dim => {
-          const group = dimGroups[dim] || [];
-          if (!group.length) return '';
-          const color = DIMS_COLORS[dim] || '#333';
-          return `
-          <div class="pq-dim-group">
-            <div class="pq-dim-label" style="color:${color}">${dim}</div>
-            ${group.map(({q, i}) => `
+        ${isStructured
+          ? DIMS_ORDER.map(dim => {
+              const group = dimGroups[dim] || [];
+              if (!group.length) return '';
+              const color = DIMS_COLORS[dim] || '#333';
+              return `
+              <div class="pq-dim-group">
+                <div class="pq-dim-label" style="color:${color}">${dim}</div>
+                ${group.map(({q, i}) => `
+                  <div class="cop-item">
+                    <div class="cop-item-text" id="pq-${i}">${esc(q)}</div>
+                    <button class="btn-regen-item" id="brq-${i}" onclick="regenItem('${email}','pregunta',${i})">↺</button>
+                  </div>`).join('')}
+              </div>`;
+            }).join('')
+          : `<div style="padding:4px 0 8px;font-size:12px;color:var(--muted);font-style:italic">Formato anterior — regenerá para ver agrupadas por dimensión.</div>
+             ${raw.map((q,i) => `
               <div class="cop-item">
-                <div class="cop-item-text" id="pq-${i}">${esc(q)}</div>
+                <span class="cop-item-num">${i+1}.</span>
+                <div class="cop-item-text" id="pq-${i}">${esc(typeof q==='object'?q.q:q)}</div>
                 <button class="btn-regen-item" id="brq-${i}" onclick="regenItem('${email}','pregunta',${i})">↺</button>
-              </div>`).join('')}
-          </div>`;
-        }).join('')}
+              </div>`).join('')}`
+        }
       </div>` : `<div id="cr-preguntas" style="display:none"></div>`}
   </div>`;
 }
