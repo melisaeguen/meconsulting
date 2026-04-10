@@ -1,23 +1,17 @@
 {
   "version": 2,
   "builds": [
-    {
-      "src": "index.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "api/diagnostico.js",
-      "use": "@vercel/node"
-    }
+    { "src": "index.html", "use": "@vercel/static" },
+    { "src": "app.html",   "use": "@vercel/static" },
+    { "src": "api/diagnostico.js", "use": "@vercel/node" },
+    { "src": "api/copilot.js",     "use": "@vercel/node" },
+    { "src": "api/crm.js",         "use": "@vercel/node" }
   ],
   "routes": [
-    {
-      "src": "/api/diagnostico",
-      "dest": "/api/diagnostico.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
+    { "src": "/api/diagnostico", "dest": "/api/diagnostico.js" },
+    { "src": "/api/copilot",     "dest": "/api/copilot.js"     },
+    { "src": "/api/crm",         "dest": "/api/crm.js"         },
+    { "src": "/app",             "dest": "/app.html"           },
+    { "src": "/(.*)",            "dest": "/index.html"         }
   ]
 }

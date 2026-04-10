@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ME Consultora — CRM Interno</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet"/>
+<style>
+/* ── RESET ── */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1b2340; --gold:#c9a96e; --cream:#faf9f7; --bg:#f0ede8;
+  --white:#fff; --muted:#8a8a8a; --border:#e5e0d8; --err:#dc2626;
+  --shadow:0 1px 3px rgba(0,0,0,.08); --shadow-md:0 4px 8px rgba(0,0,0,.1);
+  --shadow-lg:0 10px 20px rgba(0,0,0,.12); --radius:10px; --panel-w:540px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--navy);min-height:100vh}
+button{font-family:'DM Sans',sans-serif;cursor:pointer}
+input,textarea,select{font-family:'DM Sans',sans-serif}
+.serif{font-family:'Playfair Display',serif}
+a{color:inherit;text-decoration:none}
+
+/* ── LOGIN ── */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--navy)}
+.login-card{background:var(--white);border-radius:16px;padding:48px 40px;width:100%;max-width:360px;box-shadow:var(--shadow-lg)}
+.login-logo{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--navy);font-weight:700;margin-bottom:4px}
+.login-sub{font-size:13px;color:var(--muted);margin-bottom:32px}
+.login-label{font-size:12px;font-weight:600;color:var(--navy);margin-bottom:6px;display:block}
+.login-input{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:10px 14px;font-size:14px;margin-bottom:16px;outline:none;transition:border-color .15s}
+.login-input:focus{border-color:var(--navy)}
+.login-btn{width:100%;background:var(--navy);color:white;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:600;margin-top:8px;transition:opacity .15s}
+.login-btn:hover{opacity:.85}
+.login-err{color:var(--err);font-size:12px;margin-top:8px;text-align:center;display:none}
+
+/* ── APP LAYOUT ── */
+#app-screen{display:none;flex-direction:column;height:100vh;overflow:hidden}
+
+/* ── HEADER ── */
+.app-header{background:var(--navy);color:white;padding:0 24px;height:54px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;z-index:100}
+.hdr-brand{display:flex;align-items:center;gap:10px}
+.hdr-logo{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700}
+.hdr-sep{color:rgba(255,255,255,.3)}
+.hdr-label{font-size:11px;color:rgba(255,255,255,.55);font-weight:500;letter-spacing:.6px;text-transform:uppercase}
+.hdr-right{display:flex;align-items:center;gap:10px}
+.btn-import{background:var(--gold);color:var(--navy);border:none;border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px;transition:opacity .15s}
+.btn-import:hover{opacity:.85}
+.btn-import:disabled{opacity:.55;cursor:default}
+.btn-logout{background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.65);border-radius:7px;padding:6px 14px;font-size:12px;transition:all .15s}
+.btn-logout:hover{border-color:rgba(255,255,255,.5);color:white}
+.import-status{font-size:12px;color:rgba(255,255,255,.5)}
+
+/* ── BOARD ── */
+.board-wrapper{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.board-scroll{flex:1;overflow-x:auto;overflow-y:hidden;display:flex;gap:10px;padding:14px 24px;align-items:flex-start}
+.board-scroll::-webkit-scrollbar{height:6px}
+.board-scroll::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:3px}
+
+/* ── COLUMN ── */
+.k-col{flex-shrink:0;width:268px;display:flex;flex-direction:column;background:var(--white);border-radius:var(--radius);border:1.5px solid var(--border);max-height:calc(100vh - 82px);transition:border-color .15s}
+.k-col.drag-over{border-color:var(--gold);background:#fffcf5}
+.col-hdr{padding:11px 13px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.col-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.col-name{font-size:12px;font-weight:600;letter-spacing:.2px;margin-left:7px}
+.col-count{background:var(--bg);border-radius:20px;padding:2px 8px;font-size:11px;font-weight:600;color:var(--muted)}
+.col-cards{flex:1;overflow-y:auto;padding:7px;display:flex;flex-direction:column;gap:6px;min-height:50px}
+.col-cards::-webkit-scrollbar{width:3px}
+.col-cards::-webkit-scrollbar-thumb{background:rgba(0,0,0,.1);border-radius:2px}
+.col-empty{text-align:center;padding:20px 8px;font-size:11px;color:var(--muted);border:1.5px dashed var(--border);border-radius:7px}
+
+/* ── CARD ── */
+.k-card{background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer;transition:all .15s;user-select:none;position:relative}
+.k-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);border-color:rgba(201,169,110,.5)}
+.k-card.dragging{opacity:.35;transform:rotate(1.5deg)}
+.k-card.active-card{border-color:var(--navy);box-shadow:0 0 0 2px rgba(27,35,64,.12)}
+.card-co{font-size:13px;font-weight:700;color:var(--navy);line-height:1.2;margin-bottom:2px}
+.card-nm{font-size:11px;color:var(--muted);margin-bottom:8px}
+.card-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.card-score{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px}
+.card-ind{font-size:10px;color:var(--muted);background:var(--bg);padding:2px 7px;border-radius:20px}
+.card-prob{font-size:11px;color:#555;margin-top:7px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-style:italic}
+.card-date{font-size:10px;color:var(--muted);margin-top:5px;text-align:right}
+
+/* ── PANEL ── */
+.panel-backdrop{position:fixed;inset:0;background:rgba(27,35,64,.22);z-index:200;opacity:0;pointer-events:none;transition:opacity .2s}
+.panel-backdrop.open{opacity:1;pointer-events:auto}
+.side-panel{position:fixed;top:0;right:0;bottom:0;width:var(--panel-w);background:var(--cream);box-shadow:-4px 0 28px rgba(0,0,0,.14);z-index:201;transform:translateX(100%);transition:transform .25s ease;display:flex;flex-direction:column}
+.side-panel.open{transform:translateX(0)}
+.panel-hdr{padding:16px 18px;border-bottom:1px solid var(--border);background:var(--white);flex-shrink:0}
+.panel-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
+.panel-avatar{width:40px;height:40px;border-radius:50%;background:var(--navy);color:white;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+.panel-info{flex:1;margin-left:12px}
+.panel-co{font-size:15px;font-weight:700;color:var(--navy);line-height:1.2}
+.panel-nm{font-size:12px;color:var(--muted);margin-top:2px}
+.panel-close{background:none;border:none;font-size:18px;color:var(--muted);padding:2px;line-height:1;transition:color .15s;flex-shrink:0}
+.panel-close:hover{color:var(--navy)}
+.panel-badges{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px}
+.badge-ind{font-size:11px;color:var(--muted);background:var(--bg);padding:3px 8px;border-radius:20px}
+.stage-sel-label{font-size:11px;color:var(--muted);margin-bottom:6px}
+.stage-btns{display:flex;flex-wrap:wrap;gap:5px}
+.sbtn{font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px;border:1.5px solid var(--border);background:white;color:var(--muted);transition:all .15s}
+.sbtn:hover{border-color:var(--navy);color:var(--navy)}
+.sbtn.current{color:white;border-color:transparent;opacity:1}
+
+/* ── TABS ── */
+.panel-tabs{display:flex;border-bottom:1.5px solid var(--border);background:var(--white);flex-shrink:0}
+.tab{flex:1;padding:10px 4px;font-size:12px;font-weight:500;background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);transition:all .15s;margin-bottom:-1.5px;white-space:nowrap}
+.tab.on{color:var(--navy);border-bottom-color:var(--navy);font-weight:600}
+.panel-body{flex:1;overflow-y:auto;padding:20px}
+.panel-body::-webkit-scrollbar{width:4px}
+.panel-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.1);border-radius:2px}
+
+/* ── RESUMEN TAB ── */
+.sec{margin-bottom:22px}
+.sec-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.iitem{} .iitem.full{grid-column:1/-1}
+.iitem label{font-size:10px;color:var(--muted);display:block;margin-bottom:2px}
+.iitem span{font-size:13px;font-weight:500;word-break:break-word}
+.dim-bars{display:flex;flex-direction:column;gap:9px}
+.dim-row{display:flex;align-items:center;gap:8px}
+.dim-lbl{font-size:11px;font-weight:600;width:96px;flex-shrink:0}
+.dim-track{flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
+.dim-fill{height:100%;border-radius:3px;width:0;transition:width .6s ease}
+.dim-num{font-size:11px;font-weight:700;width:28px;text-align:right}
+.resumen-box{background:white;border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.75;color:#444}
+.prob-box{background:#fff8e1;border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:12px 14px;font-size:13px;line-height:1.65;color:#555;font-style:italic}
+.palanca-box{background:white;border:1px solid var(--border);border-radius:8px;padding:12px 14px}
+.palanca-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.palanca-desc{font-size:12px;color:#555;line-height:1.65}
+
+/* ── COPILOT TAB ── */
+.cop-intro{font-size:12px;color:var(--muted);line-height:1.65;margin-bottom:16px;padding:10px 12px;background:white;border-radius:8px;border:1px solid var(--border)}
+.cop-action{background:white;border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden}
+.cop-action-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 14px}
+.cop-action-title{display:flex;align-items:flex-start;gap:10px;flex:1}
+.cop-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.cop-title-text strong{font-size:13px;font-weight:600;display:block;margin-bottom:1px}
+.cop-title-text span{font-size:11px;color:var(--muted)}
+.btn-gen{background:var(--navy);color:white;border:none;border-radius:7px;padding:7px 14px;font-size:12px;font-weight:600;white-space:nowrap;flex-shrink:0;transition:opacity .15s}
+.btn-gen:hover{opacity:.85}
+.btn-gen:disabled{opacity:.5;cursor:default}
+.cop-result{border-top:1px solid var(--border);padding:14px}
+.cop-result-text{background:var(--bg);border-radius:8px;padding:12px;font-size:12px;line-height:1.8;color:#333;white-space:pre-wrap;margin-bottom:10px}
+.result-btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn-copy{background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:11px;color:var(--muted);transition:all .15s}
+.btn-copy:hover{border-color:var(--navy);color:var(--navy)}
+.btn-doc{background:none;border:1px solid var(--gold);border-radius:6px;padding:5px 12px;font-size:11px;color:#8a5c00;transition:all .15s}
+.btn-doc:hover{background:var(--gold);color:var(--navy)}
+.cop-locked{text-align:center;padding:40px 20px}
+.cop-locked-icon{font-size:36px;margin-bottom:12px}
+.cop-locked h3{font-size:14px;font-weight:600;margin-bottom:8px}
+.cop-locked p{font-size:13px;color:var(--muted);line-height:1.65}
+
+/* ── DOCS TAB ── */
+.docs-sec{margin-bottom:22px}
+.docs-sec-title{font-size:11px;font-weight:600;color:var(--navy);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.notes-area{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.7;resize:vertical;min-height:110px;background:white;outline:none;transition:border-color .15s;color:var(--navy)}
+.notes-area:focus{border-color:var(--navy)}
+.btn-save{background:var(--navy);color:white;border:none;border-radius:7px;padding:8px 18px;font-size:12px;font-weight:600;margin-top:8px;transition:opacity .15s}
+.btn-save:hover{opacity:.85}
+.saved-ok{font-size:11px;color:#16a34a;margin-top:5px;display:none}
+.links-list{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.link-item{display:flex;align-items:center;gap:8px;background:white;border:1px solid var(--border);border-radius:7px;padding:8px 10px}
+.link-lbl{font-size:11px;color:var(--muted);min-width:70px;flex-shrink:0}
+.link-url{font-size:12px;color:#2563eb;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.link-url:hover{text-decoration:underline}
+.btn-rm{background:none;border:none;color:var(--muted);font-size:14px;padding:2px;line-height:1;flex-shrink:0}
+.btn-rm:hover{color:var(--err)}
+.link-add-row{display:flex;gap:6px}
+.link-inp{flex:1;border:1.5px solid var(--border);border-radius:7px;padding:7px 10px;font-size:12px;outline:none;background:white;transition:border-color .15s}
+.link-inp:focus{border-color:var(--navy)}
+.btn-add{background:none;border:1.5px solid var(--border);border-radius:7px;padding:7px 12px;font-size:12px;font-weight:600;color:var(--navy);white-space:nowrap;transition:all .15s}
+.btn-add:hover{border-color:var(--navy);background:var(--cream)}
+.transcript-item{background:white;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px}
+.tr-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.tr-label{font-size:11px;font-weight:600;color:var(--navy)}
+.tr-date{font-size:10px;color:var(--muted)}
+.tr-text{font-size:12px;color:#444;line-height:1.65;white-space:pre-wrap;max-height:120px;overflow:hidden;position:relative}
+.tr-text.expanded{max-height:none}
+.tr-expand{background:none;border:none;font-size:11px;color:var(--gold);margin-top:4px;padding:0;font-weight:600}
+.btn-new-transcript{background:none;border:none;color:var(--navy);font-size:12px;font-weight:600;text-decoration:underline;text-underline-offset:3px;padding:0}
+
+/* ── TRANSCRIPT MODAL ── */
+#tr-modal{position:fixed;inset:0;background:rgba(27,35,64,.4);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
+#tr-modal.open{display:flex}
+.tr-modal-card{background:white;border-radius:12px;padding:28px;width:100%;max-width:520px;box-shadow:var(--shadow-lg)}
+.tr-modal-title{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:16px}
+.tr-modal-row{margin-bottom:12px}
+.tr-modal-row label{font-size:12px;font-weight:600;color:var(--navy);display:block;margin-bottom:5px}
+.tr-modal-row input{width:100%;border:1.5px solid var(--border);border-radius:7px;padding:8px 12px;font-size:13px;outline:none}
+.tr-modal-row input:focus{border-color:var(--navy)}
+.tr-modal-row textarea{width:100%;border:1.5px solid var(--border);border-radius:7px;padding:8px 12px;font-size:13px;line-height:1.65;resize:vertical;min-height:160px;outline:none}
+.tr-modal-row textarea:focus{border-color:var(--navy)}
+.tr-modal-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+.btn-cancel{background:none;border:1.5px solid var(--border);border-radius:7px;padding:8px 18px;font-size:13px;color:var(--muted)}
+.btn-cancel:hover{border-color:var(--muted)}
+.btn-confirm{background:var(--navy);color:white;border:none;border-radius:7px;padding:8px 20px;font-size:13px;font-weight:600}
+.btn-confirm:hover{opacity:.85}
+
+/* ── REUNIONES TAB ── */
+.reuniones-ph{text-align:center;padding:40px 20px}
+.reuniones-ph-icon{font-size:36px;margin-bottom:12px}
+.reuniones-ph h3{font-size:14px;font-weight:600;margin-bottom:8px}
+.reuniones-ph p{font-size:13px;color:var(--muted);line-height:1.65}
+.reuniones-tip{margin-top:20px;background:white;border:1px solid var(--border);border-radius:8px;padding:12px 14px;text-align:left}
+.reuniones-tip h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--navy);margin-bottom:8px}
+.reuniones-tip p{font-size:12px;color:var(--muted);line-height:1.8}
+
+/* ── UTILS ── */
+.spinner{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle}
+.spinner.dark{border-color:rgba(27,35,64,.2);border-top-color:var(--navy)}
+@keyframes spin{to{transform:rotate(360deg)}}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--navy);color:white;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:500;z-index:9999;box-shadow:var(--shadow-lg);opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo serif">ME Consultora</div>
+    <div class="login-sub">Panel interno · Acceso restringido</div>
+    <label class="login-label">Usuario</label>
+    <input id="l-user" class="login-input" type="text" placeholder="usuario" autocomplete="username"/>
+    <label class="login-label">Contraseña</label>
+    <input id="l-pass" class="login-input" type="password" placeholder="••••••••" autocomplete="current-password"/>
+    <div id="l-err" class="login-err">Usuario o contraseña incorrectos</div>
+    <button class="login-btn" onclick="doLogin()">Ingresar →</button>
+  </div>
+</div>
+
+<!-- ── APP ── -->
+<div id="app-screen">
+  <header class="app-header">
+    <div class="hdr-brand">
+      <span class="hdr-logo serif">ME Consultora</span>
+      <span class="hdr-sep">·</span>
+      <span class="hdr-label">CRM Interno</span>
+    </div>
+    <div class="hdr-right">
+      <span id="import-status" class="import-status"></span>
+      <button class="btn-import" id="btn-import" onclick="importClients()">
+        <span id="import-icon">⬇</span> Importar clientes
+      </button>
+      <button class="btn-logout" onclick="doLogout()">Salir</button>
+    </div>
+  </header>
+  <div class="board-wrapper">
+    <div class="board-scroll" id="board"></div>
+  </div>
+</div>
+
+<!-- ── PANEL BACKDROP ── -->
+<div class="panel-backdrop" id="panel-backdrop" onclick="closePanel()"></div>
+
+<!-- ── SIDE PANEL ── -->
+<div class="side-panel" id="side-panel">
+  <div class="panel-hdr" id="panel-hdr"></div>
+  <div class="panel-tabs" id="panel-tabs"></div>
+  <div class="panel-body" id="panel-body"></div>
+</div>
+
+<!-- ── TRANSCRIPT MODAL ── -->
+<div id="tr-modal">
+  <div class="tr-modal-card">
+    <div class="tr-modal-title">Agregar transcript de reunión</div>
+    <div class="tr-modal-row">
+      <label>Nombre de la reunión</label>
+      <input id="tr-label-inp" placeholder="ej: Sesión inicial, Seguimiento mayo..."/>
+    </div>
+    <div class="tr-modal-row">
+      <label>Transcript o notas de la reunión</label>
+      <textarea id="tr-text-inp" placeholder="Pegá el transcript, resumen o notas de la reunión aquí..."></textarea>
+    </div>
+    <div class="tr-modal-btns">
+      <button class="btn-cancel" onclick="closeTrModal()">Cancelar</button>
+      <button class="btn-confirm" onclick="confirmTranscript()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<iframe id="apps-script-frame" name="apps-script-frame" style="display:none"></iframe>
+
+<script>
+// ══ CONFIG ══════════════════════════════════════════════════════════════════
+const STAGES = [
+  {id:1, name:'Test completado',     color:'#6b7280', bg:'#f3f4f6'},
+  {id:2, name:'Sesión estratégica',  color:'#2563eb', bg:'#dbeafe'},
+  {id:3, name:'Diagnóstico 360°',    color:'#b45309', bg:'#fef3c7'},
+  {id:4, name:'Implementación',      color:'#16a34a', bg:'#dcfce7'},
+  {id:5, name:'Partner estratégico', color:'#7c3aed', bg:'#ede9fe'},
+  {id:6, name:'En pausa',            color:'#d97706', bg:'#fef9c3'},
+  {id:7, name:'Perdido',             color:'#dc2626', bg:'#fee2e2'},
+];
+const DIMS = [
+  {key:'finanzas',    label:'Finanzas',    color:'#2563eb'},
+  {key:'operaciones', label:'Operaciones', color:'#16a34a'},
+  {key:'gestion',     label:'Gestión',     color:'#7c3aed'},
+  {key:'estrategia',  label:'Estrategia',  color:'#c9a96e'},
+];
+const COPILOT_ACTIONS = {
+  2:[
+    {id:'preguntas',   icon:'💬', title:'Preguntas para la sesión',     desc:'5 preguntas profundas para la reunión estratégica'},
+    {id:'quickwins',   icon:'⚡', title:'Quick wins para llevar',       desc:'5 acciones concretas e inmediatas para el cliente'},
+    {id:'presupuesto', icon:'📄', title:'Presupuesto Diagnóstico 360°', desc:'Estimación de precio y propuesta comercial'},
+  ],
+  3:[
+    {id:'estructura',  icon:'🔍', title:'Estructura del diagnóstico',  desc:'Plan detallado del diagnóstico a realizar'},
+    {id:'propuesta',   icon:'📋', title:'Propuesta de implementación', desc:'Borrador de propuesta para la stage siguiente'},
+  ],
+  4:[
+    {id:'hitos',       icon:'📅', title:'Plan de hitos',              desc:'Cronograma con milestones del proyecto'},
+    {id:'informe',     icon:'📊', title:'Informe de avance',          desc:'Template para reportar el progreso al cliente'},
+  ],
+  5:[
+    {id:'mensual',     icon:'📈', title:'Resumen mensual',            desc:'Template de resultados del mes'},
+    {id:'upsell',      icon:'🎯', title:'Oportunidades de upsell',    desc:'Análisis de expansión y próximos servicios'},
+  ],
+};
+
+// ══ STATE ════════════════════════════════════════════════════════════════════
+let S = {
+  clients: {},    // email → normalized client obj
+  crm: {},        // email → {stage, notes, links, transcripts, aiOutputs}
+  active: null,   // active email
+  tab: 'resumen',
+  drag: null,
+  trModalEmail: null,
+};
+
+// ══ AUTH ═════════════════════════════════════════════════════════════════════
+document.getElementById('l-pass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+document.getElementById('l-user').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('l-pass').focus(); });
+
+function doLogin() {
+  const u = document.getElementById('l-user').value.trim();
+  const p = document.getElementById('l-pass').value;
+  if (u === 'melisa' && p === 'meconsulting2026') {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display = 'flex';
+    loadStorage();
+    renderBoard();
+  } else {
+    document.getElementById('l-err').style.display = 'block';
+    document.getElementById('l-pass').value = '';
+  }
+}
+function doLogout() {
+  document.getElementById('app-screen').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('l-user').value = '';
+  document.getElementById('l-pass').value = '';
+  closePanel();
+}
+
+// ══ STORAGE ══════════════════════════════════════════════════════════════════
+function saveStorage() {
+  try {
+    localStorage.setItem('me_crm_cl', JSON.stringify(S.clients));
+    localStorage.setItem('me_crm_data', JSON.stringify(S.crm));
+  } catch(e){}
+}
+function loadStorage() {
+  try {
+    const c = localStorage.getItem('me_crm_cl');
+    const d = localStorage.getItem('me_crm_data');
+    if(c) S.clients = JSON.parse(c);
+    if(d) S.crm     = JSON.parse(d);
+  } catch(e){}
+}
+
+// ══ IMPORT ═══════════════════════════════════════════════════════════════════
+async function importClients() {
+  const btn  = document.getElementById('btn-import');
+  const icon = document.getElementById('import-icon');
+  const status = document.getElementById('import-status');
+  btn.disabled = true;
+  icon.innerHTML = '<span class="spinner"></span>';
+  status.textContent = 'Importando...';
+
+  try {
+    const res  = await fetch('/api/crm?action=clients');
+    const data = await res.json();
+    if (!Array.isArray(data)) throw new Error(data.error || 'Respuesta inválida');
+
+    let added = 0;
+    data.forEach(raw => {
+      const client = normalizeClient(raw);
+      if (!client.email) return;
+      S.clients[client.email] = client;
+      if (!S.crm[client.email]) S.crm[client.email] = blankCRM();
+      added++;
+    });
+
+    saveStorage();
+    renderBoard();
+    if (S.active) renderPanel(S.active);
+    const txt = `${added} cliente${added!==1?'s':''} importado${added!==1?'s':''}`;
+    status.textContent = txt;
+    showToast('✓ ' + txt);
+    setTimeout(() => { status.textContent = ''; }, 5000);
+  } catch(err) {
+    console.error('Import error:', err);
+    status.textContent = '';
+    showToast('Error al importar: ' + err.message, true);
+  }
+  btn.disabled = false;
+  icon.innerHTML = '⬇';
+}
+
+function normalizeClient(r) {
+  const g = (...keys) => {
+    for (const k of keys) {
+      if (r[k] !== undefined && r[k] !== '') return r[k];
+    }
+    return '';
+  };
+  return {
+    email:         String(g('email','Email') || '').toLowerCase().trim(),
+    nombre:        g('nombre','Nombre'),
+    empresa:       g('empresa','Empresa'),
+    celular:       g('celular','Celular'),
+    industria:     g('industria','Industria'),
+    descripcion:   g('descripcion','descripción','Descripción','Descripcion'),
+    scoreTotal:    parseInt(g('scoreTotal','Score Total','score_total')) || 0,
+    scoreFinanzas: parseInt(g('scoreFinanzas','Score Finanzas')) || 0,
+    scoreOps:      parseInt(g('scoreOperaciones','Score Operaciones')) || 0,
+    scoreGestion:  parseInt(g('scoreGestion','Score Gestión','Score Gestion')) || 0,
+    scoreEst:      parseInt(g('scoreEstrategia','Score Estrategia')) || 0,
+    perfil:        g('perfil','Perfil'),
+    resumen:       g('resumen','Resumen Ejecutivo','diagnosticoResumen'),
+    palancaTitulo: g('palancaTitulo','Palanca Título','Palanca Titulo'),
+    palancaDesc:   g('palancaDesc','Palanca Descripción','Palanca Descripcion'),
+    fraseCierre:   g('fraseCierre','Frase Cierre'),
+    problemaAbierto: g('problemaAbierto','Problema principal (pregunta abierta)','problema'),
+    timestamp:     g('timestamp','Timestamp','fecha'),
+  };
+}
+
+function blankCRM() {
+  return {stage:1, stageAnterior:null, notes:'', links:[], transcripts:[], aiOutputs:{}};
+}
+
+// ══ CRM HELPERS ═══════════════════════════════════════════════════════════════
+function getCRM(email) {
+  if (!S.crm[email]) S.crm[email] = blankCRM();
+  return S.crm[email];
+}
+function updateCRM(email, patch) {
+  S.crm[email] = {...getCRM(email), ...patch};
+  saveStorage();
+  syncCRM(email);
+}
+async function syncCRM(email) {
+  try {
+    await fetch('/api/crm', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action:'updateCRM', email, data: S.crm[email]}),
+    });
+  } catch(e){ /* silent – localStorage is source of truth */ }
+}
+function moveStage(email, stageId) {
+  const crm = getCRM(email);
+  const patch = {stage: stageId};
+  if (stageId === 6 || stageId === 7) patch.stageAnterior = crm.stage;
+  updateCRM(email, patch);
+  renderBoard();
+  if (S.active === email) renderPanel(email);
+}
+
+// ══ RENDER BOARD ══════════════════════════════════════════════════════════════
+function renderBoard() {
+  document.getElementById('board').innerHTML =
+    STAGES.map(st => renderColumn(st)).join('');
+}
+
+function renderColumn(st) {
+  const emails = Object.keys(S.clients).filter(e => getCRM(e).stage === st.id);
+  return `
+  <div class="k-col" data-stage="${st.id}"
+    ondragover="onDragOver(event,${st.id})"
+    ondragleave="onDragLeave(event)"
+    ondrop="onDrop(event,${st.id})">
+    <div class="col-hdr">
+      <div style="display:flex;align-items:center">
+        <div class="col-dot" style="background:${st.color}"></div>
+        <span class="col-name" style="color:${st.color}">${st.name}</span>
+      </div>
+      <span class="col-count">${emails.length}</span>
+    </div>
+    <div class="col-cards" data-stage="${st.id}">
+      ${emails.length ? emails.map(e => renderCard(e, st)).join('') : '<div class="col-empty">Sin clientes</div>'}
+    </div>
+  </div>`;
+}
+
+function renderCard(email, st) {
+  const cl = S.clients[email];
+  const ss = scoreStyle(cl.scoreTotal);
+  const isActive = S.active === email;
+  const ts = cl.timestamp ? new Date(cl.timestamp).toLocaleDateString('es-AR',{day:'2-digit',month:'short'}) : '';
+  return `
+  <div class="k-card${isActive?' active-card':''}"
+    data-email="${email}" draggable="true"
+    ondragstart="onDragStart(event,'${email}')"
+    ondragend="onDragEnd(event)"
+    onclick="openPanel('${email}')">
+    <div class="card-co">${esc(cl.empresa||'Sin nombre')}</div>
+    <div class="card-nm">${esc(cl.nombre)}</div>
+    <div class="card-row">
+      <span class="card-score" style="background:${ss.bg};color:${ss.color}">${cl.scoreTotal}/100</span>
+      ${cl.industria ? `<span class="card-ind">${esc(cl.industria)}</span>` : ''}
+    </div>
+    ${cl.problemaAbierto ? `<div class="card-prob">"${esc(cl.problemaAbierto)}"</div>` : ''}
+    ${ts ? `<div class="card-date">${ts}</div>` : ''}
+  </div>`;
+}
+
+// ══ DRAG & DROP ═══════════════════════════════════════════════════════════════
+function onDragStart(e, email) {
+  S.drag = email;
+  e.dataTransfer.effectAllowed = 'move';
+  setTimeout(() => { const el = document.querySelector(`[data-email="${email}"]`); if(el) el.classList.add('dragging'); }, 0);
+}
+function onDragEnd(e) {
+  document.querySelectorAll('.k-card.dragging').forEach(el => el.classList.remove('dragging'));
+  document.querySelectorAll('.k-col.drag-over').forEach(el => el.classList.remove('drag-over'));
+  S.drag = null;
+}
+function onDragOver(e, stageId) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  const col = e.currentTarget;
+  if (!col.classList.contains('drag-over')) {
+    document.querySelectorAll('.k-col.drag-over').forEach(el => el.classList.remove('drag-over'));
+    col.classList.add('drag-over');
+  }
+}
+function onDragLeave(e) {
+  if (!e.currentTarget.contains(e.relatedTarget)) e.currentTarget.classList.remove('drag-over');
+}
+function onDrop(e, stageId) {
+  e.preventDefault();
+  if (S.drag) moveStage(S.drag, stageId);
+  document.querySelectorAll('.k-col.drag-over').forEach(el => el.classList.remove('drag-over'));
+}
+
+// ══ PANEL ════════════════════════════════════════════════════════════════════
+function openPanel(email) {
+  S.active = email;
+  S.tab = 'resumen';
+  document.getElementById('panel-backdrop').classList.add('open');
+  document.getElementById('side-panel').classList.add('open');
+  renderPanel(email);
+  renderBoard();
+}
+function closePanel() {
+  S.active = null;
+  document.getElementById('panel-backdrop').classList.remove('open');
+  document.getElementById('side-panel').classList.remove('open');
+  renderBoard();
+}
+function renderPanel(email) {
+  const cl  = S.clients[email];
+  if (!cl) return;
+  const crm = getCRM(email);
+  const st  = STAGES.find(s => s.id === crm.stage) || STAGES[0];
+  const ss  = scoreStyle(cl.scoreTotal);
+  const ini = initials(cl.empresa || cl.nombre);
+
+  document.getElementById('panel-hdr').innerHTML = `
+    <div class="panel-top">
+      <div style="display:flex;align-items:flex-start;flex:1">
+        <div class="panel-avatar" style="background:${st.color}">${ini}</div>
+        <div class="panel-info">
+          <div class="panel-co">${esc(cl.empresa||cl.nombre)}</div>
+          ${cl.empresa ? `<div class="panel-nm">${esc(cl.nombre)}</div>` : ''}
+        </div>
+      </div>
+      <button class="panel-close" onclick="closePanel()">✕</button>
+    </div>
+    <div class="panel-badges">
+      <span class="badge" style="background:${ss.bg};color:${ss.color}">${cl.scoreTotal}/100 · ${ss.label}</span>
+      ${cl.industria ? `<span class="badge-ind">${esc(cl.industria)}</span>` : ''}
+      <span class="badge" style="background:${st.bg};color:${st.color};border:1px solid currentColor">${st.name}</span>
+    </div>
+    <div class="stage-sel-label">Mover a stage:</div>
+    <div class="stage-btns">
+      ${STAGES.map(s => `
+        <button class="sbtn${s.id===crm.stage?' current':''}"
+          style="${s.id===crm.stage ? `background:${s.color}` : ''}"
+          onclick="moveStage('${email}',${s.id})">
+          ${s.name}
+        </button>`).join('')}
+    </div>`;
+
+  const tabs = [
+    {id:'resumen',  label:'Resumen'},
+    {id:'copilot',  label:'✦ Copilot'},
+    {id:'docs',     label:'Docs'},
+    {id:'reuniones',label:'Reuniones'},
+  ];
+  document.getElementById('panel-tabs').innerHTML = tabs.map(t => `
+    <button class="tab${S.tab===t.id?' on':''}" onclick="switchTab('${t.id}','${email}')">${t.label}</button>
+  `).join('');
+
+  renderTabContent(email);
+}
+
+function switchTab(tabId, email) {
+  S.tab = tabId;
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.textContent.trim() === (tabId==='resumen'?'Resumen':tabId==='copilot'?'✦ Copilot':tabId==='docs'?'Docs':'Reuniones')));
+  renderTabContent(email);
+}
+
+function renderTabContent(email) {
+  const body = document.getElementById('panel-body');
+  if (S.tab === 'resumen')   { body.innerHTML = renderResumen(email); initDimBars(email); }
+  if (S.tab === 'copilot')   body.innerHTML = renderCopilot(email);
+  if (S.tab === 'docs')      body.innerHTML = renderDocs(email);
+  if (S.tab === 'reuniones') body.innerHTML = renderReuniones();
+}
+
+// ══ RESUMEN TAB ═══════════════════════════════════════════════════════════════
+function renderResumen(email) {
+  const cl = S.clients[email];
+  const ts = cl.timestamp ? new Date(cl.timestamp).toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'}) : '—';
+  return `
+  <div class="sec">
+    <div class="sec-title">Datos de contacto</div>
+    <div class="info-grid">
+      <div class="iitem"><label>Nombre</label><span>${esc(cl.nombre)||'—'}</span></div>
+      <div class="iitem"><label>Empresa</label><span>${esc(cl.empresa)||'—'}</span></div>
+      <div class="iitem"><label>Email</label><span style="font-size:11px">${esc(cl.email)}</span></div>
+      <div class="iitem"><label>Celular</label><span>${esc(cl.celular)||'—'}</span></div>
+      <div class="iitem full"><label>Industria</label><span>${esc(cl.industria)||'—'}</span></div>
+      <div class="iitem full"><label>Descripción del negocio</label><span style="font-size:12px;line-height:1.65">${esc(cl.descripcion)||'—'}</span></div>
+      <div class="iitem"><label>Test completado</label><span>${ts}</span></div>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-title">Scorecard</div>
+    <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:14px">
+      <span style="font-size:30px;font-weight:700;color:var(--navy)">${cl.scoreTotal}</span>
+      <span style="font-size:14px;color:var(--muted)">/100</span>
+      <span style="font-size:13px;font-weight:600;color:${scoreStyle(cl.scoreTotal).color}">${scoreStyle(cl.scoreTotal).label}</span>
+    </div>
+    <div class="dim-bars">
+      ${DIMS.map(d => `
+        <div class="dim-row">
+          <div class="dim-lbl" style="color:${d.color}">${d.label}</div>
+          <div class="dim-track"><div class="dim-fill" id="df-${d.key}" style="background:${d.color}"></div></div>
+          <div class="dim-num" style="color:${d.color}" id="dn-${d.key}">0</div>
+        </div>`).join('')}
+    </div>
+  </div>
+  ${cl.resumen ? `
+  <div class="sec">
+    <div class="sec-title">Diagnóstico IA inicial</div>
+    <div class="resumen-box">${esc(cl.resumen)}</div>
+  </div>` : ''}
+  ${cl.problemaAbierto ? `
+  <div class="sec">
+    <div class="sec-title">Problema declarado por el cliente</div>
+    <div class="prob-box">${esc(cl.problemaAbierto)}</div>
+  </div>` : ''}
+  ${cl.palancaTitulo ? `
+  <div class="sec">
+    <div class="sec-title">Palanca principal</div>
+    <div class="palanca-box">
+      <div class="palanca-title">${esc(cl.palancaTitulo)}</div>
+      ${cl.palancaDesc ? `<div class="palanca-desc">${esc(cl.palancaDesc)}</div>` : ''}
+    </div>
+  </div>` : ''}`;
+}
+
+function initDimBars(email) {
+  const cl = S.clients[email];
+  requestAnimationFrame(() => setTimeout(() => {
+    const scores = {finanzas: cl.scoreFinanzas, operaciones: cl.scoreOps, gestion: cl.scoreGestion, estrategia: cl.scoreEst};
+    DIMS.forEach(d => {
+      const fill = document.getElementById('df-' + d.key);
+      const num  = document.getElementById('dn-' + d.key);
+      const val  = scores[d.key] || 0;
+      if (fill) fill.style.width = val + '%';
+      if (num)  num.textContent  = val;
+    });
+  }, 60));
+}
+
+// ══ COPILOT TAB ═══════════════════════════════════════════════════════════════
+function renderCopilot(email) {
+  const crm     = getCRM(email);
+  const actions = COPILOT_ACTIONS[crm.stage];
+  if (!actions) return `
+    <div class="cop-locked">
+      <div class="cop-locked-icon">🤖</div>
+      <h3>Copilot IA</h3>
+      <p>Las herramientas de IA están disponibles a partir de la<br><strong>Sesión Estratégica</strong>.<br>Mové el cliente a ese stage para activarlas.</p>
+    </div>`;
+
+  const outputs = crm.aiOutputs || {};
+  const stName  = STAGES.find(s => s.id === crm.stage)?.name || '';
+  return `
+    <div class="cop-intro">
+      Herramientas IA para <strong>${stName}</strong>. Los resultados se guardan automáticamente en el perfil del cliente.
+    </div>
+    ${actions.map(a => {
+      const saved = outputs[a.id];
+      return `
+      <div class="cop-action" id="ca-${a.id}">
+        <div class="cop-action-hdr">
+          <div class="cop-action-title">
+            <span class="cop-icon">${a.icon}</span>
+            <div class="cop-title-text">
+              <strong>${a.title}</strong>
+              <span>${a.desc}</span>
+            </div>
+          </div>
+          <button class="btn-gen" id="bg-${a.id}" onclick="runCopilot('${email}','${a.id}')">
+            ${saved ? 'Regenerar' : 'Generar'}
+          </button>
+        </div>
+        ${saved ? buildResultHTML(email, a.id, saved) : `<div id="cr-${a.id}" style="display:none"></div>`}
+      </div>`;
+    }).join('')}`;
+}
+
+function buildResultHTML(email, actionId, text) {
+  const showDoc = (actionId === 'presupuesto' || actionId === 'propuesta');
+  return `
+    <div class="cop-result" id="cr-${actionId}">
+      <div class="cop-result-text" id="crt-${actionId}">${esc(text)}</div>
+      <div class="result-btns">
+        <button class="btn-copy" onclick="copyResult('${actionId}')">📋 Copiar</button>
+        ${showDoc ? `<button class="btn-doc" onclick="createDoc('${email}','${actionId}')">📝 Crear Google Doc</button>` : ''}
+      </div>
+    </div>`;
+}
+
+async function runCopilot(email, actionId) {
+  const cl  = S.clients[email];
+  const crm = getCRM(email);
+  const btn = document.getElementById('bg-' + actionId);
+  const div = document.getElementById('cr-' + actionId);
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>';
+  if (div) { div.style.display = 'none'; }
+
+  try {
+    const res  = await fetch('/api/copilot', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        action: actionId,
+        stage:  crm.stage,
+        client: {
+          nombre:        cl.nombre,
+          empresa:       cl.empresa,
+          industria:     cl.industria,
+          descripcion:   cl.descripcion,
+          scoreTotal:    cl.scoreTotal,
+          scoreFinanzas: cl.scoreFinanzas,
+          scoreOps:      cl.scoreOps,
+          scoreGestion:  cl.scoreGestion,
+          scoreEst:      cl.scoreEst,
+          perfil:        cl.perfil,
+          problema:      cl.problemaAbierto,
+          resumen:       cl.resumen,
+          palancaTitulo: cl.palancaTitulo,
+          palancaDesc:   cl.palancaDesc,
+        }
+      })
+    });
+    const data = await res.json();
+    const text = data.result || 'Sin respuesta';
+
+    const aiOutputs = {...(crm.aiOutputs||{}), [actionId]: text};
+    updateCRM(email, {aiOutputs});
+
+    // Re-render copilot to show result + proper button
+    const container = document.getElementById('ca-' + actionId);
+    if (container) {
+      const newResult = buildResultHTML(email, actionId, text);
+      let rd = document.getElementById('cr-' + actionId);
+      if (rd) rd.outerHTML = newResult; else container.insertAdjacentHTML('beforeend', newResult);
+    }
+  } catch(err) {
+    console.error('Copilot err:', err);
+    showToast('Error al generar. Intentá de nuevo.', true);
+  }
+
+  const b2 = document.getElementById('bg-' + actionId);
+  if (b2) { b2.disabled = false; b2.innerHTML = 'Regenerar'; }
+}
+
+function copyResult(actionId) {
+  const el = document.getElementById('crt-' + actionId);
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent).then(() => showToast('Copiado al portapapeles'));
+}
+
+async function createDoc(email, actionId) {
+  const cl  = S.clients[email];
+  const crm = getCRM(email);
+  const text = crm.aiOutputs?.[actionId] || '';
+  if (!text) return showToast('Generá el contenido primero', true);
+
+  showToast('Creando Google Doc...');
+  try {
+    const res  = await fetch('/api/crm', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        action:    'createDoc',
+        empresa:   cl.empresa || cl.nombre,
+        nombre:    cl.nombre,
+        actionId,
+        content:   text,
+      })
+    });
+    const data = await res.json();
+    if (data.url) {
+      window.open(data.url, '_blank');
+      showToast('Google Doc creado ✓');
+    } else {
+      showToast('Error al crear el Doc', true);
+    }
+  } catch(err) {
+    showToast('Error al crear el Doc', true);
+  }
+}
+
+// ══ DOCS TAB ═════════════════════════════════════════════════════════════════
+function renderDocs(email) {
+  const crm = getCRM(email);
+  const links = crm.links || [];
+  const transcripts = crm.transcripts || [];
+  return `
+  <div class="docs-sec">
+    <div class="docs-sec-title">📝 Notas internas</div>
+    <textarea class="notes-area" id="notes-area" placeholder="Anotá observaciones, contexto, ideas...">${esc(crm.notes||'')}</textarea>
+    <button class="btn-save" onclick="saveNotes('${email}')">Guardar notas</button>
+    <div class="saved-ok" id="notes-ok">✓ Guardado</div>
+  </div>
+
+  <div class="docs-sec">
+    <div class="docs-sec-title">🔗 Links y documentos</div>
+    <div class="links-list" id="links-list">
+      ${links.map((l,i) => `
+        <div class="link-item">
+          <span class="link-lbl">${esc(l.label)}</span>
+          <a class="link-url" href="${esc(l.url)}" target="_blank">${esc(l.url)}</a>
+          <button class="btn-rm" onclick="removeLink('${email}',${i})">✕</button>
+        </div>`).join('')}
+    </div>
+    <div class="link-add-row">
+      <input class="link-inp" id="li-lbl" placeholder="Etiqueta" style="max-width:110px"/>
+      <input class="link-inp" id="li-url" placeholder="https://..."/>
+      <button class="btn-add" onclick="addLink('${email}')">+ Agregar</button>
+    </div>
+  </div>
+
+  <div class="docs-sec">
+    <div class="docs-sec-title">💬 Transcripts de reuniones</div>
+    ${transcripts.map((t,i) => `
+      <div class="transcript-item">
+        <div class="tr-meta">
+          <span class="tr-label">${esc(t.label)}</span>
+          <span style="display:flex;align-items:center;gap:8px">
+            <span class="tr-date">${esc(t.date)}</span>
+            <button class="btn-rm" onclick="removeTranscript('${email}',${i})">✕</button>
+          </span>
+        </div>
+        <div class="tr-text" id="tr-${i}">${esc(t.text)}</div>
+        ${t.text.length > 300 ? `<button class="tr-expand" onclick="expandTr(${i})">Ver más</button>` : ''}
+      </div>`).join('')}
+    <button class="btn-new-transcript" onclick="openTrModal('${email}')">+ Agregar transcript de reunión</button>
+  </div>`;
+}
+
+function saveNotes(email) {
+  const val = document.getElementById('notes-area')?.value || '';
+  updateCRM(email, {notes: val});
+  const ok = document.getElementById('notes-ok');
+  if (ok) { ok.style.display = 'block'; setTimeout(() => ok.style.display = 'none', 2500); }
+}
+
+function addLink(email) {
+  const url = document.getElementById('li-url')?.value.trim() || '';
+  const lbl = document.getElementById('li-lbl')?.value.trim() || 'Link';
+  if (!url) return;
+  const crm   = getCRM(email);
+  const links = [...(crm.links||[]), {url, label: lbl}];
+  updateCRM(email, {links});
+  renderTabContent(email);
+}
+
+function removeLink(email, index) {
+  const crm   = getCRM(email);
+  const links = (crm.links||[]).filter((_,i) => i !== index);
+  updateCRM(email, {links});
+  renderTabContent(email);
+}
+
+function expandTr(i) {
+  const el = document.getElementById('tr-' + i);
+  if (el) { el.classList.toggle('expanded'); }
+}
+
+function openTrModal(email) {
+  S.trModalEmail = email;
+  document.getElementById('tr-label-inp').value = '';
+  document.getElementById('tr-text-inp').value  = '';
+  document.getElementById('tr-modal').classList.add('open');
+}
+function closeTrModal() {
+  document.getElementById('tr-modal').classList.remove('open');
+  S.trModalEmail = null;
+}
+function confirmTranscript() {
+  const email = S.trModalEmail;
+  if (!email) return;
+  const label = document.getElementById('tr-label-inp').value.trim() || 'Reunión';
+  const text  = document.getElementById('tr-text-inp').value.trim();
+  if (!text) return showToast('El transcript no puede estar vacío', true);
+  const crm  = getCRM(email);
+  const date = new Date().toLocaleDateString('es-AR', {day:'2-digit', month:'short', year:'numeric'});
+  const transcripts = [...(crm.transcripts||[]), {label, date, text}];
+  updateCRM(email, {transcripts});
+  closeTrModal();
+  renderTabContent(email);
+  showToast('Transcript guardado ✓');
+}
+function removeTranscript(email, index) {
+  const crm  = getCRM(email);
+  const transcripts = (crm.transcripts||[]).filter((_,i) => i !== index);
+  updateCRM(email, {transcripts});
+  renderTabContent(email);
+}
+
+// ══ REUNIONES TAB ════════════════════════════════════════════════════════════
+function renderReuniones() {
+  return `
+    <div class="reuniones-ph">
+      <div class="reuniones-ph-icon">📅</div>
+      <h3>Integración con Google Calendar</h3>
+      <p>Próximamente vas a poder ver aquí el historial<br>de reuniones y agendar desde la app.</p>
+      <div class="reuniones-tip">
+        <h4>Por ahora podés:</h4>
+        <p>
+          • Guardar el link de Calendly en la tab <strong>Docs</strong><br>
+          • Agregar el transcript de cada reunión en esa misma tab<br>
+          • Anotar resúmenes y próximos pasos en Notas internas
+        </p>
+      </div>
+    </div>`;
+}
+
+// ══ HELPERS ══════════════════════════════════════════════════════════════════
+function scoreStyle(s) {
+  if (s >= 75) return {color:'#16a34a', bg:'#dcfce7', label:'Saludable'};
+  if (s >= 50) return {color:'#d97706', bg:'#fef3c7', label:'En desarrollo'};
+  if (s >= 25) return {color:'#dc2626', bg:'#fee2e2', label:'Crítico'};
+  return {color:'#6b7280', bg:'#f3f4f6', label:'Sin datos'};
+}
+function initials(name) {
+  if (!name) return '?';
+  return name.split(' ').slice(0,2).map(w => w[0]).join('').toUpperCase();
+}
+function esc(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function showToast(msg, isErr = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = isErr ? '#dc2626' : '#1b2340';
+  t.style.opacity = '1';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.style.opacity = '0', 3500);
+}
+</script>
+</body>
+</html>
