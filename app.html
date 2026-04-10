@@ -413,29 +413,29 @@ async function importClients() {
 function normalizeClient(r) {
   const g = (...keys) => {
     for (const k of keys) {
-      if (r[k] !== undefined && r[k] !== '') return r[k];
+      if (r[k] !== undefined && r[k] !== null && r[k] !== '') return r[k];
     }
     return '';
   };
   return {
-    email:         String(g('email','Email') || '').toLowerCase().trim(),
-    nombre:        g('nombre','Nombre'),
-    empresa:       g('empresa','Empresa'),
-    celular:       g('celular','Celular'),
-    industria:     g('industria','Industria'),
-    descripcion:   g('descripcion','descripción','Descripción','Descripcion'),
-    scoreTotal:    parseInt(g('scoreTotal','Score Total','score_total')) || 0,
-    scoreFinanzas: parseInt(g('scoreFinanzas','Score Finanzas')) || 0,
-    scoreOps:      parseInt(g('scoreOperaciones','Score Operaciones')) || 0,
-    scoreGestion:  parseInt(g('scoreGestion','Score Gestión','Score Gestion')) || 0,
-    scoreEst:      parseInt(g('scoreEstrategia','Score Estrategia')) || 0,
-    perfil:        g('perfil','Perfil'),
-    resumen:       g('resumen','Resumen Ejecutivo','diagnosticoResumen'),
-    palancaTitulo: g('palancaTitulo','Palanca Título','Palanca Titulo'),
-    palancaDesc:   g('palancaDesc','Palanca Descripción','Palanca Descripcion'),
-    fraseCierre:   g('fraseCierre','Frase Cierre'),
-    problemaAbierto: g('problemaAbierto','Problema principal (pregunta abierta)','problema'),
-    timestamp:     g('timestamp','Timestamp','fecha'),
+    email:          String(g('Email','email') || '').toLowerCase().trim(),
+    nombre:         g('Nombre','nombre'),
+    empresa:        g('Empresa','empresa'),
+    celular:        g('Celular','celular'),
+    industria:      g('Industria','industria'),
+    descripcion:    g('Descripción del negocio','Descripción','Descripcion','descripcion'),
+    scoreTotal:     parseInt(g('Score Total','scoreTotal')) || 0,
+    scoreFinanzas:  parseInt(g('Score Finanzas','scoreFinanzas')) || 0,
+    scoreOps:       parseInt(g('Score Operaciones','scoreOperaciones')) || 0,
+    scoreGestion:   parseInt(g('Score Gestión','Score Gestion','scoreGestion')) || 0,
+    scoreEst:       parseInt(g('Score Estrategia','scoreEstrategia')) || 0,
+    perfil:         g('Perfil','perfil'),
+    resumen:        g('Diagnóstico resumen','Diagnóstico Resumen','Resumen Ejecutivo','resumen'),
+    palancaTitulo:  g('Palanca — Título','Palanca — Titulo','Palanca Título','palancaTitulo'),
+    palancaDesc:    g('Palanca — Descripción','Palanca — Descripcion','Palanca Descripción','palancaDesc'),
+    fraseCierre:    g('Frase cierre','Frase Cierre','fraseCierre'),
+    problemaAbierto: g('Problema principal (pregunta abierta)','problemaAbierto'),
+    timestamp:      g('Fecha','Timestamp','timestamp'),
   };
 }
 
