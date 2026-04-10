@@ -16,11 +16,17 @@ export default async function handler(req, res) {
 
   try {
     if (req.method === 'GET') {
-      // Proxy GET → Apps Script (leer clientes / CRM data)
-      const params  = new URLSearchParams(req.query).toString();
-      const url     = `${APPS_SCRIPT_URL}${params ? '?' + params : ''}`;
+      // Exponer la URL del Apps Script para que el browser llame directo
+      // (evita problemas de redirección server-side con Google)
+      if (req.query.action === 'getScriptUrl') {
+        return res.status(200).json({ url: APPS_SCRIPT_URL });
+      }
+      // Proxy GET → Apps Script
+      const params   = new URLSearchParams(req.query).toString();
+      const url      = `${APPS_SCRIPT_URL}${params ? '?' + params : ''}`;
       const upstream = await fetch(url, { redirect: 'follow' });
-      const text    = await upstream.text();
+      const text     = await upstream.text();
+      console.log('Apps Script GET response:', upstream.status, text.substring(0, 500));
       try {
         return res.status(200).json(JSON.parse(text));
       } catch {
