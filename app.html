@@ -381,15 +381,9 @@ async function importClients() {
   status.textContent = 'Importando...';
 
   try {
-    // Obtener la URL del Apps Script desde Vercel (no hardcodeada)
-    const urlRes    = await fetch('/api/crm?action=getScriptUrl');
-    const { url: scriptUrl } = await urlRes.json();
-    if (!scriptUrl) throw new Error('APPS_SCRIPT_URL no configurada');
-
-    // Llamar al Apps Script directamente desde el browser (evita problema de redirect server-side)
-    const res  = await fetch(`${scriptUrl}?action=clients`);
+    const res  = await fetch('/api/crm?action=clients');
     const data = await res.json();
-    if (!Array.isArray(data)) throw new Error(data.error || 'Respuesta inválida del Apps Script');
+    if (!Array.isArray(data)) throw new Error(data.error || 'Respuesta inválida');
 
     let added = 0;
     data.forEach(raw => {
