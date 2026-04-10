@@ -108,24 +108,22 @@ Estás por tener una sesión estratégica de 30 minutos con este cliente.
 
 ${context}
 
-Generá exactamente 8 preguntas para la sesión: 2 por cada dimensión (Finanzas, Operaciones, Gestión, Estrategia).
+Generá exactamente 8 preguntas para la sesión: 2 por cada dimensión.
+Priorizá las dimensiones más débiles del cliente para las preguntas más incisivas.
 Reglas:
-- Cada pregunta: máximo 1 línea, directa y concreta
-- Explorá causas raíz, no síntomas superficiales
-- Específicas para la industria y los problemas reales de este cliente
-- Sin preámbulos ni conectores
+- Cada pregunta: máximo 1 línea, directa, específica para ESTE cliente y su industria
+- Explorá causas raíz concretas, no síntomas genéricos
+- Que reflejen los scores y el problema declarado del cliente
 
-Respondé ÚNICAMENTE con un JSON válido. Sin texto antes ni después. Formato exacto:
-[
-  {"dim":"Finanzas","q":"Pregunta 1"},
-  {"dim":"Finanzas","q":"Pregunta 2"},
-  {"dim":"Operaciones","q":"Pregunta 3"},
-  {"dim":"Operaciones","q":"Pregunta 4"},
-  {"dim":"Gestión","q":"Pregunta 5"},
-  {"dim":"Gestión","q":"Pregunta 6"},
-  {"dim":"Estrategia","q":"Pregunta 7"},
-  {"dim":"Estrategia","q":"Pregunta 8"}
-]`,
+Respondé ÚNICAMENTE con este formato, sin texto antes ni después:
+[Finanzas] Pregunta 1
+[Finanzas] Pregunta 2
+[Operaciones] Pregunta 3
+[Operaciones] Pregunta 4
+[Gestión] Pregunta 5
+[Gestión] Pregunta 6
+[Estrategia] Pregunta 7
+[Estrategia] Pregunta 8`,
 
     pregunta_individual: `
 Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.
@@ -136,32 +134,31 @@ Ya tenés estas preguntas preparadas para la sesión:
 ${(c.preguntasExistentes || []).map((p, i) => `${i + 1}. ${p}`).join('\n')}
 
 Regenerá la pregunta número ${c.indice + 1}${c.currentDim ? ` (dimensión: ${c.currentDim})` : ''} con una alternativa diferente y mejor.
-Debe ser directa (máx 1 línea), específica para su industria${c.currentDim ? `, enfocada en ${c.currentDim}` : ''} y distinta a las demás.
+Debe ser directa (máx 1 línea), específica para este cliente y su industria${c.currentDim ? `, enfocada en ${c.currentDim}` : ''}, y distinta a las demás.
 
-Respondé SOLO con el texto de la nueva pregunta, sin número ni explicación.`,
+Respondé SOLO con el texto de la nueva pregunta, sin número, sin corchetes, sin explicación.`,
 
     quickwins: `
 Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.
 
 ${context}
 
-Generá exactamente 3 "quick wins" concretos que este cliente puede implementar en los próximos 30 días.
+Generá exactamente 3 "quick wins" concretos para este cliente específico, implementables en los próximos 30 días.
+Basate en los scores por dimensión y el problema declarado — no des consejos genéricos.
 Cada acción debe:
-- Ser específica para su industria y sus problemas reales (no genérica)
+- Atacar directamente uno de los puntos débiles identificados en el test
 - No requerir inversión significativa ni cambios estructurales grandes
-- Ser implementable por el dueño/CEO sin dependencia de terceros
+- Ser ejecutable por el dueño/CEO en su industria específica
 
-Formato de respuesta — SOLO los 3 items, sin "Impacto esperado" ni texto adicional:
-1. **[Nombre corto de la acción]**
-   [Descripción concreta de qué hacer exactamente, en 2 líneas máximo]
+Formato — SOLO los 3 items, sin texto adicional:
+1. **[Nombre corto]**
+[Qué hacer exactamente, 1-2 líneas, específico para este negocio]
 
-2. **[Nombre corto de la acción]**
-   [Descripción concreta de qué hacer exactamente, en 2 líneas máximo]
+2. **[Nombre corto]**
+[Qué hacer exactamente, 1-2 líneas, específico para este negocio]
 
-3. **[Nombre corto de la acción]**
-   [Descripción concreta de qué hacer exactamente, en 2 líneas máximo]
-
-Respondé directamente sin introducción ni cierre.`,
+3. **[Nombre corto]**
+[Qué hacer exactamente, 1-2 líneas, específico para este negocio]`,
 
     quickwin_individual: `
 Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.

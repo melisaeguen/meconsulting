@@ -878,8 +878,8 @@ function parseNumberedList(text) {
   return parts.map(p => p.replace(/^\d+\.\s*/, '').trim()).filter(Boolean);
 }
 
-const DIMS_ORDER = ['Finanzas','Operaciones','Gestión','Estrategia'];
-const DIMS_COLORS = {Finanzas:'#1b5e20',Operaciones:'#0d47a1',Gestión:'#6a1b9a',Estrategia:'#b71c1c'};
+const DIMS_ORDER = ['Finanzas','Operaciones','Gestión','Estrategia','General'];
+const DIMS_COLORS = {Finanzas:'#1b5e20',Operaciones:'#0d47a1',Gestión:'#6a1b9a',Estrategia:'#b71c1c',General:'#555'};
 
 function renderPreguntas(email) {
   const crm = getCRM(email);
@@ -1434,12 +1434,15 @@ async function runCopilot(email, actionId) {
 
     // Special handling for structured preguntas
     if (actionId === 'preguntas') {
-      // API returns JSON array of {dim, q} objects
-      let items;
-      try { items = JSON.parse(result); } catch(e) { items = []; }
-      if (!Array.isArray(items) || !items.length) {
-        // fallback: plain numbered list → wrap as generic items
-        items = parseNumberedList(result).map(q => ({dim:'General', q}));
+      // Parse format: "[Finanzas] Pregunta text"
+      const items = [];
+      result.split('\n').forEach(line => {
+        const m = line.trim().match(/^\[(.+?)\]\s*(.+)$/);
+        if (m) items.push({dim: m[1].trim(), q: m[2].trim()});
+      });
+      // Fallback: if nothing parsed, wrap as flat list
+      if (!items.length) {
+        parseNumberedList(result).forEach(q => items.push({dim:'General', q}));
       }
       const ao = {...(crm.aiOutputs||{}), preguntas: items};
       updateCRM(email, {aiOutputs: ao});
