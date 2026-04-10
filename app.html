@@ -434,13 +434,11 @@ async function importClients() {
     const crmData = await crmRes.json();
     if (!Array.isArray(data)) throw new Error(data.error || 'Respuesta inválida');
 
-    // Load CRM state from sheet first (keyed by clientId or email)
+    // Load CRM state from sheet — index by BOTH clientId AND email for flexible lookup
     const sheetCRM = {};
     if (Array.isArray(crmData)) {
       crmData.forEach(row => {
-        const key = row.clientId || row.email;
-        if (!key) return;
-        sheetCRM[key] = {
+        const parsed = {
           stage:         parseInt(row.stage) || 1,
           stageAnterior: row.stageAnterior ? parseInt(row.stageAnterior) : null,
           notes:         row.notes || '',
@@ -448,6 +446,8 @@ async function importClients() {
           transcripts:   tryParse(row.transcripts, []),
           aiOutputs:     tryParse(row.aiOutputs, {}),
         };
+        if (row.clientId) sheetCRM[row.clientId] = parsed;
+        if (row.email)    sheetCRM[row.email]    = parsed; // fallback key
       });
     }
 
@@ -458,15 +458,15 @@ async function importClients() {
       const key = client.clientId || client.email;
       S.clients[key] = client;
 
-      // Priority: sheetCRM > existing localStorage > blank
-      if (sheetCRM[key]) {
-        // Merge: sheet wins for stage/notes, but keep local aiOutputs if sheet has none
+      // Find sheet data by clientId first, then by email fallback
+      const fromSheet = sheetCRM[key] || sheetCRM[client.email] || null;
+
+      if (fromSheet) {
         const local = S.crm[key] || {};
-        const sheet = sheetCRM[key];
-        const sheetHasAI = sheet.aiOutputs && Object.keys(sheet.aiOutputs).length > 0;
+        const sheetHasAI = fromSheet.aiOutputs && Object.keys(fromSheet.aiOutputs).length > 0;
         S.crm[key] = {
-          ...sheet,
-          aiOutputs: sheetHasAI ? sheet.aiOutputs : (local.aiOutputs || {}),
+          ...fromSheet,
+          aiOutputs: sheetHasAI ? fromSheet.aiOutputs : (local.aiOutputs || {}),
         };
       } else if (S.crm[client.email] && client.email !== key) {
         // Migrate from old email-only key
