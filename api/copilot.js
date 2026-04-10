@@ -10,8 +10,18 @@ export default async function handler(req, res) {
   if (req.method !== 'POST')    return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { action, stage, client } = req.body;
+    const { action, stage, client, index, existingItems } = req.body;
     if (!action || !client) return res.status(400).json({ error: 'Faltan parámetros' });
+
+    // Inject extra context for individual regeneration actions
+    if (action === 'pregunta_individual') {
+      client.indice = index ?? 0;
+      client.preguntasExistentes = existingItems || [];
+    }
+    if (action === 'quickwin_individual') {
+      client.indice = index ?? 0;
+      client.quickwinsExistentes = existingItems || [];
+    }
 
     const prompt = buildPrompt(action, stage, client);
     if (!prompt) return res.status(400).json({ error: 'Acción no reconocida' });
@@ -68,37 +78,72 @@ Estás por tener una sesión estratégica de 30 minutos con este cliente.
 
 ${context}
 
-Generá 5 preguntas profundas y específicas para hacerle durante la sesión.
+Generá exactamente 5 preguntas profundas y específicas para hacerle durante la sesión.
 Las preguntas deben:
 - Explorar causas raíz (no síntomas superficiales)
 - Ser específicas para su industria y los problemas identificados en el test
 - Abrir conversaciones sobre cómo toman decisiones hoy
 - Ayudarte a determinar si el cliente está listo para el Diagnóstico 360°
 
-Formato de respuesta:
+Formato de respuesta — SOLO las preguntas numeradas, sin explicaciones ni texto adicional:
 1. [Pregunta]
-   → Por qué hacerla: [1 línea en cursiva explicando qué buscás descubrir]
+2. [Pregunta]
+3. [Pregunta]
+4. [Pregunta]
+5. [Pregunta]
 
 Respondé directamente sin introducción ni cierre.`,
+
+    pregunta_individual: `
+Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.
+
+${context}
+
+Ya tenés estas preguntas preparadas para la sesión:
+${(c.preguntasExistentes || []).map((p, i) => `${i + 1}. ${p}`).join('\n')}
+
+Regenerá la pregunta número ${c.indice + 1} con una alternativa diferente y mejor.
+Debe ser profunda, específica para su industria y distinta a las demás.
+
+Respondé SOLO con el texto de la nueva pregunta, sin número ni explicación.`,
 
     quickwins: `
 Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.
 
 ${context}
 
-Generá 5 "quick wins" concretos que este cliente puede implementar en los próximos 30 días.
+Generá exactamente 3 "quick wins" concretos que este cliente puede implementar en los próximos 30 días.
 Cada acción debe:
 - Ser específica para su industria y sus problemas reales (no genérica)
 - No requerir inversión significativa ni cambios estructurales grandes
 - Ser implementable por el dueño/CEO sin dependencia de terceros
-- Tener un impacto measurable
 
-Formato de respuesta:
+Formato de respuesta — SOLO los 3 items, sin "Impacto esperado" ni texto adicional:
 1. **[Nombre corto de la acción]**
-   [Descripción concreta de qué hacer exactamente, en 2 líneas]
-   Impacto esperado: [resultado tangible en 30 días]
+   [Descripción concreta de qué hacer exactamente, en 2 líneas máximo]
+
+2. **[Nombre corto de la acción]**
+   [Descripción concreta de qué hacer exactamente, en 2 líneas máximo]
+
+3. **[Nombre corto de la acción]**
+   [Descripción concreta de qué hacer exactamente, en 2 líneas máximo]
 
 Respondé directamente sin introducción ni cierre.`,
+
+    quickwin_individual: `
+Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.
+
+${context}
+
+Ya tenés estos quick wins preparados:
+${(c.quickwinsExistentes || []).map((q, i) => `${i + 1}. ${q}`).join('\n')}
+
+Regenerá el quick win número ${c.indice + 1} con una alternativa diferente y mejor.
+Debe ser concreto, específico para su industria y distinto a los demás.
+
+Respondé con este formato exacto (sin número):
+**[Nombre corto de la acción]**
+[Descripción concreta en 2 líneas máximo]`,
 
     presupuesto: `
 Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.

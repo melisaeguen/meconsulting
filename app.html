@@ -12,7 +12,7 @@
   --navy:#1b2340; --gold:#c9a96e; --cream:#faf9f7; --bg:#f0ede8;
   --white:#fff; --muted:#8a8a8a; --border:#e5e0d8; --err:#dc2626;
   --shadow:0 1px 3px rgba(0,0,0,.08); --shadow-md:0 4px 8px rgba(0,0,0,.1);
-  --shadow-lg:0 10px 20px rgba(0,0,0,.12); --radius:10px; --panel-w:540px;
+  --shadow-lg:0 10px 20px rgba(0,0,0,.12); --radius:10px; --panel-w:640px;
 }
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--navy);min-height:100vh}
 button{font-family:'DM Sans',sans-serif;cursor:pointer}
@@ -109,6 +109,22 @@ a{color:inherit;text-decoration:none}
 .panel-body{flex:1;overflow-y:auto;padding:20px}
 .panel-body::-webkit-scrollbar{width:4px}
 .panel-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.1);border-radius:2px}
+
+/* ── BUDGET CALCULATOR ── */
+.calc-grid{display:grid;grid-template-columns:1fr 64px 28px;gap:7px 8px;align-items:center;margin-bottom:14px}
+.calc-lbl{font-size:12px;color:var(--navy)}
+.calc-inp{width:100%;border:1.5px solid var(--border);border-radius:6px;padding:5px 8px;font-size:13px;font-weight:600;text-align:center;outline:none;background:white;transition:border-color .15s}
+.calc-inp:focus{border-color:var(--navy)}
+.calc-unit{font-size:12px;color:var(--muted)}
+.calc-total-row{background:var(--navy);color:white;border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:12px}
+.calc-total-price{font-size:16px;font-weight:700}
+/* ── INDIVIDUAL COPILOT ITEMS ── */
+.cop-item{background:white;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:7px;display:flex;align-items:flex-start;gap:10px}
+.cop-item-num{font-size:13px;font-weight:700;color:var(--gold);min-width:20px;margin-top:1px}
+.cop-item-text{flex:1;font-size:13px;line-height:1.65;color:var(--navy)}
+.btn-regen-item{background:none;border:1px solid var(--border);border-radius:6px;padding:4px 9px;font-size:12px;color:var(--muted);flex-shrink:0;transition:all .15s;margin-top:1px}
+.btn-regen-item:hover{border-color:var(--navy);color:var(--navy)}
+.btn-regen-item:disabled{opacity:.4;cursor:default}
 
 /* ── STAGE SUBTABS ── */
 .stage-tabs{display:flex;gap:0;border-bottom:1.5px solid var(--border);margin-bottom:18px;background:var(--bg);border-radius:8px 8px 0 0;overflow:hidden}
@@ -431,6 +447,15 @@ async function importClients() {
   icon.innerHTML = '⬇';
 }
 
+function parseArgDate(str) {
+  if (!str) return null;
+  const s = String(str).trim();
+  const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (m) return new Date(parseInt(m[3]), parseInt(m[2])-1, parseInt(m[1]));
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+}
+
 function normalizeClient(r) {
   const g = (...keys) => {
     for (const k of keys) {
@@ -541,7 +566,8 @@ function renderCard(email, st) {
   const cl = S.clients[email];
   const ss = scoreStyle(cl.scoreTotal);
   const isActive = S.active === email;
-  const ts = cl.timestamp ? new Date(cl.timestamp).toLocaleDateString('es-AR',{day:'2-digit',month:'short'}) : '';
+  const pd = parseArgDate(cl.timestamp);
+  const ts = pd ? pd.toLocaleDateString('es-AR',{day:'2-digit',month:'short'}) : '';
   return `
   <div class="k-card${isActive?' active-card':''}"
     data-email="${email}" draggable="true"
@@ -731,7 +757,8 @@ function renderCopilotForStage(email, stageId) {
 // ══ RESUMEN TAB ═══════════════════════════════════════════════════════════════
 function renderResumen(email) {
   const cl = S.clients[email];
-  const ts = cl.timestamp ? new Date(cl.timestamp).toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'}) : '—';
+  const pd2 = parseArgDate(cl.timestamp);
+  const ts = pd2 ? pd2.toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'}) : '—';
   return `
   <div class="sec">
     <div class="sec-title">Datos de contacto</div>
@@ -802,8 +829,230 @@ function initDimBars(email) {
 }
 
 // ══ COPILOT TAB ═══════════════════════════════════════════════════════════════
+function parseNumberedList(text) {
+  const parts = text.split(/\n(?=\d+\.)/);
+  return parts.map(p => p.replace(/^\d+\.\s*/, '').trim()).filter(Boolean);
+}
+
+function renderPreguntas(email) {
+  const crm = getCRM(email);
+  const items = Array.isArray(crm.aiOutputs?.preguntas) ? crm.aiOutputs.preguntas : [];
+  return `
+  <div class="cop-action" id="ca-preguntas">
+    <div class="cop-action-hdr">
+      <div class="cop-action-title">
+        <span class="cop-icon">💬</span>
+        <div class="cop-title-text">
+          <strong>Preguntas para la sesión</strong>
+          <span>5 preguntas para la reunión estratégica</span>
+        </div>
+      </div>
+      <button class="btn-gen" id="bg-preguntas" onclick="runCopilot('${email}','preguntas')">
+        ${items.length ? 'Regenerar todas' : 'Generar'}
+      </button>
+    </div>
+    ${items.length ? `
+      <div class="cop-result" id="cr-preguntas">
+        ${items.map((q,i) => `
+          <div class="cop-item">
+            <span class="cop-item-num">${i+1}.</span>
+            <div class="cop-item-text" id="pq-${i}">${esc(q)}</div>
+            <button class="btn-regen-item" id="brq-${i}" onclick="regenItem('${email}','pregunta',${i})">↺</button>
+          </div>`).join('')}
+      </div>` : `<div id="cr-preguntas" style="display:none"></div>`}
+  </div>`;
+}
+
+function renderQuickwins(email) {
+  const crm = getCRM(email);
+  const items = Array.isArray(crm.aiOutputs?.quickwins) ? crm.aiOutputs.quickwins : [];
+  return `
+  <div class="cop-action" id="ca-quickwins">
+    <div class="cop-action-hdr">
+      <div class="cop-action-title">
+        <span class="cop-icon">⚡</span>
+        <div class="cop-title-text">
+          <strong>Quick wins para llevar</strong>
+          <span>3 acciones concretas e inmediatas</span>
+        </div>
+      </div>
+      <button class="btn-gen" id="bg-quickwins" onclick="runCopilot('${email}','quickwins')">
+        ${items.length ? 'Regenerar todas' : 'Generar'}
+      </button>
+    </div>
+    ${items.length ? `
+      <div class="cop-result" id="cr-quickwins">
+        ${items.map((qw,i) => `
+          <div class="cop-item">
+            <span class="cop-item-num">${i+1}.</span>
+            <div class="cop-item-text" id="qw-${i}">${esc(qw).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')}</div>
+            <button class="btn-regen-item" id="brqw-${i}" onclick="regenItem('${email}','quickwin',${i})">↺</button>
+          </div>`).join('')}
+      </div>` : `<div id="cr-quickwins" style="display:none"></div>`}
+  </div>`;
+}
+
+function renderPresupuestoCalc(email) {
+  const crm = getCRM(email);
+  const h = crm.aiOutputs?.presupuesto_hours || {entrevistas:8,analisis:10,informe:8,presentacion:3};
+  const savedText = crm.aiOutputs?.presupuesto_text || '';
+  const total = Object.values(h).reduce((a,b)=>a+Number(b),0);
+  const price = total * 40000;
+  return `
+  <div class="cop-action" id="ca-presupuesto">
+    <div class="cop-action-hdr">
+      <div class="cop-action-title">
+        <span class="cop-icon">📄</span>
+        <div class="cop-title-text">
+          <strong>Presupuesto Diagnóstico 360°</strong>
+          <span>Ingresá las horas y generá la propuesta</span>
+        </div>
+      </div>
+    </div>
+    <div class="cop-result">
+      <div class="calc-grid">
+        <span class="calc-lbl">Relevamiento y entrevistas</span>
+        <input class="calc-inp" type="number" id="h-entrevistas" value="${h.entrevistas}" min="1" max="60" oninput="updateCalc('${email}')"/>
+        <span class="calc-unit">hs</span>
+        <span class="calc-lbl">Análisis</span>
+        <input class="calc-inp" type="number" id="h-analisis" value="${h.analisis}" min="1" max="60" oninput="updateCalc('${email}')"/>
+        <span class="calc-unit">hs</span>
+        <span class="calc-lbl">Elaboración del informe</span>
+        <input class="calc-inp" type="number" id="h-informe" value="${h.informe}" min="1" max="60" oninput="updateCalc('${email}')"/>
+        <span class="calc-unit">hs</span>
+        <span class="calc-lbl">Presentación de resultados</span>
+        <input class="calc-inp" type="number" id="h-presentacion" value="${h.presentacion}" min="1" max="60" oninput="updateCalc('${email}')"/>
+        <span class="calc-unit">hs</span>
+      </div>
+      <div class="calc-total-row">
+        <span>Total: <span id="calc-total-hs">${total}</span> horas</span>
+        <span class="calc-total-price">$<span id="calc-total-price">${price.toLocaleString('es-AR')}</span></span>
+      </div>
+      <button class="btn-gen" style="width:100%;margin-bottom:${savedText?'12':'0'}px" onclick="generatePresupuesto('${email}')">
+        ${savedText ? 'Regenerar propuesta' : 'Generar propuesta'}
+      </button>
+      ${savedText ? `
+        <div class="cop-result-text" id="crt-presupuesto">${esc(savedText)}</div>
+        <div class="result-btns" style="margin-top:8px">
+          <button class="btn-copy" onclick="copyResult('presupuesto')">📋 Copiar</button>
+          <button class="btn-doc" onclick="createDoc('${email}','presupuesto')">📝 Crear Google Doc</button>
+        </div>` : ''}
+    </div>
+  </div>`;
+}
+
+function updateCalc(email) {
+  const h = {
+    entrevistas:  Number(document.getElementById('h-entrevistas')?.value)||0,
+    analisis:     Number(document.getElementById('h-analisis')?.value)||0,
+    informe:      Number(document.getElementById('h-informe')?.value)||0,
+    presentacion: Number(document.getElementById('h-presentacion')?.value)||0,
+  };
+  const total = Object.values(h).reduce((a,b)=>a+b,0);
+  const el1 = document.getElementById('calc-total-hs');
+  const el2 = document.getElementById('calc-total-price');
+  if(el1) el1.textContent = total;
+  if(el2) el2.textContent = (total*40000).toLocaleString('es-AR');
+  const ao = {...(getCRM(email).aiOutputs||{}), presupuesto_hours:h};
+  S.crm[email] = {...getCRM(email), aiOutputs:ao};
+  saveStorage(); markDirty();
+}
+
+function generatePresupuesto(email) {
+  const cl = S.clients[email];
+  const h = {
+    entrevistas:  Number(document.getElementById('h-entrevistas')?.value)||8,
+    analisis:     Number(document.getElementById('h-analisis')?.value)||10,
+    informe:      Number(document.getElementById('h-informe')?.value)||8,
+    presentacion: Number(document.getElementById('h-presentacion')?.value)||3,
+  };
+  const total = Object.values(h).reduce((a,b)=>a+b,0);
+  const price = total * 40000;
+  const meetings = Math.ceil((h.entrevistas + h.presentacion) / 1.5);
+
+  const text = `DIAGNÓSTICO 360° DEL NEGOCIO
+Para: ${cl.nombre} | ${cl.empresa}
+
+Una radiografía integral para entender qué está pasando realmente en tu empresa y qué hacer al respecto.
+
+Analizamos en profundidad las áreas críticas del negocio —finanzas, operaciones, gestión y dirección— combinando entrevistas, revisión de información real y análisis estructurado.
+
+No es un análisis superficial: identificamos problemas de fondo, ineficiencias y oportunidades concretas de mejora.
+
+El resultado no es solo un diagnóstico, sino un plan claro de acción:
+
+• Entendés dónde estás parado hoy (con datos, no intuición)
+• Detectás qué está afectando tu rentabilidad y crecimiento
+• Priorizás qué atacar primero y por qué
+• Tenés un roadmap accionable para ordenar y profesionalizar el negocio
+
+📦 Qué incluye
+• Diagnóstico financiero
+• Diagnóstico operativo
+• Diagnóstico de gestión
+• Entrevistas en profundidad con el dueño/s
+• Análisis de información real del negocio
+• Informe final con hallazgos y oportunidades
+• Roadmap priorizado con próximos pasos concretos
+
+🎯 Resultado
+Salís con claridad total sobre tu negocio y un plan concreto para mejorarlo.
+
+─────────────────────────────────────
+INVERSIÓN
+
+$${price.toLocaleString('es-AR')}
+
+─────────────────────────────────────
+CONDICIONES
+
+Plazo estimado: máximo 1 mes.
+
+Se brindará en ${meetings} reuniones a través de Google Meet (1,5 hs c/u), con una frecuencia mínima de 1 vez por semana.
+
+En caso de no asistir a la reunión, se debe avisar como mínimo 72 hs antes para ser reprogramada. De no ser así, se perderá la reunión de esa semana.
+
+Si se solicita la suspensión anticipada del servicio, se deberá notificar con al menos 1 mes de antelación.
+
+Forma de pago: 50% adelantado y 50% previo a la entrega del diagnóstico.`;
+
+  const ao = {...(getCRM(email).aiOutputs||{}), presupuesto_text:text, presupuesto_hours:h};
+  updateCRM(email, {aiOutputs:ao});
+  renderTabContent(email);
+}
+
+async function regenItem(email, type, index) {
+  const crm = getCRM(email);
+  const cl = S.clients[email];
+  const btnId = type==='pregunta' ? `brq-${index}` : `brqw-${index}`;
+  const btn = document.getElementById(btnId);
+  if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner dark"></span>';}
+  const items = [...(type==='pregunta' ? (crm.aiOutputs?.preguntas||[]) : (crm.aiOutputs?.quickwins||[]))];
+  try {
+    const res = await fetch('/api/copilot',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        action: type==='pregunta' ? 'pregunta_individual' : 'quickwin_individual',
+        stage: crm.stage, index, existingItems: items,
+        client:{nombre:cl.nombre,empresa:cl.empresa,industria:cl.industria,
+          descripcion:cl.descripcion,scoreTotal:cl.scoreTotal,scoreFinanzas:cl.scoreFinanzas,
+          scoreOps:cl.scoreOps,scoreGestion:cl.scoreGestion,scoreEst:cl.scoreEst,
+          problema:cl.problemaAbierto,resumen:cl.resumen,palancaTitulo:cl.palancaTitulo,palancaDesc:cl.palancaDesc}
+      })
+    });
+    const data = await res.json();
+    items[index] = data.result || items[index];
+    const field = type==='pregunta' ? 'preguntas' : 'quickwins';
+    const ao = {...(crm.aiOutputs||{}), [field]:items};
+    updateCRM(email, {aiOutputs:ao});
+    const textEl = document.getElementById((type==='pregunta'?'pq-':'qw-')+index);
+    if(textEl) textEl.textContent = items[index];
+  } catch(err){ showToast('Error al regenerar',true); }
+  if(btn){btn.disabled=false;btn.innerHTML='↺';}
+}
+
 function renderCopilot(email) {
-  const crm     = getCRM(email);
+  const crm = getCRM(email);
   const actions = COPILOT_ACTIONS[crm.stage];
   if (!actions) return `
     <div class="cop-locked">
@@ -812,14 +1061,22 @@ function renderCopilot(email) {
       <p>Las herramientas de IA están disponibles a partir de la<br><strong>Sesión Estratégica</strong>.<br>Mové el cliente a ese stage para activarlas.</p>
     </div>`;
 
+  const stName = STAGES.find(s => s.id === crm.stage)?.name || '';
+
+  if (crm.stage === 2) {
+    return `
+      <div class="cop-intro">Herramientas IA para <strong>${stName}</strong>. Los resultados se guardan automáticamente.</div>
+      ${renderPreguntas(email)}
+      ${renderQuickwins(email)}
+      ${renderPresupuestoCalc(email)}`;
+  }
+
+  // Stages 3-5: generic rendering
   const outputs = crm.aiOutputs || {};
-  const stName  = STAGES.find(s => s.id === crm.stage)?.name || '';
   return `
-    <div class="cop-intro">
-      Herramientas IA para <strong>${stName}</strong>. Los resultados se guardan automáticamente en el perfil del cliente.
-    </div>
+    <div class="cop-intro">Herramientas IA para <strong>${stName}</strong>. Los resultados se guardan automáticamente en el perfil del cliente.</div>
     ${actions.map(a => {
-      const saved = outputs[a.id];
+      const saved = typeof outputs[a.id] === 'string' ? outputs[a.id] : '';
       return `
       <div class="cop-action" id="ca-${a.id}">
         <div class="cop-action-hdr">
@@ -887,15 +1144,26 @@ async function runCopilot(email, actionId) {
       })
     });
     const data = await res.json();
-    const text = data.result || 'Sin respuesta';
+    const result = data.result || 'Sin respuesta';
 
-    const aiOutputs = {...(crm.aiOutputs||{}), [actionId]: text};
+    // Special handling for array-based actions
+    if (actionId === 'preguntas' || actionId === 'quickwins') {
+      const items = parseNumberedList(result);
+      const ao = {...(crm.aiOutputs||{}), [actionId]: items};
+      updateCRM(email, {aiOutputs: ao});
+      renderTabContent(email);
+      return;
+    }
+
+    // Save to CRM
+    const aiOutputs = {...(crm.aiOutputs||{}), [actionId]: result};
     updateCRM(email, {aiOutputs});
 
+    // Display result
     // Re-render copilot to show result + proper button
     const container = document.getElementById('ca-' + actionId);
     if (container) {
-      const newResult = buildResultHTML(email, actionId, text);
+      const newResult = buildResultHTML(email, actionId, result);
       let rd = document.getElementById('cr-' + actionId);
       if (rd) rd.outerHTML = newResult; else container.insertAdjacentHTML('beforeend', newResult);
     }
