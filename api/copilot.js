@@ -103,27 +103,29 @@ HALLAZGOS PRELIMINARES — ${c.empresa}
 Respondé directamente sin introducción ni cierre. Máximo 200 palabras en total.`,
 
     preguntas: `
-Sos Melisa Eguen, consultora estratégica para PyMEs argentinas con 15 años de experiencia en FP&A, finanzas y estrategia.
-Estás por tener una sesión estratégica de 30 minutos con este cliente.
+Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.
+Tenés 10-15 minutos para hacer preguntas en una sesión estratégica. Necesitás preguntas cortas que disparen conversación.
 
 ${context}
 
-Generá exactamente 8 preguntas para la sesión: 2 por cada dimensión.
-Priorizá las dimensiones más débiles del cliente para las preguntas más incisivas.
-Reglas:
-- Cada pregunta: máximo 1 línea, directa, específica para ESTE cliente y su industria
-- Explorá causas raíz concretas, no síntomas genéricos
-- Que reflejen los scores y el problema declarado del cliente
+Generá exactamente 8 preguntas: 2 por cada dimensión.
+Priorizá las dimensiones más débiles del cliente.
+
+Reglas estrictas:
+- Máximo 8 palabras por pregunta
+- Que inviten a hablar, no a responder sí/no
+- Específicas para este cliente e industria (no genéricas)
+- Sin contexto ni preámbulo — ir directo al punto
 
 Respondé ÚNICAMENTE con este formato, sin texto antes ni después:
-[Finanzas] Pregunta 1
-[Finanzas] Pregunta 2
-[Operaciones] Pregunta 3
-[Operaciones] Pregunta 4
-[Gestión] Pregunta 5
-[Gestión] Pregunta 6
-[Estrategia] Pregunta 7
-[Estrategia] Pregunta 8`,
+[Finanzas] Pregunta
+[Finanzas] Pregunta
+[Operaciones] Pregunta
+[Operaciones] Pregunta
+[Gestión] Pregunta
+[Gestión] Pregunta
+[Estrategia] Pregunta
+[Estrategia] Pregunta`,
 
     pregunta_individual: `
 Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.
