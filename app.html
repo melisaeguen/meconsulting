@@ -434,8 +434,23 @@ async function importClients() {
       if (!client.email) return;
       const key = client.clientId || client.email;
       S.clients[key] = client;
+      // Migrate CRM data from old email-only key if exists
+      if (!S.crm[key] || !Object.keys(S.crm[key]).find(k => k !== 'stage' && k !== 'stageAnterior' && k !== 'notes' && k !== 'links' && k !== 'transcripts' && k !== 'aiOutputs')) {
+        if (S.crm[client.email] && client.email !== key) {
+          S.crm[key] = S.crm[client.email];
+          delete S.crm[client.email];
+        }
+      }
       if (!S.crm[key]) S.crm[key] = blankCRM();
       added++;
+    });
+
+    // Remove old email-only client entries that are now superseded by clientId entries
+    Object.keys(S.clients).forEach(k => {
+      if (!k.includes('|')) {
+        const hasNewKey = Object.keys(S.clients).some(k2 => k2.includes('|') && k2.startsWith(k + '|'));
+        if (hasNewKey) delete S.clients[k];
+      }
     });
 
     saveStorage();
@@ -512,9 +527,19 @@ function blankCRM() {
 }
 
 // ══ CRM HELPERS ═══════════════════════════════════════════════════════════════
-function getCRM(email) {
-  if (!S.crm[email]) S.crm[email] = blankCRM();
-  return S.crm[email];
+function getCRM(id) {
+  if (!S.crm[id]) {
+    // Try to migrate from email-only key
+    const cl = S.clients[id];
+    if (cl && cl.email && cl.email !== id && S.crm[cl.email]) {
+      S.crm[id] = S.crm[cl.email];
+      delete S.crm[cl.email];
+      saveStorage();
+    } else {
+      S.crm[id] = blankCRM();
+    }
+  }
+  return S.crm[id];
 }
 function updateCRM(email, patch) {
   S.crm[email] = {...getCRM(email), ...patch};
@@ -858,18 +883,41 @@ const DIMS_COLORS = {Finanzas:'#1b5e20',Operaciones:'#0d47a1',Gestión:'#6a1b9a'
 
 function renderPreguntas(email) {
   const crm = getCRM(email);
-  // items can be array of {dim, q} objects OR legacy flat strings
   const raw = crm.aiOutputs?.preguntas || [];
   const isStructured = raw.length > 0 && typeof raw[0] === 'object';
 
-  // Build flat index list for regen button (always 0-7)
-  let dimGroups = {};
-  if (isStructured) {
-    raw.forEach((item, i) => {
-      const d = item.dim || 'General';
-      if (!dimGroups[d]) dimGroups[d] = [];
-      dimGroups[d].push({q: item.q, i});
-    });
+  let innerHtml = '';
+  if (raw.length) {
+    if (isStructured) {
+      const dimGroups = {};
+      raw.forEach((item, i) => {
+        const d = item.dim || 'General';
+        if (!dimGroups[d]) dimGroups[d] = [];
+        dimGroups[d].push({q: item.q, i});
+      });
+      innerHtml = DIMS_ORDER.map(dim => {
+        const group = dimGroups[dim] || [];
+        if (!group.length) return '';
+        const color = DIMS_COLORS[dim] || '#333';
+        let rows = group.map(function(g) {
+          return '<div class="cop-item">' +
+            '<div class="cop-item-text" id="pq-' + g.i + '">' + esc(g.q) + '</div>' +
+            '<button class="btn-regen-item" id="brq-' + g.i + '" onclick="regenItem(\'' + email + '\',\'pregunta\',' + g.i + ')">↺</button>' +
+            '</div>';
+        }).join('');
+        return '<div class="pq-dim-group"><div class="pq-dim-label" style="color:' + color + '">' + dim + '</div>' + rows + '</div>';
+      }).join('');
+    } else {
+      innerHtml = '<div style="padding:4px 0 8px;font-size:12px;color:var(--muted);font-style:italic">Formato anterior — hacé clic en Regenerar para ver agrupadas por dimensión.</div>';
+      innerHtml += raw.map(function(q, i) {
+        const txt = (typeof q === 'object') ? q.q : q;
+        return '<div class="cop-item">' +
+          '<span class="cop-item-num">' + (i+1) + '.</span>' +
+          '<div class="cop-item-text" id="pq-' + i + '">' + esc(txt) + '</div>' +
+          '<button class="btn-regen-item" id="brq-' + i + '" onclick="regenItem(\'' + email + '\',\'pregunta\',' + i + ')">↺</button>' +
+          '</div>';
+      }).join('');
+    }
   }
 
   return `
@@ -886,32 +934,9 @@ function renderPreguntas(email) {
         ${raw.length ? 'Regenerar todas' : 'Generar'}
       </button>
     </div>
-    ${raw.length ? `
-      <div class="cop-result" id="cr-preguntas">
-        ${isStructured
-          ? DIMS_ORDER.map(dim => {
-              const group = dimGroups[dim] || [];
-              if (!group.length) return '';
-              const color = DIMS_COLORS[dim] || '#333';
-              return `
-              <div class="pq-dim-group">
-                <div class="pq-dim-label" style="color:${color}">${dim}</div>
-                ${group.map(({q, i}) => `
-                  <div class="cop-item">
-                    <div class="cop-item-text" id="pq-${i}">${esc(q)}</div>
-                    <button class="btn-regen-item" id="brq-${i}" onclick="regenItem('${email}','pregunta',${i})">↺</button>
-                  </div>`).join('')}
-              </div>`;
-            }).join('')
-          : `<div style="padding:4px 0 8px;font-size:12px;color:var(--muted);font-style:italic">Formato anterior — regenerá para ver agrupadas por dimensión.</div>
-             ${raw.map((q,i) => `
-              <div class="cop-item">
-                <span class="cop-item-num">${i+1}.</span>
-                <div class="cop-item-text" id="pq-${i}">${esc(typeof q==='object'?q.q:q)}</div>
-                <button class="btn-regen-item" id="brq-${i}" onclick="regenItem('${email}','pregunta',${i})">↺</button>
-              </div>`).join('')}`
-        }
-      </div>` : `<div id="cr-preguntas" style="display:none"></div>`}
+    ${raw.length
+      ? '<div class="cop-result" id="cr-preguntas">' + innerHtml + '</div>'
+      : '<div id="cr-preguntas" style="display:none"></div>'}
   </div>`;
 }
 
