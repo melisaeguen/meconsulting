@@ -12,7 +12,7 @@
   --navy:#1b2340; --gold:#c9a96e; --cream:#faf9f7; --bg:#f0ede8;
   --white:#fff; --muted:#8a8a8a; --border:#e5e0d8; --err:#dc2626;
   --shadow:0 1px 3px rgba(0,0,0,.08); --shadow-md:0 4px 8px rgba(0,0,0,.1);
-  --shadow-lg:0 10px 20px rgba(0,0,0,.12); --radius:10px; --panel-w:640px;
+  --shadow-lg:0 10px 20px rgba(0,0,0,.12); --radius:10px; --panel-w:800px;
 }
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--navy);min-height:100vh}
 button{font-family:'DM Sans',sans-serif;cursor:pointer}
@@ -185,6 +185,10 @@ a{color:inherit;text-decoration:none}
 .cop-locked-icon{font-size:36px;margin-bottom:12px}
 .cop-locked h3{font-size:14px;font-weight:600;margin-bottom:8px}
 .cop-locked p{font-size:13px;color:var(--muted);line-height:1.65}
+.transcript-textarea{width:100%;min-height:120px;border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:12px;line-height:1.65;font-family:inherit;resize:vertical;box-sizing:border-box;color:#333}
+.transcript-textarea:focus{outline:none;border-color:var(--navy)}
+.transcript-ok{font-size:11px;font-weight:600;color:#2e7d32;background:#e8f5e9;padding:3px 10px;border-radius:20px;flex-shrink:0}
+.prediag-locked-msg{background:#fff8e1;border-left:3px solid var(--gold);border-radius:0 6px 6px 0;padding:8px 12px;font-size:12px;color:#7a5200;margin:0 14px 2px}
 
 /* ── DOCS TAB ── */
 .docs-sec{margin-bottom:22px}
@@ -426,8 +430,9 @@ async function importClients() {
     data.forEach(raw => {
       const client = normalizeClient(raw);
       if (!client.email) return;
-      S.clients[client.email] = client;
-      if (!S.crm[client.email]) S.crm[client.email] = blankCRM();
+      const key = client.clientId || client.email;
+      S.clients[key] = client;
+      if (!S.crm[key]) S.crm[key] = blankCRM();
       added++;
     });
 
@@ -451,7 +456,13 @@ function parseArgDate(str) {
   if (!str) return null;
   const s = String(str).trim();
   const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-  if (m) return new Date(parseInt(m[3]), parseInt(m[2])-1, parseInt(m[1]));
+  if (m) {
+    const a = parseInt(m[1]), b = parseInt(m[2]), y = parseInt(m[3]);
+    // If first part > 12 it must be DD/MM (Argentine manual entry)
+    // Otherwise Apps Script returns M/D/YYYY → treat as MM/DD
+    if (a > 12) return new Date(y, b-1, a);
+    return new Date(y, a-1, b);
+  }
   const d = new Date(s);
   return isNaN(d.getTime()) ? null : d;
 }
@@ -463,10 +474,15 @@ function normalizeClient(r) {
     }
     return '';
   };
+  const emailVal   = String(g('Email','email') || '').toLowerCase().trim();
+  const empresaVal = g('Empresa','empresa');
+  const empresaSlug = empresaVal.toLowerCase().replace(/\s+/g,'_').replace(/[^a-z0-9_]/g,'');
+  const clientId   = emailVal + (empresaSlug ? '|' + empresaSlug : '');
   return {
-    email:          String(g('Email','email') || '').toLowerCase().trim(),
+    clientId,
+    email:          emailVal,
     nombre:         g('Nombre','nombre'),
-    empresa:        g('Empresa','empresa'),
+    empresa:        empresaVal,
     celular:        g('Celular','celular'),
     industria:      g('Industria','industria'),
     descripcion:    g('Descripción del negocio','Descripción','Descripcion','descripcion'),
@@ -512,12 +528,13 @@ async function saveSession() {
   const btn = document.getElementById('btn-save');
   if (btn) { btn.disabled = true; btn.textContent = 'Guardando...'; }
   try {
-    const emails = Object.keys(S.crm);
-    for (const email of emails) {
+    const ids = Object.keys(S.crm);
+    for (const id of ids) {
+      const cl = S.clients[id];
       await fetch('/api/crm', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({action:'updateCRM', email, data: S.crm[email]}),
+        body: JSON.stringify({action:'updateCRM', email: cl?.email || id, clientId: id, data: S.crm[id]}),
       });
     }
     S.dirty = false;
@@ -892,6 +909,40 @@ function renderQuickwins(email) {
   </div>`;
 }
 
+function renderTranscriptSection(email) {
+  const crm = getCRM(email);
+  const transcript = crm.aiOutputs?.transcript || '';
+  return `
+  <div class="cop-action" id="ca-transcript">
+    <div class="cop-action-hdr">
+      <div class="cop-action-title">
+        <span class="cop-icon">🎙️</span>
+        <div class="cop-title-text">
+          <strong>Transcript de la sesión</strong>
+          <span>Pegá el texto de la reunión para usar en el Pre-Diagnóstico</span>
+        </div>
+      </div>
+      ${transcript ? `<span class="transcript-ok">✓ Cargado</span>` : ''}
+    </div>
+    <div class="cop-result">
+      <textarea id="transcript-area" class="transcript-textarea" placeholder="Pegá aquí el transcript o las notas de la sesión estratégica...">${esc(transcript)}</textarea>
+      <button class="btn-gen" style="width:100%;margin-top:8px" onclick="saveTranscript('${email}')">
+        ${transcript ? 'Actualizar transcript' : 'Guardar transcript'}
+      </button>
+    </div>
+  </div>`;
+}
+
+function saveTranscript(email) {
+  const ta = document.getElementById('transcript-area');
+  if (!ta) return;
+  const val = ta.value.trim();
+  const ao = {...(getCRM(email).aiOutputs||{}), transcript: val};
+  updateCRM(email, {aiOutputs: ao});
+  showToast(val ? 'Transcript guardado ✓' : 'Transcript borrado');
+  renderTabContent(email);
+}
+
 function renderPresupuestoCalc(email) {
   const crm = getCRM(email);
   const h = crm.aiOutputs?.presupuesto_hours || {entrevistas:8,analisis:10,informe:8,presentacion:3};
@@ -1021,6 +1072,171 @@ Forma de pago: 50% adelantado y 50% previo a la entrega del diagnóstico.`;
   renderTabContent(email);
 }
 
+function renderPreDiagnostico(email) {
+  const crm = getCRM(email);
+  const transcript = crm.aiOutputs?.transcript || '';
+  const h = crm.aiOutputs?.prediag_hours || {entrevistas:8,analisis:10,informe:8,presentacion:3};
+  const savedText = crm.aiOutputs?.prediag_text || '';
+  const total = Object.values(h).reduce((a,b)=>a+Number(b),0);
+  const price = total * 40000;
+  const hasTranscript = !!transcript.trim();
+  return `
+  <div class="cop-action" id="ca-prediag">
+    <div class="cop-action-hdr">
+      <div class="cop-action-title">
+        <span class="cop-icon">🔍</span>
+        <div class="cop-title-text">
+          <strong>Pre-Diagnóstico 360°</strong>
+          <span>Propuesta personalizada con hallazgos del test y la sesión</span>
+        </div>
+      </div>
+    </div>
+    ${!hasTranscript ? `
+    <div class="prediag-locked-msg">
+      ⚠️ Guardá el transcript de la sesión para habilitar la generación
+    </div>` : ''}
+    <div class="cop-result">
+      <div class="calc-grid">
+        <span class="calc-lbl">Relevamiento y entrevistas</span>
+        <input class="calc-inp" type="number" id="h-entrevistas" value="${h.entrevistas}" min="1" max="60" oninput="updatePreDiagCalc('${email}')"/>
+        <span class="calc-unit">hs</span>
+        <span class="calc-lbl">Análisis</span>
+        <input class="calc-inp" type="number" id="h-analisis" value="${h.analisis}" min="1" max="60" oninput="updatePreDiagCalc('${email}')"/>
+        <span class="calc-unit">hs</span>
+        <span class="calc-lbl">Elaboración del informe</span>
+        <input class="calc-inp" type="number" id="h-informe" value="${h.informe}" min="1" max="60" oninput="updatePreDiagCalc('${email}')"/>
+        <span class="calc-unit">hs</span>
+        <span class="calc-lbl">Presentación de resultados</span>
+        <input class="calc-inp" type="number" id="h-presentacion" value="${h.presentacion}" min="1" max="60" oninput="updatePreDiagCalc('${email}')"/>
+        <span class="calc-unit">hs</span>
+      </div>
+      <div class="calc-total-row">
+        <span>Total: <span id="calc-total-hs">${total}</span> horas</span>
+        <span class="calc-total-price">$<span id="calc-total-price">${price.toLocaleString('es-AR')}</span></span>
+      </div>
+      <button class="btn-gen" id="bg-prediag" style="width:100%;margin-bottom:${savedText?'12':'0'}px"
+        ${!hasTranscript ? 'disabled title="Guardá el transcript primero"' : ''}
+        onclick="generatePreDiag('${email}')">
+        ${savedText ? 'Regenerar Pre-Diagnóstico' : 'Generar Pre-Diagnóstico 360°'}
+      </button>
+      ${savedText ? `
+        <div class="cop-result-text" id="crt-prediag" style="white-space:pre-wrap">${esc(savedText)}</div>
+        <div class="result-btns" style="margin-top:8px">
+          <button class="btn-copy" onclick="copyPreDiag()">📋 Copiar</button>
+          <button class="btn-doc" onclick="createDoc('${email}','prediag')">📝 Crear Google Doc</button>
+        </div>` : ''}
+    </div>
+  </div>`;
+}
+
+function updatePreDiagCalc(email) {
+  const h = {
+    entrevistas:  Number(document.getElementById('h-entrevistas')?.value)||0,
+    analisis:     Number(document.getElementById('h-analisis')?.value)||0,
+    informe:      Number(document.getElementById('h-informe')?.value)||0,
+    presentacion: Number(document.getElementById('h-presentacion')?.value)||0,
+  };
+  const total = Object.values(h).reduce((a,b)=>a+b,0);
+  const el1 = document.getElementById('calc-total-hs');
+  const el2 = document.getElementById('calc-total-price');
+  if(el1) el1.textContent = total;
+  if(el2) el2.textContent = (total*40000).toLocaleString('es-AR');
+  const ao = {...(getCRM(email).aiOutputs||{}), prediag_hours:h};
+  S.crm[email] = {...getCRM(email), aiOutputs:ao};
+  saveStorage(); markDirty();
+}
+
+async function generatePreDiag(email) {
+  const cl  = S.clients[email];
+  const crm = getCRM(email);
+  const transcript = crm.aiOutputs?.transcript || '';
+  if (!transcript.trim()) { showToast('Primero guardá el transcript de la sesión', true); return; }
+  const h = {
+    entrevistas:  Number(document.getElementById('h-entrevistas')?.value)||8,
+    analisis:     Number(document.getElementById('h-analisis')?.value)||10,
+    informe:      Number(document.getElementById('h-informe')?.value)||8,
+    presentacion: Number(document.getElementById('h-presentacion')?.value)||3,
+  };
+  const total = Object.values(h).reduce((a,b)=>a+b,0);
+  const price = total * 40000;
+  const meetings = Math.ceil((h.entrevistas + h.presentacion) / 1.5);
+
+  const btn = document.getElementById('bg-prediag');
+  if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Generando...';}
+
+  try {
+    const res = await fetch('/api/copilot', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        action: 'prediag', stage: 2,
+        client: {
+          nombre: cl.nombre, empresa: cl.empresa, industria: cl.industria,
+          descripcion: cl.descripcion, scoreTotal: cl.scoreTotal,
+          scoreFinanzas: cl.scoreFinanzas, scoreOps: cl.scoreOps,
+          scoreGestion: cl.scoreGestion, scoreEst: cl.scoreEst,
+          perfil: cl.perfil, problema: cl.problemaAbierto,
+          resumen: cl.resumen, palancaTitulo: cl.palancaTitulo,
+          palancaDesc: cl.palancaDesc, transcript, price, meetings,
+        }
+      })
+    });
+    const data = await res.json();
+    const aiPart = data.result || '';
+
+    const text = `PRE-DIAGNÓSTICO 360° — ${cl.empresa.toUpperCase()}
+Preparado por ME Consultora para: ${cl.nombre}
+
+${aiPart}
+
+─────────────────────────────────────
+PRÓXIMO PASO: DIAGNÓSTICO 360° COMPLETO
+
+El Diagnóstico 360° es el paso fundamental para diseñar soluciones reales e implementarlas con impacto. Sin un diagnóstico riguroso, cualquier intervención es un disparo a ciegas.
+
+En el Diagnóstico profundizamos todo lo que apareció en la sesión, validamos con datos reales del negocio e identificamos las palancas concretas de mejora con su plan de acción.
+
+📦 Qué incluye el Diagnóstico 360°
+• Diagnóstico financiero, operativo y de gestión
+• Entrevistas en profundidad + análisis de información real
+• Informe final con hallazgos, oportunidades y roadmap priorizado
+• Presentación ejecutiva de resultados
+
+─────────────────────────────────────
+INVERSIÓN
+
+$${price.toLocaleString('es-AR')}
+
+Plazo estimado: máximo 1 mes · ${meetings} reuniones vía Google Meet (1,5 hs c/u)
+Forma de pago: 50% adelantado · 50% previo a la entrega del informe
+
+─────────────────────────────────────
+🎁 BENEFICIO ESPECIAL — VÁLIDO ESTE MES
+
+Si al finalizar el Diagnóstico decidís continuar con el diseño e implementación de soluciones, te reintegramos el 30% del valor del Diagnóstico como crédito para el siguiente paso.
+
+El diagnóstico no es un gasto: es la inversión que te permite saber exactamente dónde invertir.
+
+─────────────────────────────────────
+Condiciones
+
+En caso de no asistir a una reunión, avisar con mínimo 72 hs de anticipación para reprogramar. De lo contrario, se pierde esa sesión.
+Si se solicita suspensión anticipada, notificar con al menos 1 mes de antelación.`;
+
+    const ao = {...(crm.aiOutputs||{}), prediag_text:text, prediag_hours:h};
+    updateCRM(email, {aiOutputs:ao});
+    renderTabContent(email);
+  } catch(err) {
+    showToast('Error al generar', true);
+    if(btn){btn.disabled=false;btn.innerHTML='Generar Pre-Diagnóstico 360°';}
+  }
+}
+
+function copyPreDiag() {
+  const el = document.getElementById('crt-prediag');
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent).then(() => showToast('Copiado al portapapeles ✓'));
+}
+
 async function regenItem(email, type, index) {
   const crm = getCRM(email);
   const cl = S.clients[email];
@@ -1068,7 +1284,8 @@ function renderCopilot(email) {
       <div class="cop-intro">Herramientas IA para <strong>${stName}</strong>. Los resultados se guardan automáticamente.</div>
       ${renderPreguntas(email)}
       ${renderQuickwins(email)}
-      ${renderPresupuestoCalc(email)}`;
+      ${renderTranscriptSection(email)}
+      ${renderPreDiagnostico(email)}`;
   }
 
   // Stages 3-5: generic rendering

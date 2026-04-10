@@ -35,7 +35,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1024,
+        max_tokens: action === 'prediag' ? 2048 : 1024,
         messages: [{ role: 'user', content: prompt }],
       }),
     });
@@ -72,18 +72,47 @@ CLIENTE:
 
   const prompts = {
     // ── STAGE 2: SESIÓN ESTRATÉGICA ──────────────────────────────────────────
+    prediag: `
+Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.
+Estás preparando un Pre-Diagnóstico 360° para presentarle al cliente como propuesta. Es un documento conciso que muestra hallazgos preliminares y el valor del diagnóstico completo.
+
+${context}
+
+TRANSCRIPT DE LA SESIÓN ESTRATÉGICA:
+${c.transcript || '(sin transcript disponible)'}
+
+Generá la sección analítica del Pre-Diagnóstico con este formato EXACTO:
+
+HALLAZGOS PRELIMINARES — ${c.empresa}
+
+■ Situación actual
+[2-3 líneas describiendo el estado del negocio basado en el test y la sesión. Concreto, sin generalidades.]
+
+■ Principales alertas identificadas
+• [Alerta 1 específica para este negocio]
+• [Alerta 2]
+• [Alerta 3]
+
+■ Palanca de mayor impacto
+[1 párrafo sobre la palanca principal identificada y por qué resolverla cambia el juego para este negocio específico]
+
+■ Lo que el Diagnóstico 360° va a revelar
+[2-3 líneas sobre qué preguntas críticas van a quedar respondidas con el diagnóstico. Hacé que suene valioso y específico para este cliente.]
+
+Respondé directamente sin introducción ni cierre. Máximo 200 palabras en total.`,
+
     preguntas: `
 Sos Melisa Eguen, consultora estratégica para PyMEs argentinas con 15 años de experiencia en FP&A, finanzas y estrategia.
 Estás por tener una sesión estratégica de 30 minutos con este cliente.
 
 ${context}
 
-Generá exactamente 5 preguntas profundas y específicas para hacerle durante la sesión.
-Las preguntas deben:
-- Explorar causas raíz (no síntomas superficiales)
-- Ser específicas para su industria y los problemas identificados en el test
-- Abrir conversaciones sobre cómo toman decisiones hoy
-- Ayudarte a determinar si el cliente está listo para el Diagnóstico 360°
+Generá exactamente 5 preguntas para la sesión.
+Reglas:
+- Cada pregunta: máximo 1 línea, directa y concreta
+- Explorá causas raíz, no síntomas superficiales
+- Específicas para su industria y sus problemas reales
+- Sin preámbulos ni conectores — ir directo al punto
 
 Formato de respuesta — SOLO las preguntas numeradas, sin explicaciones ni texto adicional:
 1. [Pregunta]
