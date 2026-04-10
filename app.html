@@ -424,9 +424,32 @@ async function importClients() {
   status.textContent = 'Importando...';
 
   try {
-    const res  = await fetch('/api/crm?action=clients');
-    const data = await res.json();
+    // Fetch clients + CRM state in parallel
+    status.textContent = 'Importando...';
+    const [clientsRes, crmRes] = await Promise.all([
+      fetch('/api/crm?action=clients'),
+      fetch('/api/crm?action=getCRM')
+    ]);
+    const data    = await clientsRes.json();
+    const crmData = await crmRes.json();
     if (!Array.isArray(data)) throw new Error(data.error || 'Respuesta inválida');
+
+    // Load CRM state from sheet first (keyed by clientId or email)
+    const sheetCRM = {};
+    if (Array.isArray(crmData)) {
+      crmData.forEach(row => {
+        const key = row.clientId || row.email;
+        if (!key) return;
+        sheetCRM[key] = {
+          stage:         parseInt(row.stage) || 1,
+          stageAnterior: row.stageAnterior ? parseInt(row.stageAnterior) : null,
+          notes:         row.notes || '',
+          links:         tryParse(row.links, []),
+          transcripts:   tryParse(row.transcripts, []),
+          aiOutputs:     tryParse(row.aiOutputs, {}),
+        };
+      });
+    }
 
     let added = 0;
     data.forEach(raw => {
@@ -434,18 +457,28 @@ async function importClients() {
       if (!client.email) return;
       const key = client.clientId || client.email;
       S.clients[key] = client;
-      // Migrate CRM data from old email-only key if exists
-      if (!S.crm[key] || !Object.keys(S.crm[key]).find(k => k !== 'stage' && k !== 'stageAnterior' && k !== 'notes' && k !== 'links' && k !== 'transcripts' && k !== 'aiOutputs')) {
-        if (S.crm[client.email] && client.email !== key) {
-          S.crm[key] = S.crm[client.email];
-          delete S.crm[client.email];
-        }
+
+      // Priority: sheetCRM > existing localStorage > blank
+      if (sheetCRM[key]) {
+        // Merge: sheet wins for stage/notes, but keep local aiOutputs if sheet has none
+        const local = S.crm[key] || {};
+        const sheet = sheetCRM[key];
+        const sheetHasAI = sheet.aiOutputs && Object.keys(sheet.aiOutputs).length > 0;
+        S.crm[key] = {
+          ...sheet,
+          aiOutputs: sheetHasAI ? sheet.aiOutputs : (local.aiOutputs || {}),
+        };
+      } else if (S.crm[client.email] && client.email !== key) {
+        // Migrate from old email-only key
+        S.crm[key] = S.crm[client.email];
+        delete S.crm[client.email];
+      } else if (!S.crm[key]) {
+        S.crm[key] = blankCRM();
       }
-      if (!S.crm[key]) S.crm[key] = blankCRM();
       added++;
     });
 
-    // Remove old email-only client entries that are now superseded by clientId entries
+    // Remove superseded email-only keys
     Object.keys(S.clients).forEach(k => {
       if (!k.includes('|')) {
         const hasNewKey = Object.keys(S.clients).some(k2 => k2.includes('|') && k2.startsWith(k + '|'));
@@ -456,7 +489,7 @@ async function importClients() {
     saveStorage();
     renderBoard();
     if (S.active) renderPanel(S.active);
-    const txt = `${added} cliente${added!==1?'s':''} importado${added!==1?'s':''}`;
+    const txt = `${added} cliente${added!==1?'s':''} sincronizado${added!==1?'s':''}`;
     status.textContent = txt;
     showToast('✓ ' + txt);
     setTimeout(() => { status.textContent = ''; }, 5000);
@@ -1645,6 +1678,11 @@ function renderReuniones() {
 function toggleDimDetail(key) {
   const el = document.getElementById('dd-' + key);
   if (el) el.classList.toggle('open');
+}
+function tryParse(val, fallback) {
+  if (!val || val === '' || val === 'null') return fallback;
+  if (typeof val === 'object') return val;
+  try { return JSON.parse(val); } catch(e) { return fallback; }
 }
 function scoreStyle(s) {
   if (s >= 75) return {color:'#16a34a', bg:'#dcfce7', label:'Saludable'};
