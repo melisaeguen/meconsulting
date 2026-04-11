@@ -1546,7 +1546,8 @@ function copyResult(actionId) {
 async function createDoc(email, actionId) {
   const cl  = S.clients[email];
   const crm = getCRM(email);
-  const text = crm.aiOutputs?.[actionId] || '';
+  // Some actions save under a _text suffix (prediag_text, presupuesto_text)
+  const text = crm.aiOutputs?.[actionId] || crm.aiOutputs?.[actionId + '_text'] || '';
   if (!text) return showToast('Generá el contenido primero', true);
 
   showToast('Creando Google Doc...');
