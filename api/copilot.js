@@ -75,32 +75,44 @@ CLIENTE:
     // ── STAGE 2: SESIÓN ESTRATÉGICA ──────────────────────────────────────────
     prediag: `
 Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.
-Estás preparando un Pre-Diagnóstico 360° para presentarle al cliente como propuesta. Es un documento conciso que muestra hallazgos preliminares y el valor del diagnóstico completo.
+Estás preparando un Pre-Diagnóstico 360° en formato presentación para el cliente.
 
 ${context}
 
 TRANSCRIPT DE LA SESIÓN ESTRATÉGICA:
 ${c.transcript || '(sin transcript disponible)'}
 
-Generá la sección analítica del Pre-Diagnóstico con este formato EXACTO:
+Generá exactamente 5 slides con este formato EXACTO. Empezá directo con el primer [SLIDE], sin texto previo.
 
-HALLAZGOS PRELIMINARES — ${c.empresa}
+[SLIDE]
+TITLE: Pre-Diagnóstico 360°
+SUBTITLE: ${c.empresa}
+TYPE: cover
 
-■ Situación actual
-[2-3 líneas describiendo el estado del negocio basado en el test y la sesión. Concreto, sin generalidades.]
+[SLIDE]
+TITLE: Situación actual
+• [observación concreta 1 sobre el estado del negocio — específica, sin generalidades]
+• [observación concreta 2]
+• [el cuello de botella o limitación principal que frena el crecimiento]
 
-■ Principales alertas identificadas
-• [Alerta 1 específica para este negocio]
-• [Alerta 2]
-• [Alerta 3]
+[SLIDE]
+TITLE: Principales alertas identificadas
+• **[Nombre alerta 1]:** [explicación específica en una línea]
+• **[Nombre alerta 2]:** [explicación]
+• **[Nombre alerta 3]:** [explicación]
 
-■ Palanca de mayor impacto
-[1 párrafo sobre la palanca principal identificada y por qué resolverla cambia el juego para este negocio específico]
+[SLIDE]
+TITLE: Palanca de mayor impacto
+SUBTITLE: ${c.palancaTitulo || weakest}
+• [por qué esta palanca es la más crítica para este negocio específico]
+• [qué cambia concretamente si se resuelve — en términos de negocio]
 
-■ Lo que el Diagnóstico 360° va a revelar
-[2-3 líneas sobre qué preguntas críticas van a quedar respondidas con el diagnóstico. Hacé que suene valioso y específico para este cliente.]
-
-Respondé directamente sin introducción ni cierre. Máximo 200 palabras en total.`,
+[SLIDE]
+TITLE: El Diagnóstico 360° va a revelar
+• [pregunta crítica 1 que quedará respondida — específica para este cliente]
+• [pregunta crítica 2 — específica para su industria y situación]
+• Diagnóstico completo en 1-2 semanas · desde $160.000
+TYPE: cta`,
 
     preguntas: `
 Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.
@@ -180,39 +192,46 @@ Respondé con este formato exacto (sin número):
     presupuesto: `
 Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.
 Tu tarifa objetivo es de $40.000/hora (pesos argentinos).
-Un Diagnóstico 360° incluye: análisis profundo de 4 dimensiones, entrevistas con el equipo clave, benchmarking con empresas comparables, identificación de las 3 palancas de mayor impacto, recomendaciones accionables con priorización, y entregable en formato informe ejecutivo + presentación.
 
 ${context}
 
-Estimá el precio del Diagnóstico 360° para este cliente específico basándote en:
-- La complejidad de su negocio
-- La cantidad de áreas críticas identificadas
-- El tamaño estimado de la empresa según su descripción
-- Las horas reales que demandaría este caso
+Generá exactamente 5 slides para la propuesta comercial del Diagnóstico 360°. Empezá directo con el primer [SLIDE], sin texto previo.
 
-Respondé con este formato EXACTO:
+[SLIDE]
+TITLE: Diagnóstico 360°
+SUBTITLE: Propuesta para ${c.empresa}
+TYPE: cover
 
-ESTIMACIÓN DE HORAS
-• Relevamiento y entrevistas: X hs
-• Análisis por dimensión: X hs
-• Benchmarking: X hs
-• Elaboración del informe: X hs
-• Presentación de resultados: X hs
-Total estimado: X a Y horas
+[SLIDE]
+TITLE: ¿Qué incluye el diagnóstico?
+• Análisis profundo de las 4 dimensiones del negocio
+• Entrevistas con el equipo clave y stakeholders
+• Benchmarking con empresas comparables del sector
+• Identificación de las 3 palancas de mayor impacto
+• Informe ejecutivo + presentación de resultados
 
-INVERSIÓN ESTIMADA
-$[precio_minimo] — $[precio_maximo] + IVA
+[SLIDE]
+TITLE: Estimación de horas de trabajo
+• Relevamiento y entrevistas: [X hs — estimá según complejidad de ${c.empresa}]
+• Análisis por dimensión: [X hs]
+• Benchmarking: [X hs]
+• Elaboración del informe: [X hs]
+• Presentación de resultados: [X hs]
+• **Total estimado: [X a Y horas]**
 
-POR QUÉ ESTE RANGO
-[2-3 líneas justificando la estimación para este cliente específico]
+[SLIDE]
+TITLE: Inversión estimada
+HIGHLIGHT: $[precio_min] — $[precio_max] + IVA
+SUBTITLE: Duración estimada: [X a Y semanas]
+• [justificación 1 basada en la complejidad específica de ${c.empresa}]
+• [justificación 2 basada en las dimensiones más críticas identificadas]
 
-ENTREGABLES
-• [4-5 entregables específicos y relevantes para este cliente]
-
-DURACIÓN ESTIMADA
-[X a Y semanas]
-
-Respondé directamente sin introducción ni cierre.`,
+[SLIDE]
+TITLE: Próximos pasos
+• [paso 1 concreto — ej: confirmar alcance y agenda de entrevistas]
+• [paso 2 — ej: firma del acuerdo e inicio del relevamiento]
+• [paso 3 — ej: entrega de hallazgos y presentación de resultados]
+TYPE: cta`,
 
     // ── STAGE 3: DIAGNÓSTICO 360° ─────────────────────────────────────────────
     estructura: `

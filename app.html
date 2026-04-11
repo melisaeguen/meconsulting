@@ -1549,32 +1549,38 @@ function copyResult(actionId) {
 async function createDoc(email, actionId) {
   const cl  = S.clients[email];
   const crm = getCRM(email);
-  // Some actions save under a _text suffix (prediag_text, presupuesto_text)
   const text = crm.aiOutputs?.[actionId] || crm.aiOutputs?.[actionId + '_text'] || '';
   if (!text) return showToast('Generá el contenido primero', true);
 
-  showToast('Creando Google Doc...');
+  // prediag y presupuesto → Google Slides, el resto → Google Doc
+  const useSlides = ['prediag','presupuesto'].includes(actionId);
+  const action    = useSlides ? 'createSlides' : 'createDoc';
+  const label     = useSlides ? 'Presentación' : 'Google Doc';
+
+  const empresa = cl?.empresa || cl?.nombre || email;
+  const mes     = new Date().toLocaleDateString('es-AR', {month:'long', year:'numeric'});
+  const titles  = {
+    prediag:     `Pre-Diagnóstico 360° — ${empresa} — ${mes}`,
+    presupuesto: `Propuesta Diagnóstico 360° — ${empresa} — ${mes}`,
+  };
+  const title = titles[actionId] || `${actionId} — ${empresa} — ${mes}`;
+
+  showToast(`Creando ${label.toLowerCase()}...`);
   try {
     const res  = await fetch('/api/crm', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        action:    'createDoc',
-        empresa:   cl.empresa || cl.nombre,
-        nombre:    cl.nombre,
-        actionId,
-        content:   text,
-      })
+      body: JSON.stringify({ action, title, empresa, nombre: cl?.nombre, actionId, content: text })
     });
     const data = await res.json();
     if (data.url) {
       window.open(data.url, '_blank');
-      showToast('Google Doc creado ✓');
+      showToast(`${label} creado ✓`);
     } else {
-      showToast('Error al crear el Doc', true);
+      showToast(`Error al crear ${label.toLowerCase()}`, true);
     }
   } catch(err) {
-    showToast('Error al crear el Doc', true);
+    showToast(`Error al crear ${label.toLowerCase()}`, true);
   }
 }
 
