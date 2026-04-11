@@ -200,12 +200,12 @@ Tu tarifa objetivo es de $40.000/hora (pesos argentinos).
 
 ${context}
 
-Generá exactamente 5 slides para la propuesta comercial del Diagnóstico 360°.
-REGLAS ESTRICTAS:
-- Empezá DIRECTO con el primer [SLIDE]. Nada de texto antes ni después de los 5 slides.
-- Sin palabras en inglés ni tecnicismos. Todo en español claro y directo.
-- Sin asteriscos ni formato negrita (**texto**). Texto limpio.
-- Los slides 4 y 5 tienen contenido FIJO — copialo exactamente como está, solo completá los valores entre corchetes.
+Generá exactamente 5 slides para la propuesta comercial.
+REGLAS — SEGUIR AL PIE DE LA LETRA:
+1. Empezá DIRECTO con el primer [SLIDE]. Cero texto antes ni después de los 5 slides.
+2. PROHIBIDO usar palabras en inglés: escribí "estrategia de precios" en vez de "pricing", "información" en vez de "data", "hoja de ruta" en vez de "roadmap".
+3. Sin asteriscos ni negrita (**texto**).
+4. Los slides 4 y 5 son FIJOS — escribilos exactamente como aparecen abajo, solo reemplazá los valores entre [corchetes].
 
 [SLIDE]
 TITLE: PRESUPUESTO DIAGNÓSTICO 360°
@@ -214,32 +214,25 @@ TYPE: cover
 
 [SLIDE]
 TITLE: Situación actual
-• [observación concreta 1 sobre el negocio de ${c.empresa} — específica, sin generalidades]
-• [observación concreta 2 sobre las limitaciones operativas o de gestión actuales]
+• [observación concreta 1 — qué está pasando hoy en ${c.empresa}, específica]
+• [observación concreta 2 — impacto operativo o de gestión]
 • [el cuello de botella principal que impide el crecimiento]
 
 [SLIDE]
 TITLE: Principales alertas identificadas
-• [Nombre de la alerta 1]: [explicación en una línea, específica para este negocio]
-• [Nombre de la alerta 2]: [explicación]
-• [Nombre de la alerta 3]: [explicación]
+• [Nombre de la alerta 1 en español]: [explicación en una línea]
+• [Nombre de la alerta 2 en español]: [explicación]
+• [Nombre de la alerta 3 en español]: [explicación]
 
 [SLIDE]
-TITLE: DIAGNÓSTICO 360° — ¿QUÉ INCLUYE?
-• Análisis profundo de las 4 dimensiones del negocio: finanzas, operaciones, gestión y estrategia
-• Entrevistas en profundidad y revisión de información real del negocio
-• Identificación de las 3 palancas de mayor impacto con su justificación
-• Informe final con hallazgos, oportunidades y hoja de ruta priorizada
-• Presentación ejecutiva de resultados
+TITLE: DIAGNÓSTICO 360° COMPLETO
+TYPE: incluye
 
 [SLIDE]
 TITLE: INVERSIÓN
-HIGHLIGHT: $[estimá el monto justo para ${c.empresa} entre $160.000 y $400.000 según su complejidad]
-SUBTITLE: Plazo estimado: [X a Y semanas] · 3 reuniones por videoconferencia (1,5 hs c/u)
-• Forma de pago: 50% adelantado · 50% previo a la entrega del informe
-• Beneficio especial: si al finalizar decidís continuar con la implementación, reintegramos el 30% del valor del diagnóstico como crédito para el siguiente paso
-• El diagnóstico no es un gasto: es la inversión que te permite saber exactamente dónde invertir
-• Condiciones: avisar con 72 hs de anticipación para reprogramar · cancelación con al menos 1 mes de antelación`,
+HIGHLIGHT: $[estimá el monto entre $160.000 y $400.000 según complejidad de ${c.empresa}]
+SUBTITLE: [máximo X semanas o X mes] · 3 reuniones por videoconferencia (1,5 hs c/u)
+TYPE: inversion`,
 
     // ── STAGE 3: DIAGNÓSTICO 360° ─────────────────────────────────────────────
     estructura: `
