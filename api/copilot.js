@@ -37,8 +37,9 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: ['prediag','presupuesto'].includes(action) ? 2048 : 1024,
-        ...((['prediag','presupuesto'].includes(action)) && {
-          stop_sequences: ['\n\nPRÓXIMO', '\n─────', '\n\n─', 'PRÓXIMO PASO']
+        ...(['prediag','presupuesto'].includes(action) && {
+          system: 'Sos un generador de slides. Tu única función es producir bloques [SLIDE] con el formato exacto que se te pide. No agregues texto antes del primer [SLIDE], ni después del último. No agregues secciones, títulos, propuestas, presupuestos, ni comentarios. Solo los bloques [SLIDE] y nada más.',
+          stop_sequences: ['\n\nPRÓXIMO', '\n─────', '\n\n─'],
         }),
         messages: [{ role: 'user', content: prompt }],
       }),
