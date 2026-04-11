@@ -75,40 +75,45 @@ CLIENTE:
     // ── STAGE 2: SESIÓN ESTRATÉGICA ──────────────────────────────────────────
     prediag: `
 Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.
-Estás preparando un Pre-Diagnóstico 360° en formato presentación para el cliente.
+Estás preparando el Pre-Diagnóstico 360° en formato presentación para el cliente.
 
 ${context}
 
 TRANSCRIPT DE LA SESIÓN ESTRATÉGICA:
 ${c.transcript || '(sin transcript disponible)'}
 
-Generá exactamente 5 slides con este formato EXACTO. Empezá directo con el primer [SLIDE], sin texto previo.
+Generá exactamente 5 slides con este formato.
+REGLAS ESTRICTAS:
+- Empezá DIRECTO con el primer [SLIDE]. Nada de texto antes ni después de los 5 slides.
+- Sin palabras en inglés ni tecnicismos. Todo en español claro y directo.
+- Sin asteriscos ni formato negrita (**texto**). Texto limpio.
+- Bullets cortos y concretos. Máximo 2 líneas por bullet.
 
 [SLIDE]
-TITLE: Pre-Diagnóstico 360°
+TITLE: PRE-DIAGNÓSTICO 360°
 SUBTITLE: ${c.empresa}
 TYPE: cover
 
 [SLIDE]
 TITLE: Situación actual
-• [observación concreta 1 sobre el estado del negocio — específica, sin generalidades]
-• [observación concreta 2]
-• [el cuello de botella o limitación principal que frena el crecimiento]
+• [qué está pasando hoy en este negocio — concreto, sin generalidades]
+• [segunda observación específica sobre la operación o gestión]
+• [la limitación principal que frena el crecimiento]
 
 [SLIDE]
 TITLE: Principales alertas identificadas
-• **[Nombre alerta 1]:** [explicación específica en una línea]
-• **[Nombre alerta 2]:** [explicación]
-• **[Nombre alerta 3]:** [explicación]
+• [Nombre de la alerta 1]: [explicación en una línea, específica para este negocio]
+• [Nombre de la alerta 2]: [explicación]
+• [Nombre de la alerta 3]: [explicación]
 
 [SLIDE]
 TITLE: Palanca de mayor impacto
 SUBTITLE: ${c.palancaTitulo || weakest}
-• [por qué esta palanca es la más crítica para este negocio específico]
-• [qué cambia concretamente si se resuelve — en términos de negocio]
+• [por qué esta palanca es la más crítica para este negocio]
+• [qué cambia concretamente en el negocio si se resuelve]
 
 [SLIDE]
-TITLE: El Diagnóstico 360° va a revelar
+TITLE: Lo que el Diagnóstico 360° va a revelar
 • [pregunta crítica 1 que quedará respondida — específica para este cliente]
 • [pregunta crítica 2 — específica para su industria y situación]
 • Diagnóstico completo en 1-2 semanas · desde $160.000
@@ -195,43 +200,46 @@ Tu tarifa objetivo es de $40.000/hora (pesos argentinos).
 
 ${context}
 
-Generá exactamente 5 slides para la propuesta comercial del Diagnóstico 360°. Empezá directo con el primer [SLIDE], sin texto previo.
+Generá exactamente 5 slides para la propuesta comercial del Diagnóstico 360°.
+REGLAS ESTRICTAS:
+- Empezá DIRECTO con el primer [SLIDE]. Nada de texto antes ni después de los 5 slides.
+- Sin palabras en inglés ni tecnicismos. Todo en español claro y directo.
+- Sin asteriscos ni formato negrita (**texto**). Texto limpio.
+- Los slides 4 y 5 tienen contenido FIJO — copialo exactamente como está, solo completá los valores entre corchetes.
 
 [SLIDE]
-TITLE: Diagnóstico 360°
-SUBTITLE: Propuesta para ${c.empresa}
+TITLE: PRESUPUESTO DIAGNÓSTICO 360°
+SUBTITLE: ${c.empresa}
 TYPE: cover
 
 [SLIDE]
-TITLE: ¿Qué incluye el diagnóstico?
-• Análisis profundo de las 4 dimensiones del negocio
-• Entrevistas con el equipo clave y stakeholders
-• Benchmarking con empresas comparables del sector
-• Identificación de las 3 palancas de mayor impacto
-• Informe ejecutivo + presentación de resultados
+TITLE: Situación actual
+• [observación concreta 1 sobre el negocio de ${c.empresa} — específica, sin generalidades]
+• [observación concreta 2 sobre las limitaciones operativas o de gestión actuales]
+• [el cuello de botella principal que impide el crecimiento]
 
 [SLIDE]
-TITLE: Estimación de horas de trabajo
-• Relevamiento y entrevistas: [X hs — estimá según complejidad de ${c.empresa}]
-• Análisis por dimensión: [X hs]
-• Benchmarking: [X hs]
-• Elaboración del informe: [X hs]
-• Presentación de resultados: [X hs]
-• **Total estimado: [X a Y horas]**
+TITLE: Principales alertas identificadas
+• [Nombre de la alerta 1]: [explicación en una línea, específica para este negocio]
+• [Nombre de la alerta 2]: [explicación]
+• [Nombre de la alerta 3]: [explicación]
 
 [SLIDE]
-TITLE: Inversión estimada
-HIGHLIGHT: $[precio_min] — $[precio_max] + IVA
-SUBTITLE: Duración estimada: [X a Y semanas]
-• [justificación 1 basada en la complejidad específica de ${c.empresa}]
-• [justificación 2 basada en las dimensiones más críticas identificadas]
+TITLE: DIAGNÓSTICO 360° — ¿QUÉ INCLUYE?
+• Análisis profundo de las 4 dimensiones del negocio: finanzas, operaciones, gestión y estrategia
+• Entrevistas en profundidad y revisión de información real del negocio
+• Identificación de las 3 palancas de mayor impacto con su justificación
+• Informe final con hallazgos, oportunidades y hoja de ruta priorizada
+• Presentación ejecutiva de resultados
 
 [SLIDE]
-TITLE: Próximos pasos
-• [paso 1 concreto — ej: confirmar alcance y agenda de entrevistas]
-• [paso 2 — ej: firma del acuerdo e inicio del relevamiento]
-• [paso 3 — ej: entrega de hallazgos y presentación de resultados]
-TYPE: cta`,
+TITLE: INVERSIÓN
+HIGHLIGHT: $[estimá el monto justo para ${c.empresa} entre $160.000 y $400.000 según su complejidad]
+SUBTITLE: Plazo estimado: [X a Y semanas] · 3 reuniones por videoconferencia (1,5 hs c/u)
+• Forma de pago: 50% adelantado · 50% previo a la entrega del informe
+• Beneficio especial: si al finalizar decidís continuar con la implementación, reintegramos el 30% del valor del diagnóstico como crédito para el siguiente paso
+• El diagnóstico no es un gasto: es la inversión que te permite saber exactamente dónde invertir
+• Condiciones: avisar con 72 hs de anticipación para reprogramar · cancelación con al menos 1 mes de antelación`,
 
     // ── STAGE 3: DIAGNÓSTICO 360° ─────────────────────────────────────────────
     estructura: `
