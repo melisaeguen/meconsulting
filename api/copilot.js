@@ -36,7 +36,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: action === 'prediag' ? 2048 : 1024,
+        max_tokens: ['prediag','presupuesto'].includes(action) ? 2048 : 1024,
         messages: [{ role: 'user', content: prompt }],
       }),
     });
@@ -83,11 +83,22 @@ TRANSCRIPT DE LA SESIÓN ESTRATÉGICA:
 ${c.transcript || '(sin transcript disponible)'}
 
 Generá exactamente 5 slides con este formato.
-REGLAS ESTRICTAS:
-- Empezá DIRECTO con el primer [SLIDE]. Nada de texto antes ni después de los 5 slides.
-- Sin palabras en inglés ni tecnicismos. Todo en español claro y directo.
-- Sin asteriscos ni formato negrita (**texto**). Texto limpio.
-- Bullets cortos y concretos. Máximo 2 líneas por bullet.
+
+REGLAS — SIN EXCEPCIONES:
+1. Tu respuesta empieza CON [SLIDE]. Cero palabras antes.
+2. Tu respuesta termina con "TYPE: cta". Cero palabras después. Nada más.
+3. PROHIBIDO en inglés — usá siempre la versión en español:
+   "pricing" → "estrategia de precios"
+   "data" → "información"
+   "roadmap" → "hoja de ruta"
+   "performance" → "rendimiento"
+   "feedback" → "devolución"
+   "revenue" → "facturación"
+   "follow up" → "seguimiento"
+   "delivery" → "entrega"
+   "management" → "gestión"
+4. Sin asteriscos ni negritas (**texto**). Texto limpio.
+5. Bullets cortos. Máximo 2 líneas por bullet.
 
 [SLIDE]
 TITLE: PRE-DIAGNÓSTICO 360°
