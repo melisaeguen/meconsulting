@@ -1565,12 +1565,25 @@ async function createDoc(email, actionId) {
   };
   const title = titles[actionId] || `${actionId} — ${empresa} — ${mes}`;
 
+  // Para slides: quedarse solo con los primeros 5 bloques [SLIDE]
+  // y cortar cualquier texto que el modelo agregue después del TYPE: de cada bloque
+  let content = text;
+  if (useSlides) {
+    const parts = text.split('[SLIDE]');
+    content = parts.slice(1, 6).map(block => {
+      const lines = block.split('\n');
+      const typeIdx = lines.findIndex(l => l.trim().startsWith('TYPE:'));
+      const keep = typeIdx >= 0 ? lines.slice(0, typeIdx + 1) : lines;
+      return '[SLIDE]\n' + keep.join('\n').trim();
+    }).join('\n\n');
+  }
+
   showToast(`Creando ${label.toLowerCase()}...`);
   try {
     const res  = await fetch('/api/crm', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ action, title, empresa, nombre: cl?.nombre, actionId, content: text })
+      body: JSON.stringify({ action, title, empresa, nombre: cl?.nombre, actionId, content })
     });
     const data = await res.json();
     if (data.url) {
