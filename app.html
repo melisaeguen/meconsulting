@@ -1171,6 +1171,8 @@ async function generateAndCreatePresupuesto(email) {
     });
     const data = await res.json();
     const content = data.result || '';
+    console.log('[DEBUG] Copilot response:', JSON.stringify(data));
+    console.log('[DEBUG] Content to send to Apps Script:\n', content);
     if (!content) throw new Error('Sin contenido');
 
     // Guardar horas
