@@ -96,7 +96,7 @@ function parseFields(text) {
 function assemblePrediag(raw, c) {
   const f       = parseFields(raw);
   const empresa = c.empresa || '';
-  const palanca = f.PALANCA_SUBTITLE || c.palancaTitulo || getWeakest(c);
+  const precio  = c.price ? `$${Number(c.price).toLocaleString('es-AR')}` : '$—';
 
   const slides = [
     // Slide 1 — cover fijo
@@ -108,11 +108,11 @@ function assemblePrediag(raw, c) {
     // Slide 3 — alertas (variable)
     `[SLIDE]\nTITLE: Principales alertas identificadas\n${f.ALERTAS || ''}`,
 
-    // Slide 4 — palanca (variable)
-    `[SLIDE]\nTITLE: Palanca de mayor impacto\nSUBTITLE: ${palanca}\n${f.PALANCA || ''}`,
+    // Slide 4 — incluye (100% fija)
+    `[SLIDE]\nTITLE: DIAGNÓSTICO 360° COMPLETO\nTYPE: incluye`,
 
-    // Slide 5 — CTA (variable) + línea fija al final
-    `[SLIDE]\nTITLE: Lo que el Diagnóstico 360° va a revelar\n${f.CTA || ''}\n• Diagnóstico completo en 1-2 semanas · desde $160.000\nTYPE: cta`,
+    // Slide 5 — inversión (precio de la calculadora)
+    `[SLIDE]\nTITLE: INVERSIÓN\nHIGHLIGHT: ${precio}\nTYPE: inversion`,
   ];
 
   return slides.join('\n\n');
@@ -162,7 +162,7 @@ CLIENTE:
 
     // ── STAGE 2: SESIÓN ESTRATÉGICA ──────────────────────────────────────────
 
-    // Solo genera el contenido variable — el código arma los [SLIDE] bloques
+    // Solo genera SITUACION y ALERTAS — el código arma los 5 slides
     prediag: `
 Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.
 
@@ -171,33 +171,25 @@ ${context}
 TRANSCRIPT DE LA SESIÓN ESTRATÉGICA:
 ${c.transcript || '(sin transcript disponible)'}
 
-Generá el contenido para 4 secciones de un Pre-Diagnóstico 360°.
+Generá el contenido para 2 secciones de un Pre-Diagnóstico 360°.
 
 REGLAS:
-- Solo español. Prohibido: "pricing" (→ estrategia de precios), "data" (→ información), "roadmap" (→ hoja de ruta), "performance" (→ rendimiento), "feedback" (→ devolución), "revenue" (→ facturación).
-- Sin asteriscos ni negritas. Texto limpio.
-- Bullets cortos, máximo 2 líneas cada uno.
+- Solo español. Sin tecnicismos. Lenguaje claro y directo.
+- Prohibido: "pricing", "data", "roadmap", "performance", "feedback", "revenue".
+- Sin asteriscos ni negritas.
+- Cada bullet tiene exactamente 3 oraciones. Concretas, específicas para este negocio.
 
 Respondé ÚNICAMENTE con este formato:
 
 SITUACION:
-• [qué está pasando hoy en este negocio, concreto]
-• [segunda observación específica]
-• [la limitación principal que frena el crecimiento]
+• [oración 1 sobre qué está pasando hoy]. [oración 2 con detalle concreto]. [oración 3 con el impacto en el negocio].
+• [oración 1 sobre segunda observación]. [oración 2 con detalle]. [oración 3 con consecuencia].
+• [oración 1 sobre la limitación principal]. [oración 2 con detalle]. [oración 3 con lo que frena].
 
 ALERTAS:
-• [Nombre alerta 1]: [explicación en una línea]
-• [Nombre alerta 2]: [explicación]
-• [Nombre alerta 3]: [explicación]
-
-PALANCA_SUBTITLE: ${c.palancaTitulo || weakest}
-PALANCA:
-• [por qué esta palanca es la más crítica para este negocio]
-• [qué cambia concretamente si se resuelve]
-
-CTA:
-• [pregunta crítica 1 específica para este cliente]
-• [pregunta crítica 2 específica para su industria]`,
+• [Nombre alerta 1]: [oración 1 explicando el problema]. [oración 2 con evidencia concreta]. [oración 3 con consecuencia].
+• [Nombre alerta 2]: [oración 1]. [oración 2]. [oración 3].
+• [Nombre alerta 3]: [oración 1]. [oración 2]. [oración 3].`,
 
     preguntas: `
 Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.
