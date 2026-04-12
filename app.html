@@ -1163,7 +1163,9 @@ async function generateAndCreatePresupuesto(email) {
           scoreGestion: cl.scoreGestion, scoreEst: cl.scoreEst,
           perfil: cl.perfil, problema: cl.problemaAbierto,
           resumen: cl.resumen, palancaTitulo: cl.palancaTitulo,
-          palancaDesc: cl.palancaDesc, price,
+          palancaDesc: cl.palancaDesc,
+          transcript: crm.aiOutputs?.transcript || '',
+          price,
         }
       })
     });

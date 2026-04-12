@@ -121,7 +121,8 @@ function assemblePrediag(raw, c) {
 function assemblePresupuesto(raw, c) {
   const f       = parseFields(raw);
   const empresa = c.empresa || '';
-  const precio  = f.PRECIO  || '$—';
+  // Usar el precio de la calculadora directamente, no el del modelo
+  const precio  = c.price ? `$${Number(c.price).toLocaleString('es-AR')}` : (f.PRECIO || '$—');
 
   const slides = [
     // Slide 1 — cover fijo
@@ -266,32 +267,34 @@ Respondé con este formato exacto (sin número):
 **[Nombre corto de la acción]**
 [Descripción concreta en 2 líneas máximo]`,
 
-    // Solo genera situación, alertas y precio — el código arma los [SLIDE] bloques
+    // Solo genera situación y alertas — el código arma los [SLIDE] bloques con precio de la calculadora
     presupuesto: `
 Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.
-Tu tarifa objetivo es de $40.000/hora (pesos argentinos).
 
 ${context}
+
+TRANSCRIPT DE LA SESIÓN ESTRATÉGICA:
+${c.transcript || '(sin transcript disponible)'}
 
 Generá el contenido variable para una propuesta comercial del Diagnóstico 360°.
 
 REGLAS:
+- Usá la información del test Y del transcript para dar observaciones específicas y concretas de este negocio.
 - Solo español. Prohibido: "pricing" (→ estrategia de precios), "data" (→ información), "roadmap" (→ hoja de ruta).
 - Sin asteriscos ni negritas.
+- Cada bullet tiene exactamente 3 oraciones. Concretas, específicas para este negocio.
 
 Respondé ÚNICAMENTE con este formato:
 
 SITUACION:
-• [observación concreta 1 sobre ${c.empresa}]
-• [observación concreta 2]
-• [el cuello de botella principal]
+• [oración 1 sobre qué está pasando hoy]. [oración 2 con detalle concreto]. [oración 3 con el impacto en el negocio].
+• [oración 1 sobre segunda observación]. [oración 2 con detalle]. [oración 3 con consecuencia].
+• [oración 1 sobre la limitación principal]. [oración 2 con detalle]. [oración 3 con lo que frena].
 
 ALERTAS:
-• [Nombre alerta 1]: [explicación en una línea]
-• [Nombre alerta 2]: [explicación]
-• [Nombre alerta 3]: [explicación]
-
-PRECIO: $[monto entre 160.000 y 400.000 según complejidad del negocio]`,
+• [Nombre alerta 1]: [oración 1 explicando el problema]. [oración 2 con evidencia concreta]. [oración 3 con consecuencia].
+• [Nombre alerta 2]: [oración 1]. [oración 2]. [oración 3].
+• [Nombre alerta 3]: [oración 1]. [oración 2]. [oración 3].`,
 
     // ── STAGE 3: DIAGNÓSTICO 360° ─────────────────────────────────────────────
     estructura: `
