@@ -1131,8 +1131,9 @@ function updateCalc(email) {
   saveStorage(); markDirty();
 }
 
-function generatePresupuesto(email) {
-  const cl = S.clients[email];
+async function generatePresupuesto(email) {
+  const cl  = S.clients[email];
+  const crm = getCRM(email);
   const h = {
     entrevistas:  Number(document.getElementById('h-entrevistas')?.value)||8,
     analisis:     Number(document.getElementById('h-analisis')?.value)||10,
@@ -1141,57 +1142,35 @@ function generatePresupuesto(email) {
   };
   const total = Object.values(h).reduce((a,b)=>a+b,0);
   const price = total * 40000;
-  const meetings = Math.ceil((h.entrevistas + h.presentacion) / 1.5);
 
-  const text = `DIAGNÓSTICO 360° DEL NEGOCIO
-Para: ${cl.nombre} | ${cl.empresa}
+  const btn = document.getElementById('bg-presupuesto');
+  if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Generando...';}
 
-Una radiografía integral para entender qué está pasando realmente en tu empresa y qué hacer al respecto.
-
-Analizamos en profundidad las áreas críticas del negocio —finanzas, operaciones, gestión y dirección— combinando entrevistas, revisión de información real y análisis estructurado.
-
-No es un análisis superficial: identificamos problemas de fondo, ineficiencias y oportunidades concretas de mejora.
-
-El resultado no es solo un diagnóstico, sino un plan claro de acción:
-
-• Entendés dónde estás parado hoy (con datos, no intuición)
-• Detectás qué está afectando tu rentabilidad y crecimiento
-• Priorizás qué atacar primero y por qué
-• Tenés un roadmap accionable para ordenar y profesionalizar el negocio
-
-📦 Qué incluye
-• Diagnóstico financiero
-• Diagnóstico operativo
-• Diagnóstico de gestión
-• Entrevistas en profundidad con el dueño/s
-• Análisis de información real del negocio
-• Informe final con hallazgos y oportunidades
-• Roadmap priorizado con próximos pasos concretos
-
-🎯 Resultado
-Salís con claridad total sobre tu negocio y un plan concreto para mejorarlo.
-
-─────────────────────────────────────
-INVERSIÓN
-
-$${price.toLocaleString('es-AR')}
-
-─────────────────────────────────────
-CONDICIONES
-
-Plazo estimado: máximo 1 mes.
-
-Se brindará en ${meetings} reuniones a través de Google Meet (1,5 hs c/u), con una frecuencia mínima de 1 vez por semana.
-
-En caso de no asistir a la reunión, se debe avisar como mínimo 72 hs antes para ser reprogramada. De no ser así, se perderá la reunión de esa semana.
-
-Si se solicita la suspensión anticipada del servicio, se deberá notificar con al menos 1 mes de antelación.
-
-Forma de pago: 50% adelantado y 50% previo a la entrega del diagnóstico.`;
-
-  const ao = {...(getCRM(email).aiOutputs||{}), presupuesto_text:text, presupuesto_hours:h};
-  updateCRM(email, {aiOutputs:ao});
-  renderTabContent(email);
+  try {
+    const res = await fetch('/api/copilot', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        action: 'presupuesto', stage: 2,
+        client: {
+          nombre: cl.nombre, empresa: cl.empresa, industria: cl.industria,
+          descripcion: cl.descripcion, scoreTotal: cl.scoreTotal,
+          scoreFinanzas: cl.scoreFinanzas, scoreOps: cl.scoreOps,
+          scoreGestion: cl.scoreGestion, scoreEst: cl.scoreEst,
+          perfil: cl.perfil, problema: cl.problemaAbierto,
+          resumen: cl.resumen, palancaTitulo: cl.palancaTitulo,
+          palancaDesc: cl.palancaDesc, price,
+        }
+      })
+    });
+    const data = await res.json();
+    const text = data.result || '';
+    const ao = {...(crm.aiOutputs||{}), presupuesto_text:text, presupuesto_hours:h};
+    updateCRM(email, {aiOutputs:ao});
+    renderTabContent(email);
+  } catch(err) {
+    showToast('Error al generar', true);
+    if(btn){btn.disabled=false;btn.innerHTML='Generar propuesta';}
+  }
 }
 
 function renderPreDiagnostico(email) {
@@ -1305,45 +1284,7 @@ async function generatePreDiag(email) {
     const data = await res.json();
     const aiPart = data.result || '';
 
-    const text = `PRE-DIAGNÓSTICO 360° — ${cl.empresa.toUpperCase()}
-Preparado por ME Consultora para: ${cl.nombre}
-
-${aiPart}
-
-─────────────────────────────────────
-PRÓXIMO PASO: DIAGNÓSTICO 360° COMPLETO
-
-El Diagnóstico 360° es el paso fundamental para diseñar soluciones reales e implementarlas con impacto. Sin un diagnóstico riguroso, cualquier intervención es un disparo a ciegas.
-
-En el Diagnóstico profundizamos todo lo que apareció en la sesión, validamos con datos reales del negocio e identificamos las palancas concretas de mejora con su plan de acción.
-
-📦 Qué incluye el Diagnóstico 360°
-• Diagnóstico financiero, operativo y de gestión
-• Entrevistas en profundidad + análisis de información real
-• Informe final con hallazgos, oportunidades y roadmap priorizado
-• Presentación ejecutiva de resultados
-
-─────────────────────────────────────
-INVERSIÓN
-
-$${price.toLocaleString('es-AR')}
-
-Plazo estimado: máximo 1 mes · ${meetings} reuniones vía Google Meet (1,5 hs c/u)
-Forma de pago: 50% adelantado · 50% previo a la entrega del informe
-
-─────────────────────────────────────
-🎁 BENEFICIO ESPECIAL — VÁLIDO ESTE MES
-
-Si al finalizar el Diagnóstico decidís continuar con el diseño e implementación de soluciones, te reintegramos el 30% del valor del Diagnóstico como crédito para el siguiente paso.
-
-El diagnóstico no es un gasto: es la inversión que te permite saber exactamente dónde invertir.
-
-─────────────────────────────────────
-Condiciones
-
-En caso de no asistir a una reunión, avisar con mínimo 72 hs de anticipación para reprogramar. De lo contrario, se pierde esa sesión.
-Si se solicita suspensión anticipada, notificar con al menos 1 mes de antelación.`;
-
+    const text = aiPart;
     const ao = {...(crm.aiOutputs||{}), prediag_text:text, prediag_hours:h};
     updateCRM(email, {aiOutputs:ao});
     renderTabContent(email);
