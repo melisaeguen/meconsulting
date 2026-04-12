@@ -13,7 +13,6 @@ export default async function handler(req, res) {
     const { action, stage, client, index, existingItems, currentDim } = req.body;
     if (!action || !client) return res.status(400).json({ error: 'Faltan parámetros' });
 
-    // Inject extra context for individual regeneration actions
     if (action === 'pregunta_individual') {
       client.indice = index ?? 0;
       client.preguntasExistentes = existingItems || [];
@@ -27,6 +26,8 @@ export default async function handler(req, res) {
     const prompt = buildPrompt(action, stage, client);
     if (!prompt) return res.status(400).json({ error: 'Acción no reconocida' });
 
+    const isSlides = ['prediag', 'presupuesto'].includes(action);
+
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -35,11 +36,10 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: ['prediag','presupuesto'].includes(action) ? 2048 : 1024,
-        ...(['prediag','presupuesto'].includes(action) && {
-          system: 'Sos un generador de slides. Tu única función es producir bloques [SLIDE] con el formato exacto que se te pide. No agregues texto antes del primer [SLIDE], ni después del último. No agregues secciones, títulos, propuestas, presupuestos, ni comentarios. Solo los bloques [SLIDE] y nada más.',
-          stop_sequences: ['\n\nPRÓXIMO', '\n─────', '\n\n─'],
+        model:      'claude-haiku-4-5-20251001',
+        max_tokens: isSlides ? 1024 : 1024,
+        ...(isSlides && {
+          system: 'Sos un generador de contenido para presentaciones. Respondé ÚNICAMENTE con los campos del formato solicitado. Sin texto antes ni después. Sin secciones extra.',
         }),
         messages: [{ role: 'user', content: prompt }],
       }),
@@ -51,13 +51,96 @@ export default async function handler(req, res) {
       return res.status(response.status).json({ error: 'Error de IA' });
     }
 
-    const result = data.content?.[0]?.text || '';
+    const raw = data.content?.[0]?.text || '';
+
+    // Para prediag y presupuesto: ensamblar los [SLIDE] bloques acá,
+    // el modelo solo generó el contenido variable
+    let result = raw;
+    if (action === 'prediag')      result = assemblePrediag(raw, client);
+    if (action === 'presupuesto')  result = assemblePresupuesto(raw, client);
+
     return res.status(200).json({ result });
 
   } catch (err) {
     console.error('Copilot handler error:', err);
     return res.status(500).json({ error: 'Error interno' });
   }
+}
+
+// ── ENSAMBLADO DE SLIDES ──────────────────────────────────────────────────────
+// El modelo solo genera el contenido variable. El código arma el formato final.
+
+function parseFields(text) {
+  // Parsea un texto con secciones CLAVE: y bullets • debajo
+  const result = {};
+  let curKey = null;
+  let buf = [];
+
+  for (const line of text.split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    const header = trimmed.match(/^([A-Z_]{2,}):\s*(.*)$/);
+    if (header && !trimmed.startsWith('•')) {
+      if (curKey) result[curKey] = buf.join('\n').trim();
+      curKey = header[1];
+      buf = header[2] ? [header[2]] : [];
+    } else if (curKey) {
+      buf.push(line);
+    }
+  }
+  if (curKey) result[curKey] = buf.join('\n').trim();
+  return result;
+}
+
+function assemblePrediag(raw, c) {
+  const f       = parseFields(raw);
+  const empresa = c.empresa || '';
+  const palanca = f.PALANCA_SUBTITLE || c.palancaTitulo || getWeakest(c);
+
+  const slides = [
+    // Slide 1 — cover fijo
+    `[SLIDE]\nTITLE: PRE-DIAGNÓSTICO 360°\nSUBTITLE: ${empresa}\nTYPE: cover`,
+
+    // Slide 2 — situación actual (variable)
+    `[SLIDE]\nTITLE: Situación actual\n${f.SITUACION || ''}`,
+
+    // Slide 3 — alertas (variable)
+    `[SLIDE]\nTITLE: Principales alertas identificadas\n${f.ALERTAS || ''}`,
+
+    // Slide 4 — palanca (variable)
+    `[SLIDE]\nTITLE: Palanca de mayor impacto\nSUBTITLE: ${palanca}\n${f.PALANCA || ''}`,
+
+    // Slide 5 — CTA (variable) + línea fija al final
+    `[SLIDE]\nTITLE: Lo que el Diagnóstico 360° va a revelar\n${f.CTA || ''}\n• Diagnóstico completo en 1-2 semanas · desde $160.000\nTYPE: cta`,
+  ];
+
+  return slides.join('\n\n');
+}
+
+function assemblePresupuesto(raw, c) {
+  const f       = parseFields(raw);
+  const empresa = c.empresa || '';
+  const precio  = f.PRECIO  || '$—';
+
+  const slides = [
+    // Slide 1 — cover fijo
+    `[SLIDE]\nTITLE: PRESUPUESTO DIAGNÓSTICO 360°\nSUBTITLE: ${empresa}\nTYPE: cover`,
+
+    // Slide 2 — situación actual (variable)
+    `[SLIDE]\nTITLE: Situación actual\n${f.SITUACION || ''}`,
+
+    // Slide 3 — alertas (variable)
+    `[SLIDE]\nTITLE: Principales alertas identificadas\n${f.ALERTAS || ''}`,
+
+    // Slide 4 — incluye (100% fijo, el modelo no genera nada acá)
+    `[SLIDE]\nTITLE: DIAGNÓSTICO 360° COMPLETO\nTYPE: incluye`,
+
+    // Slide 5 — inversión (solo el precio es variable, resto fijo en Apps Script)
+    `[SLIDE]\nTITLE: INVERSIÓN\nHIGHLIGHT: ${precio}\nTYPE: inversion`,
+  ];
+
+  return slides.join('\n\n');
 }
 
 // ── PROMPT BUILDER ────────────────────────────────────────────────────────────
@@ -76,63 +159,45 @@ CLIENTE:
 - Palanca principal: ${c.palancaTitulo} — ${c.palancaDesc}`.trim();
 
   const prompts = {
+
     // ── STAGE 2: SESIÓN ESTRATÉGICA ──────────────────────────────────────────
+
+    // Solo genera el contenido variable — el código arma los [SLIDE] bloques
     prediag: `
 Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.
-Estás preparando el Pre-Diagnóstico 360° en formato presentación para el cliente.
 
 ${context}
 
 TRANSCRIPT DE LA SESIÓN ESTRATÉGICA:
 ${c.transcript || '(sin transcript disponible)'}
 
-Generá exactamente 5 slides con este formato.
+Generá el contenido para 4 secciones de un Pre-Diagnóstico 360°.
 
-REGLAS — SIN EXCEPCIONES:
-1. Tu respuesta empieza CON [SLIDE]. Cero palabras antes.
-2. Tu respuesta termina con "TYPE: cta". Cero palabras después. Nada más.
-3. PROHIBIDO en inglés — usá siempre la versión en español:
-   "pricing" → "estrategia de precios"
-   "data" → "información"
-   "roadmap" → "hoja de ruta"
-   "performance" → "rendimiento"
-   "feedback" → "devolución"
-   "revenue" → "facturación"
-   "follow up" → "seguimiento"
-   "delivery" → "entrega"
-   "management" → "gestión"
-4. Sin asteriscos ni negritas (**texto**). Texto limpio.
-5. Bullets cortos. Máximo 2 líneas por bullet.
+REGLAS:
+- Solo español. Prohibido: "pricing" (→ estrategia de precios), "data" (→ información), "roadmap" (→ hoja de ruta), "performance" (→ rendimiento), "feedback" (→ devolución), "revenue" (→ facturación).
+- Sin asteriscos ni negritas. Texto limpio.
+- Bullets cortos, máximo 2 líneas cada uno.
 
-[SLIDE]
-TITLE: PRE-DIAGNÓSTICO 360°
-SUBTITLE: ${c.empresa}
-TYPE: cover
+Respondé ÚNICAMENTE con este formato:
 
-[SLIDE]
-TITLE: Situación actual
-• [qué está pasando hoy en este negocio — concreto, sin generalidades]
-• [segunda observación específica sobre la operación o gestión]
+SITUACION:
+• [qué está pasando hoy en este negocio, concreto]
+• [segunda observación específica]
 • [la limitación principal que frena el crecimiento]
 
-[SLIDE]
-TITLE: Principales alertas identificadas
-• [Nombre de la alerta 1]: [explicación en una línea, específica para este negocio]
-• [Nombre de la alerta 2]: [explicación]
-• [Nombre de la alerta 3]: [explicación]
+ALERTAS:
+• [Nombre alerta 1]: [explicación en una línea]
+• [Nombre alerta 2]: [explicación]
+• [Nombre alerta 3]: [explicación]
 
-[SLIDE]
-TITLE: Palanca de mayor impacto
-SUBTITLE: ${c.palancaTitulo || weakest}
+PALANCA_SUBTITLE: ${c.palancaTitulo || weakest}
+PALANCA:
 • [por qué esta palanca es la más crítica para este negocio]
-• [qué cambia concretamente en el negocio si se resuelve]
+• [qué cambia concretamente si se resuelve]
 
-[SLIDE]
-TITLE: Lo que el Diagnóstico 360° va a revelar
-• [pregunta crítica 1 que quedará respondida — específica para este cliente]
-• [pregunta crítica 2 — específica para su industria y situación]
-• Diagnóstico completo en 1-2 semanas · desde $160.000
-TYPE: cta`,
+CTA:
+• [pregunta crítica 1 específica para este cliente]
+• [pregunta crítica 2 específica para su industria]`,
 
     preguntas: `
 Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.
@@ -209,45 +274,32 @@ Respondé con este formato exacto (sin número):
 **[Nombre corto de la acción]**
 [Descripción concreta en 2 líneas máximo]`,
 
+    // Solo genera situación, alertas y precio — el código arma los [SLIDE] bloques
     presupuesto: `
 Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.
 Tu tarifa objetivo es de $40.000/hora (pesos argentinos).
 
 ${context}
 
-Generá exactamente 5 slides para la propuesta comercial.
-REGLAS — SEGUIR AL PIE DE LA LETRA:
-1. Empezá DIRECTO con el primer [SLIDE]. Cero texto antes ni después de los 5 slides.
-2. PROHIBIDO usar palabras en inglés: escribí "estrategia de precios" en vez de "pricing", "información" en vez de "data", "hoja de ruta" en vez de "roadmap".
-3. Sin asteriscos ni negrita (**texto**).
-4. Los slides 4 y 5 son FIJOS — escribilos exactamente como aparecen abajo, solo reemplazá los valores entre [corchetes].
+Generá el contenido variable para una propuesta comercial del Diagnóstico 360°.
 
-[SLIDE]
-TITLE: PRESUPUESTO DIAGNÓSTICO 360°
-SUBTITLE: ${c.empresa}
-TYPE: cover
+REGLAS:
+- Solo español. Prohibido: "pricing" (→ estrategia de precios), "data" (→ información), "roadmap" (→ hoja de ruta).
+- Sin asteriscos ni negritas.
 
-[SLIDE]
-TITLE: Situación actual
-• [observación concreta 1 — qué está pasando hoy en ${c.empresa}, específica]
-• [observación concreta 2 — impacto operativo o de gestión]
-• [el cuello de botella principal que impide el crecimiento]
+Respondé ÚNICAMENTE con este formato:
 
-[SLIDE]
-TITLE: Principales alertas identificadas
-• [Nombre de la alerta 1 en español]: [explicación en una línea]
-• [Nombre de la alerta 2 en español]: [explicación]
-• [Nombre de la alerta 3 en español]: [explicación]
+SITUACION:
+• [observación concreta 1 sobre ${c.empresa}]
+• [observación concreta 2]
+• [el cuello de botella principal]
 
-[SLIDE]
-TITLE: DIAGNÓSTICO 360° COMPLETO
-TYPE: incluye
+ALERTAS:
+• [Nombre alerta 1]: [explicación en una línea]
+• [Nombre alerta 2]: [explicación]
+• [Nombre alerta 3]: [explicación]
 
-[SLIDE]
-TITLE: INVERSIÓN
-HIGHLIGHT: $[estimá el monto entre $160.000 y $400.000 según complejidad de ${c.empresa}]
-SUBTITLE: [máximo X semanas o X mes] · 3 reuniones por videoconferencia (1,5 hs c/u)
-TYPE: inversion`,
+PRECIO: $[monto entre 160.000 y 400.000 según complejidad del negocio]`,
 
     // ── STAGE 3: DIAGNÓSTICO 360° ─────────────────────────────────────────────
     estructura: `
@@ -459,10 +511,10 @@ Respondé directamente sin introducción ni cierre.`,
 
 function getWeakest(c) {
   const dims = [
-    {name:'Finanzas',    score: c.scoreFinanzas || 0},
-    {name:'Operaciones', score: c.scoreOps      || 0},
-    {name:'Gestión',     score: c.scoreGestion  || 0},
-    {name:'Estrategia',  score: c.scoreEst      || 0},
+    { name: 'Finanzas',    score: c.scoreFinanzas || 0 },
+    { name: 'Operaciones', score: c.scoreOps      || 0 },
+    { name: 'Gestión',     score: c.scoreGestion  || 0 },
+    { name: 'Estrategia',  score: c.scoreEst      || 0 },
   ];
-  return dims.sort((a,b) => a.score - b.score)[0].name;
+  return dims.sort((a, b) => a.score - b.score)[0].name;
 }
