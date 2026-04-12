@@ -632,6 +632,14 @@ async function saveSession() {
   }
   if (btn) { btn.disabled = false; btn.classList.remove('dirty'); btn.textContent = 'Guardar sesión'; }
 }
+function clearAiOutputs(email) {
+  if (!confirm('¿Borrar todos los datos de sesión de este cliente? (preguntas, transcript, presupuesto)')) return;
+  S.crm[email] = {...getCRM(email), aiOutputs: {}};
+  saveStorage(); markDirty();
+  openPanel(email);
+  showToast('Datos de sesión eliminados ✓');
+}
+
 function moveStage(email, stageId) {
   const crm = getCRM(email);
   const patch = {stage: stageId};
@@ -769,6 +777,9 @@ function renderPanel(email) {
           onclick="moveStage('${email}',${s.id})">
           ${s.name}
         </button>`).join('')}
+    </div>
+    <div style="margin-top:10px;text-align:right">
+      <button onclick="clearAiOutputs('${email}')" style="font-size:11px;color:var(--muted);background:none;border:1px solid var(--border);border-radius:6px;padding:3px 10px;cursor:pointer">🗑 Limpiar datos de sesión</button>
     </div>`;
 
   const tabs = [
