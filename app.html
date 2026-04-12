@@ -1194,16 +1194,21 @@ async function generateAndCreatePresupuesto(email) {
         content,
       })
     });
-    const slideData = await resSlides.json();
+    console.log('[DEBUG] crm status:', resSlides.status);
+    const rawText = await resSlides.text();
+    console.log('[DEBUG] crm raw response:', rawText.substring(0, 500));
+    let slideData;
+    try { slideData = JSON.parse(rawText); } catch(e) { throw new Error('CRM no devolvió JSON: ' + rawText.substring(0,200)); }
     console.log('[DEBUG] Apps Script response:', JSON.stringify(slideData));
     if (slideData.url) {
       window.open(slideData.url, '_blank');
       showToast('Presentación creada ✓');
     } else {
-      throw new Error('Sin URL');
+      throw new Error('Sin URL: ' + JSON.stringify(slideData));
     }
   } catch(err) {
-    showToast('Error al generar la presentación', true);
+    console.error('[DEBUG] Error:', err.message);
+    showToast('Error: ' + err.message, true);
   } finally {
     if(btn){btn.disabled=false;btn.innerHTML='📊 Generar presentación';}
   }
