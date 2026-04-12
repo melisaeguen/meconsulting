@@ -348,7 +348,6 @@ const COPILOT_ACTIONS = {
   2:[
     {id:'preguntas',   icon:'💬', title:'Preguntas para la sesión',     desc:'5 preguntas profundas para la reunión estratégica'},
     {id:'quickwins',   icon:'⚡', title:'Quick wins para llevar',       desc:'5 acciones concretas e inmediatas para el cliente'},
-    {id:'presupuesto', icon:'📄', title:'Presupuesto Diagnóstico 360°', desc:'Estimación de precio y propuesta comercial'},
   ],
   3:[
     {id:'estructura',  icon:'🔍', title:'Estructura del diagnóstico',  desc:'Plan detallado del diagnóstico a realizar'},
@@ -1101,15 +1100,9 @@ function renderPresupuestoCalc(email) {
         <span>Total: <span id="calc-total-hs">${total}</span> horas</span>
         <span class="calc-total-price">$<span id="calc-total-price">${price.toLocaleString('es-AR')}</span></span>
       </div>
-      <button class="btn-gen" style="width:100%;margin-bottom:${savedText?'12':'0'}px" onclick="generatePresupuesto('${email}')">
-        ${savedText ? 'Regenerar propuesta' : 'Generar propuesta'}
+      <button class="btn-gen" id="bg-presupuesto" style="width:100%" onclick="generateAndCreatePresupuesto('${email}')">
+        📊 Generar presentación
       </button>
-      ${savedText ? `
-        <div class="cop-result-text" id="crt-presupuesto">${esc(savedText)}</div>
-        <div class="result-btns" style="margin-top:8px">
-          <button class="btn-copy" onclick="copyResult('presupuesto')">📋 Copiar</button>
-          <button class="btn-doc" onclick="createDoc('${email}','presupuesto')">📊 Crear presentación</button>
-        </div>` : ''}
     </div>
   </div>`;
 }
@@ -1131,7 +1124,7 @@ function updateCalc(email) {
   saveStorage(); markDirty();
 }
 
-async function generatePresupuesto(email) {
+async function generateAndCreatePresupuesto(email) {
   const cl  = S.clients[email];
   const crm = getCRM(email);
   const h = {
@@ -1147,6 +1140,7 @@ async function generatePresupuesto(email) {
   if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Generando...';}
 
   try {
+    // Paso 1: generar contenido con la IA
     const res = await fetch('/api/copilot', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
@@ -1163,142 +1157,43 @@ async function generatePresupuesto(email) {
       })
     });
     const data = await res.json();
-    const text = data.result || '';
-    const ao = {...(crm.aiOutputs||{}), presupuesto_text:text, presupuesto_hours:h};
-    updateCRM(email, {aiOutputs:ao});
-    renderTabContent(email);
-  } catch(err) {
-    showToast('Error al generar', true);
-    if(btn){btn.disabled=false;btn.innerHTML='Generar propuesta';}
-  }
-}
+    const content = data.result || '';
+    if (!content) throw new Error('Sin contenido');
 
-function renderPreDiagnostico(email) {
-  const crm = getCRM(email);
-  const transcript = crm.aiOutputs?.transcript || '';
-  const h = crm.aiOutputs?.prediag_hours || {entrevistas:8,analisis:10,informe:8,presentacion:3};
-  const savedText = crm.aiOutputs?.prediag_text || '';
-  const total = Object.values(h).reduce((a,b)=>a+Number(b),0);
-  const price = total * 40000;
-  const hasTranscript = !!transcript.trim();
-  return `
-  <div class="cop-action" id="ca-prediag">
-    <div class="cop-action-hdr">
-      <div class="cop-action-title">
-        <span class="cop-icon">🔍</span>
-        <div class="cop-title-text">
-          <strong>Pre-Diagnóstico 360°</strong>
-          <span>Propuesta personalizada con hallazgos del test y la sesión</span>
-        </div>
-      </div>
-    </div>
-    ${!hasTranscript ? `
-    <div class="prediag-locked-msg">
-      ⚠️ Guardá el transcript de la sesión para habilitar la generación
-    </div>` : ''}
-    <div class="cop-result">
-      <div class="calc-grid">
-        <span class="calc-lbl">Relevamiento y entrevistas</span>
-        <input class="calc-inp" type="number" id="h-entrevistas" value="${h.entrevistas}" min="1" max="60" oninput="updatePreDiagCalc('${email}')"/>
-        <span class="calc-unit">hs</span>
-        <span class="calc-lbl">Análisis</span>
-        <input class="calc-inp" type="number" id="h-analisis" value="${h.analisis}" min="1" max="60" oninput="updatePreDiagCalc('${email}')"/>
-        <span class="calc-unit">hs</span>
-        <span class="calc-lbl">Elaboración del informe</span>
-        <input class="calc-inp" type="number" id="h-informe" value="${h.informe}" min="1" max="60" oninput="updatePreDiagCalc('${email}')"/>
-        <span class="calc-unit">hs</span>
-        <span class="calc-lbl">Presentación de resultados</span>
-        <input class="calc-inp" type="number" id="h-presentacion" value="${h.presentacion}" min="1" max="60" oninput="updatePreDiagCalc('${email}')"/>
-        <span class="calc-unit">hs</span>
-      </div>
-      <div class="calc-total-row">
-        <span>Total: <span id="calc-total-hs">${total}</span> horas</span>
-        <span class="calc-total-price">$<span id="calc-total-price">${price.toLocaleString('es-AR')}</span></span>
-      </div>
-      <button class="btn-gen" id="bg-prediag" style="width:100%;margin-bottom:${savedText?'12':'0'}px"
-        ${!hasTranscript ? 'disabled title="Guardá el transcript primero"' : ''}
-        onclick="generatePreDiag('${email}')">
-        ${savedText ? 'Regenerar Pre-Diagnóstico' : 'Generar Pre-Diagnóstico 360°'}
-      </button>
-      ${savedText ? `
-        <div class="cop-result-text" id="crt-prediag" style="white-space:pre-wrap">${esc(savedText)}</div>
-        <div class="result-btns" style="margin-top:8px">
-          <button class="btn-copy" onclick="copyPreDiag()">📋 Copiar</button>
-          <button class="btn-doc" onclick="createDoc('${email}','prediag')">📊 Crear presentación</button>
-        </div>` : ''}
-    </div>
-  </div>`;
-}
+    // Guardar horas
+    const ao = {...(crm.aiOutputs||{}), presupuesto_hours:h};
+    S.crm[email] = {...getCRM(email), aiOutputs:ao};
+    saveStorage();
 
-function updatePreDiagCalc(email) {
-  const h = {
-    entrevistas:  Number(document.getElementById('h-entrevistas')?.value)||0,
-    analisis:     Number(document.getElementById('h-analisis')?.value)||0,
-    informe:      Number(document.getElementById('h-informe')?.value)||0,
-    presentacion: Number(document.getElementById('h-presentacion')?.value)||0,
-  };
-  const total = Object.values(h).reduce((a,b)=>a+b,0);
-  const el1 = document.getElementById('calc-total-hs');
-  const el2 = document.getElementById('calc-total-price');
-  if(el1) el1.textContent = total;
-  if(el2) el2.textContent = (total*40000).toLocaleString('es-AR');
-  const ao = {...(getCRM(email).aiOutputs||{}), prediag_hours:h};
-  S.crm[email] = {...getCRM(email), aiOutputs:ao};
-  saveStorage(); markDirty();
-}
-
-async function generatePreDiag(email) {
-  const cl  = S.clients[email];
-  const crm = getCRM(email);
-  const transcript = crm.aiOutputs?.transcript || '';
-  if (!transcript.trim()) { showToast('Primero guardá el transcript de la sesión', true); return; }
-  const h = {
-    entrevistas:  Number(document.getElementById('h-entrevistas')?.value)||8,
-    analisis:     Number(document.getElementById('h-analisis')?.value)||10,
-    informe:      Number(document.getElementById('h-informe')?.value)||8,
-    presentacion: Number(document.getElementById('h-presentacion')?.value)||3,
-  };
-  const total = Object.values(h).reduce((a,b)=>a+b,0);
-  const price = total * 40000;
-  const meetings = Math.ceil((h.entrevistas + h.presentacion) / 1.5);
-
-  const btn = document.getElementById('bg-prediag');
-  if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Generando...';}
-
-  try {
-    const res = await fetch('/api/copilot', {
+    // Paso 2: crear la presentación directamente
+    if(btn) btn.innerHTML = '<span class="spinner"></span> Creando presentación...';
+    const empresa = cl.empresa || cl.nombre || email;
+    const mes = new Date().toLocaleDateString('es-AR', {month:'long', year:'numeric'});
+    const resSlides = await fetch('/api/crm', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        action: 'prediag', stage: 2,
-        client: {
-          nombre: cl.nombre, empresa: cl.empresa, industria: cl.industria,
-          descripcion: cl.descripcion, scoreTotal: cl.scoreTotal,
-          scoreFinanzas: cl.scoreFinanzas, scoreOps: cl.scoreOps,
-          scoreGestion: cl.scoreGestion, scoreEst: cl.scoreEst,
-          perfil: cl.perfil, problema: cl.problemaAbierto,
-          resumen: cl.resumen, palancaTitulo: cl.palancaTitulo,
-          palancaDesc: cl.palancaDesc, transcript, price,
-        }
+        action: 'createSlides',
+        title: `Propuesta Diagnóstico 360° — ${empresa} — ${mes}`,
+        empresa, nombre: cl.nombre,
+        actionId: 'presupuesto',
+        content,
       })
     });
-    const data = await res.json();
-    const aiPart = data.result || '';
-
-    const text = aiPart;
-    const ao = {...(crm.aiOutputs||{}), prediag_text:text, prediag_hours:h};
-    updateCRM(email, {aiOutputs:ao});
-    renderTabContent(email);
+    const slideData = await resSlides.json();
+    if (slideData.url) {
+      window.open(slideData.url, '_blank');
+      showToast('Presentación creada ✓');
+    } else {
+      throw new Error('Sin URL');
+    }
   } catch(err) {
-    showToast('Error al generar', true);
-    if(btn){btn.disabled=false;btn.innerHTML='Generar Pre-Diagnóstico 360°';}
+    showToast('Error al generar la presentación', true);
+  } finally {
+    if(btn){btn.disabled=false;btn.innerHTML='📊 Generar presentación';}
   }
 }
 
-function copyPreDiag() {
-  const el = document.getElementById('crt-prediag');
-  if (!el) return;
-  navigator.clipboard.writeText(el.textContent).then(() => showToast('Copiado al portapapeles ✓'));
-}
+
 
 async function regenItem(email, type, index) {
   const crm = getCRM(email);
@@ -1357,7 +1252,7 @@ function renderCopilot(email) {
       ${renderPreguntas(email)}
       ${renderQuickwins(email)}
       ${renderTranscriptSection(email)}
-      ${renderPreDiagnostico(email)}`;
+      ${renderPresupuestoCalc(email)}`;
   }
 
   // Stages 3-5: generic rendering
