@@ -1195,6 +1195,7 @@ async function generateAndCreatePresupuesto(email) {
       })
     });
     const slideData = await resSlides.json();
+    console.log('[DEBUG] Apps Script response:', JSON.stringify(slideData));
     if (slideData.url) {
       window.open(slideData.url, '_blank');
       showToast('Presentación creada ✓');
