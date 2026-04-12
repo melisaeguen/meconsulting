@@ -1171,8 +1171,6 @@ async function generateAndCreatePresupuesto(email) {
     });
     const data = await res.json();
     const content = data.result || '';
-    console.log('[DEBUG] Copilot response:', JSON.stringify(data));
-    console.log('[DEBUG] Content to send to Apps Script:\n', content);
     if (!content) throw new Error('Sin contenido');
 
     // Guardar horas
@@ -1194,21 +1192,17 @@ async function generateAndCreatePresupuesto(email) {
         content,
       })
     });
-    console.log('[DEBUG] crm status:', resSlides.status);
     const rawText = await resSlides.text();
-    console.log('[DEBUG] crm raw response:', rawText.substring(0, 500));
     let slideData;
-    try { slideData = JSON.parse(rawText); } catch(e) { throw new Error('CRM no devolvió JSON: ' + rawText.substring(0,200)); }
-    console.log('[DEBUG] Apps Script response:', JSON.stringify(slideData));
+    try { slideData = JSON.parse(rawText); } catch(e) { throw new Error('Sin respuesta válida del servidor'); }
     if (slideData.url) {
       window.open(slideData.url, '_blank');
       showToast('Presentación creada ✓');
     } else {
-      throw new Error('Sin URL: ' + JSON.stringify(slideData));
+      throw new Error(slideData.error || 'Sin URL');
     }
   } catch(err) {
-    console.error('[DEBUG] Error:', err.message);
-    showToast('Error: ' + err.message, true);
+    showToast('Error al generar la presentación', true);
   } finally {
     if(btn){btn.disabled=false;btn.innerHTML='📊 Generar presentación';}
   }
