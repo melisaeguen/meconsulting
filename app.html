@@ -441,13 +441,15 @@ async function importClients() {
     if (Array.isArray(crmData)) {
       crmData.forEach(row => {
         if (!row.clientId) return;
+        const ao = tryParse(row.aiOutputs, {});
+        console.log('CRM row', row.clientId, 'aiOutputs raw:', String(row.aiOutputs).substring(0,80), '→ parsed keys:', Object.keys(ao));
         sheetCRM[String(row.clientId)] = {
           stage:         parseInt(row.stage) || 1,
           stageAnterior: row.stageAnterior ? parseInt(row.stageAnterior) : null,
           notes:         row.notes || '',
           links:         tryParse(row.links, []),
           transcripts:   tryParse(row.transcript || row.transcripts, []),
-          aiOutputs:     tryParse(row.aiOutputs, {}),
+          aiOutputs:     ao,
         };
       });
     }
