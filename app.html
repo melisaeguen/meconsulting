@@ -587,7 +587,7 @@ async function saveSession() {
           stageAnterior: crm.stageAnterior,
           notes:         crm.notes || '',
           transcript:    JSON.stringify(crm.transcripts || []),
-          aiOutputs:     JSON.stringify(crm.aiOutputs   || {}),
+          aiOutputs:     crm.aiOutputs || {},
           updatedAt:     new Date().toISOString(),
         }),
       });
