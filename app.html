@@ -437,61 +437,35 @@ async function importClients() {
       const newRich = Object.keys(parsed.aiOutputs || {}).length + (parsed.notes ? 1 : 0) + (parsed.stage > 1 ? 10 : 0);
       if (newRich >= crmRichness(key)) sheetCRM[key] = parsed;
     };
+    // Index CRM rows by numeric clientId only (ID is the primary key)
     if (Array.isArray(crmData)) {
       crmData.forEach(row => {
-        const parsed = {
+        if (!row.clientId) return;
+        sheetCRM[String(row.clientId)] = {
           stage:         parseInt(row.stage) || 1,
           stageAnterior: row.stageAnterior ? parseInt(row.stageAnterior) : null,
           notes:         row.notes || '',
           links:         tryParse(row.links, []),
-          transcripts:   tryParse(row.transcripts, []),
+          transcripts:   tryParse(row.transcript || row.transcripts, []),
           aiOutputs:     tryParse(row.aiOutputs, {}),
         };
-        // Index by all possible keys for maximum compatibility
-        if (row.clientId) maybeStore(String(row.clientId), parsed);
-        if (row.email)    maybeStore(String(row.email),    parsed);
       });
     }
 
     let added = 0;
     data.forEach(raw => {
       const client = normalizeClient(raw);
-      if (!client.email) return;
-      const key = client.clientId || client.email;
+      if (!client.clientId) return; // skip rows without ID
+      const key = client.clientId;
       S.clients[key] = client;
 
-      // Pick the richest sheet record (numeric key may be empty, email key may have full data)
-      const richness = d => Object.keys((d||{}).aiOutputs||{}).length + ((d||{}).stage > 1 ? 10 : 0) + ((d||{}).notes ? 1 : 0);
-      const candidates = [sheetCRM[key], sheetCRM[client.email]].filter(Boolean);
-      const fromSheet = candidates.reduce((best, cur) => richness(cur) >= richness(best) ? cur : best, null);
-
+      const fromSheet = sheetCRM[key];
       if (fromSheet) {
-        const local = S.crm[key] || {};
-        const sheetHasAI = fromSheet.aiOutputs && Object.keys(fromSheet.aiOutputs).length > 0;
-        S.crm[key] = {
-          ...fromSheet,
-          aiOutputs: sheetHasAI ? fromSheet.aiOutputs : (local.aiOutputs || {}),
-        };
-      } else if (S.crm[client.email] && client.email !== key) {
-        // Migrate from old email-only key
-        S.crm[key] = S.crm[client.email];
-        delete S.crm[client.email];
+        S.crm[key] = fromSheet;
       } else if (!S.crm[key]) {
         S.crm[key] = blankCRM();
       }
       added++;
-    });
-
-    // Remove any legacy email|empresa keys now that we have numeric IDs
-    Object.keys(S.clients).forEach(k => {
-      if (k.includes('|') || (k.includes('@') && !Object.values(S.clients).some(c => c.clientId === k && c.email !== k))) {
-        // If a numeric-keyed version of this client now exists, remove the old key
-        const hasNumericKey = Object.keys(S.clients).some(k2 => /^\d+$/.test(k2) && S.clients[k2].email === (S.clients[k]?.email || ''));
-        if (hasNumericKey) {
-          delete S.clients[k];
-          delete S.crm[k];
-        }
-      }
     });
 
     renderBoard();
@@ -569,16 +543,7 @@ function blankCRM() {
 
 // ══ CRM HELPERS ═══════════════════════════════════════════════════════════════
 function getCRM(id) {
-  if (!S.crm[id]) {
-    // Try to migrate from email-only key
-    const cl = S.clients[id];
-    if (cl && cl.email && cl.email !== id && S.crm[cl.email]) {
-      S.crm[id] = S.crm[cl.email];
-      delete S.crm[cl.email];
-    } else {
-      S.crm[id] = blankCRM();
-    }
-  }
+  if (!S.crm[id]) S.crm[id] = blankCRM();
   return S.crm[id];
 }
 function updateCRM(email, patch) {
