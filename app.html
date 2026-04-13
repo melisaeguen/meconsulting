@@ -574,19 +574,19 @@ async function saveSession() {
     for (const id of ids) {
       const cl  = S.clients[id];
       const crm = getCRM(id);
-      console.log('SAVING', id, cl?.email, 'transcripts:', crm.transcripts);
       await fetch('/api/crm', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify({
-          action:     'updateCRM',
-          email:      cl?.email || id,
-          clientId:   id,
-          stage:      crm.stage,
+          action:        'updateCRM',
+          email:         cl?.email || id,
+          clientId:      id,
+          stage:         crm.stage,
           stageAnterior: crm.stageAnterior,
-          notes:      crm.notes || '',
-          transcript: JSON.stringify(crm.transcripts || []),
-          updatedAt:  new Date().toISOString(),
+          notes:         crm.notes || '',
+          transcript:    JSON.stringify(crm.transcripts || []),
+          aiOutputs:     JSON.stringify(crm.aiOutputs   || {}),
+          updatedAt:     new Date().toISOString(),
         }),
       });
     }
