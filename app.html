@@ -574,6 +574,7 @@ async function saveSession() {
     for (const id of ids) {
       const cl  = S.clients[id];
       const crm = getCRM(id);
+      console.log('SAVING', id, cl?.email, 'transcripts:', crm.transcripts);
       await fetch('/api/crm', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
