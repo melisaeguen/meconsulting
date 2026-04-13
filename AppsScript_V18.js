@@ -198,7 +198,8 @@ function saveFromTest(data) {
 }
 
 // ── UPDATE CRM ──────────────────────────────────────────────────────
-// Upsert row in "ME Consultora — CRM" tab
+// Upsert row — escribe por nombre de columna, no por posición
+// (soporta cualquier orden de columnas en el sheet existente)
 function updateCRM(data) {
   const ss  = getOrCreateSheet();
   const tab = getOrCreateCRMTab(ss);
@@ -208,37 +209,40 @@ function updateCRM(data) {
 
   if (!clientId) return { error: 'clientId requerido' };
 
-  // Find existing row by clientId OR email
-  const all = tab.getDataRange().getValues();
+  const all     = tab.getDataRange().getValues();
   const headers = all[0].map(h => String(h).trim());
-  const idxId    = headers.indexOf('clientId');
-  const idxEmail = headers.indexOf('email');
+  const idxId   = headers.indexOf('clientId');
 
+  // Buscar fila por clientId (primary key numérico)
   let rowIndex = -1;
   for (let i = 1; i < all.length; i++) {
     if (String(all[i][idxId]) === clientId) {
-      rowIndex = i + 1; // 1-based sheet row
+      rowIndex = i + 1; // 1-based
       break;
     }
   }
 
-  const rowData = [
-    clientId,
-    email,
-    data.stage         || 1,
-    data.stageAnterior || '',
-    data.notes         || '',
-    data.transcript    || '',
-    data.aiOutputs     ? JSON.stringify(data.aiOutputs) : '',
-    data.updatedAt     || new Date().toISOString(),
-    data.links         ? JSON.stringify(data.links) : '',
-  ];
+  // Mapa de valores por nombre de columna
+  // Soporta tanto "transcript" como "transcripts" (nombre viejo/nuevo)
+  const values = {
+    clientId:      clientId,
+    email:         email,
+    stage:         data.stage         || 1,
+    stageAnterior: data.stageAnterior || '',
+    notes:         data.notes         || '',
+    transcript:    data.transcript    || '',
+    transcripts:   data.transcript    || '',
+    aiOutputs:     data.aiOutputs ? JSON.stringify(data.aiOutputs) : '',
+    updatedAt:     data.updatedAt || new Date().toISOString(),
+    links:         data.links ? JSON.stringify(data.links) : '',
+  };
+
+  // Armar array en el orden exacto de las columnas existentes
+  const rowData = headers.map(h => values[h] !== undefined ? values[h] : '');
 
   if (rowIndex > 1) {
-    // Update existing row
     tab.getRange(rowIndex, 1, 1, rowData.length).setValues([rowData]);
   } else {
-    // Append new row
     tab.appendRow(rowData);
   }
 
