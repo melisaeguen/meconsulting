@@ -48,6 +48,9 @@ a{color:inherit;text-decoration:none}
 .btn-logout{background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.65);border-radius:7px;padding:6px 14px;font-size:12px;transition:all .15s}
 .btn-logout:hover{border-color:rgba(255,255,255,.5);color:white}
 .import-status{font-size:12px;color:rgba(255,255,255,.5)}
+.dirty-badge{font-size:11px;font-weight:600;padding:4px 11px;border-radius:20px;letter-spacing:.2px;transition:all .2s}
+.dirty-badge.dirty{color:#fbbf24;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3)}
+.dirty-badge.saved{color:rgba(255,255,255,.35);background:none;border:1px solid transparent}
 
 /* ── BOARD ── */
 .board-wrapper{flex:1;overflow:hidden;display:flex;flex-direction:column}
@@ -282,11 +285,12 @@ a{color:inherit;text-decoration:none}
       <span class="hdr-label">CRM Interno</span>
     </div>
     <div class="hdr-right">
+      <span id="dirty-badge" class="dirty-badge"></span>
       <span id="import-status" class="import-status"></span>
       <button class="btn-import" id="btn-import" onclick="importClients()">
-        <span id="import-icon">⬇</span> Importar clientes
+        <span id="import-icon">⬇</span> Actualizar
       </button>
-      <button class="btn-save-session" id="btn-save" onclick="saveSession()">Guardar sesión</button>
+      <button class="btn-save-session" id="btn-save" onclick="saveSession()">Guardar cambios</button>
       <button class="btn-logout" onclick="doLogout()">Salir</button>
     </div>
   </header>
@@ -385,8 +389,8 @@ function doLogin() {
   if (u === 'melisa' && p === 'meconsulting2026') {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app-screen').style.display = 'flex';
-    loadStorage();
     renderBoard();
+    importClients();
   } else {
     document.getElementById('l-err').style.display = 'block';
     document.getElementById('l-pass').value = '';
@@ -398,22 +402,6 @@ function doLogout() {
   document.getElementById('l-user').value = '';
   document.getElementById('l-pass').value = '';
   closePanel();
-}
-
-// ══ STORAGE ══════════════════════════════════════════════════════════════════
-function saveStorage() {
-  try {
-    localStorage.setItem('me_crm_cl', JSON.stringify(S.clients));
-    localStorage.setItem('me_crm_data', JSON.stringify(S.crm));
-  } catch(e){}
-}
-function loadStorage() {
-  try {
-    const c = localStorage.getItem('me_crm_cl');
-    const d = localStorage.getItem('me_crm_data');
-    if(c) S.clients = JSON.parse(c);
-    if(d) S.crm     = JSON.parse(d);
-  } catch(e){}
 }
 
 // ══ IMPORT ═══════════════════════════════════════════════════════════════════
@@ -429,7 +417,7 @@ async function importClients() {
     // Fetch clients + CRM state in parallel
     status.textContent = 'Importando...';
     const [clientsRes, crmRes] = await Promise.all([
-      fetch('/api/crm?action=clients'),
+      fetch('/api/crm?action=getClients'),
       fetch('/api/crm?action=getCRM')
     ]);
     const data    = await clientsRes.json();
@@ -506,7 +494,6 @@ async function importClients() {
       }
     });
 
-    saveStorage();
     renderBoard();
     if (S.active) renderPanel(S.active);
     const txt = `${added} cliente${added!==1?'s':''} sincronizado${added!==1?'s':''}`;
@@ -588,7 +575,6 @@ function getCRM(id) {
     if (cl && cl.email && cl.email !== id && S.crm[cl.email]) {
       S.crm[id] = S.crm[cl.email];
       delete S.crm[cl.email];
-      saveStorage();
     } else {
       S.crm[id] = blankCRM();
     }
@@ -597,16 +583,25 @@ function getCRM(id) {
 }
 function updateCRM(email, patch) {
   S.crm[email] = {...getCRM(email), ...patch};
-  saveStorage();
   markDirty();
 }
 function markDirty() {
   S.dirty = true;
+  const badge = document.getElementById('dirty-badge');
+  if (badge) { badge.className = 'dirty-badge dirty'; badge.textContent = '● Cambios sin guardar'; }
   const btn = document.getElementById('btn-save');
-  if (btn) { btn.classList.add('dirty'); btn.textContent = 'Guardar sesión ●'; }
+  if (btn) btn.classList.add('dirty');
+}
+function clearDirty() {
+  S.dirty = false;
+  const badge = document.getElementById('dirty-badge');
+  if (badge) { badge.className = 'dirty-badge saved'; badge.textContent = '✓ Guardado'; }
+  const btn = document.getElementById('btn-save');
+  if (btn) btn.classList.remove('dirty');
 }
 async function saveSession() {
   const btn = document.getElementById('btn-save');
+  const prevText = btn ? btn.textContent : '';
   if (btn) { btn.disabled = true; btn.textContent = 'Guardando...'; }
   try {
     // Only save clients that exist in S.clients (skip orphan CRM entries)
@@ -618,24 +613,28 @@ async function saveSession() {
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify({
-          action:   'updateCRM',
-          email:    cl?.email || id,
-          clientId: id,
-          data:     crm,
+          action:     'updateCRM',
+          email:      cl?.email || id,
+          clientId:   id,
+          stage:      crm.stage,
+          stageAnterior: crm.stageAnterior,
+          notes:      crm.notes || '',
+          transcript: JSON.stringify(crm.transcripts || []),
+          updatedAt:  new Date().toISOString(),
         }),
       });
     }
-    S.dirty = false;
-    showToast('Sesión guardada ✓');
+    clearDirty();
+    showToast('Cambios guardados ✓');
   } catch(e) {
-    showToast('Error al guardar', true);
+    showToast('Error al guardar: ' + e.message, true);
   }
-  if (btn) { btn.disabled = false; btn.classList.remove('dirty'); btn.textContent = 'Guardar sesión'; }
+  if (btn) { btn.disabled = false; btn.textContent = 'Guardar cambios'; }
 }
 function clearAiOutputs(email) {
   if (!confirm('¿Borrar todos los datos de sesión de este cliente? (preguntas, transcript, presupuesto)')) return;
   S.crm[email] = {...getCRM(email), aiOutputs: {}};
-  saveStorage(); markDirty();
+  markDirty();
   openPanel(email);
   showToast('Datos de sesión eliminados ✓');
 }
@@ -1132,7 +1131,7 @@ function updateCalc(email) {
   if(el2) el2.textContent = (total*40000).toLocaleString('es-AR');
   const ao = {...(getCRM(email).aiOutputs||{}), presupuesto_hours:h};
   S.crm[email] = {...getCRM(email), aiOutputs:ao};
-  saveStorage(); markDirty();
+  markDirty();
 }
 
 async function generateAndCreatePresupuesto(email) {
@@ -1176,7 +1175,6 @@ async function generateAndCreatePresupuesto(email) {
     // Guardar horas
     const ao = {...(crm.aiOutputs||{}), presupuesto_hours:h};
     S.crm[email] = {...getCRM(email), aiOutputs:ao};
-    saveStorage();
 
     // Paso 2: crear la presentación directamente
     if(btn) btn.innerHTML = '<span class="spinner"></span> Creando presentación...';
