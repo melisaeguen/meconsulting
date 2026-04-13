@@ -442,7 +442,6 @@ async function importClients() {
       crmData.forEach(row => {
         if (!row.clientId) return;
         const ao = tryParse(row.aiOutputs, {});
-        console.log('CRM row', row.clientId, 'aiOutputs raw:', String(row.aiOutputs).substring(0,80), '→ parsed keys:', Object.keys(ao));
         sheetCRM[String(row.clientId)] = {
           stage:         parseInt(row.stage) || 1,
           stageAnterior: row.stageAnterior ? parseInt(row.stageAnterior) : null,
@@ -1548,7 +1547,12 @@ function toggleDimDetail(key) {
 function tryParse(val, fallback) {
   if (!val || val === '' || val === 'null') return fallback;
   if (typeof val === 'object') return val;
-  try { return JSON.parse(val); } catch(e) { return fallback; }
+  try {
+    const parsed = JSON.parse(val);
+    // Si el resultado es un string, estaba double-encoded — parsear de nuevo
+    if (typeof parsed === 'string') return JSON.parse(parsed);
+    return parsed;
+  } catch(e) { return fallback; }
 }
 function scoreStyle(s) {
   if (s >= 75) return {color:'#16a34a', bg:'#dcfce7', label:'Saludable'};
