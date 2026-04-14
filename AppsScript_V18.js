@@ -309,20 +309,16 @@ function buildContentSlide(slide, title, bullets, empresa) {
   const bar = slide.insertShape(SlidesApp.ShapeType.RECTANGLE, 0, 0, W, 4);
   bar.getFill().setSolidFill(C_GOLD.red * 255, C_GOLD.green * 255, C_GOLD.blue * 255);
   bar.getBorder().getLineFill().setSolidFill(0, 0, 0, 0);
-  // Title
-  sText(slide, title, 26, 14, W - 34, 26,
-    { size: 15, bold: true, color: '#1b2340', align: 'LEFT' });
-  // Company name in gold right after title
-  if (empresa) {
-    sText(slide, empresa, 26, 38, W - 34, 18,
-      { size: 11, bold: false, color: '#c9a96e', align: 'LEFT' });
-  }
-  const top = empresa ? 62 : 48;
-  // Fixed 64px per bullet (~4 lines at 11.5pt) — regardless of bullet count
-  const rowH = 64;
+  // Title — empresa on same line: "Situación actual — ATLAS GARDEN"
+  const fullTitle = empresa ? title + ' — ' + empresa : title;
+  sText(slide, fullTitle, 26, 14, W - 34, 26,
+    { size: 14, bold: true, color: '#1b2340', align: 'LEFT' });
+  const top = 46;
+  // 3 bullets × ~4 lines each — rowH gives 4 lines at 11.5pt plus small gap
+  const rowH = Math.floor((H - top - 24) / Math.max(bullets.length, 1));
   bullets.forEach(function(b, i) {
     const txt = typeof b === 'string' ? b : (b.text || String(b));
-    sText(slide, '•  ' + txt, 26, top + i * rowH, W - 52, rowH - 4,
+    sText(slide, '•  ' + txt, 26, top + i * rowH, W - 52, rowH - 6,
       { size: 11.5, bold: false, color: '#1b2340', align: 'LEFT' });
   });
   addFooter(slide);
