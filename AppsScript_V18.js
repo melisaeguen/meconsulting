@@ -314,10 +314,10 @@ function buildContentSlide(slide, title, bullets, empresa) {
   sText(slide, fullTitle, 26, 14, W - 34, 26,
     { size: 14, bold: true, color: '#1b2340', align: 'LEFT' });
   const top = 46;
-  const rowH = 72; // fixed: ~4 lines at 11.5pt + small gap
+  const rowH = 60; // fixed: 3 lines at 11.5pt + small gap between bullets
   bullets.forEach(function(b, i) {
     const txt = typeof b === 'string' ? b : (b.text || String(b));
-    sText(slide, '•  ' + txt, 26, top + i * rowH, W - 52, 68,
+    sText(slide, '•  ' + txt, 26, top + i * rowH, W - 52, 56,
       { size: 11.5, bold: false, color: '#1b2340', align: 'LEFT' });
   });
   addFooter(slide);

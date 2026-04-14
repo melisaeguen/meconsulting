@@ -178,20 +178,23 @@ REGLAS ESTRICTAS:
 - Solo español. Sin tecnicismos. Lenguaje claro y directo.
 - Prohibido: "pricing", "data", "roadmap", "performance", "feedback", "revenue".
 - Sin asteriscos ni negritas.
-- Cada bullet: exactamente 4 oraciones cortas. MÁXIMO 15 palabras por oración. MÁXIMO 60 palabras por bullet.
-- Las oraciones deben ser concretas y específicas para este negocio. Nada genérico.
+- SIEMPRE exactamente 4 bullets. Ni más, ni menos.
+- Cada bullet: exactamente 3 oraciones. MÁXIMO 15 palabras por oración.
+- Concretas y específicas para este negocio. Nada genérico.
 
-Respondé ÚNICAMENTE con este formato:
+Respondé ÚNICAMENTE con este formato (siempre 4 bullets):
 
 SITUACION:
-• [oración 1: situación actual, máx 15 palabras]. [oración 2: detalle concreto, máx 15 palabras]. [oración 3: consecuencia, máx 15 palabras]. [oración 4: impacto en el negocio, máx 15 palabras].
-• [oración 1, máx 15 palabras]. [oración 2, máx 15 palabras]. [oración 3, máx 15 palabras]. [oración 4, máx 15 palabras].
-• [oración 1, máx 15 palabras]. [oración 2, máx 15 palabras]. [oración 3, máx 15 palabras]. [oración 4, máx 15 palabras].
+• [oración 1, máx 15 palabras]. [oración 2, máx 15 palabras]. [oración 3, máx 15 palabras].
+• [oración 1, máx 15 palabras]. [oración 2, máx 15 palabras]. [oración 3, máx 15 palabras].
+• [oración 1, máx 15 palabras]. [oración 2, máx 15 palabras]. [oración 3, máx 15 palabras].
+• [oración 1, máx 15 palabras]. [oración 2, máx 15 palabras]. [oración 3, máx 15 palabras].
 
 ALERTAS:
-• [Nombre alerta 1]: [oración 1, máx 15 palabras]. [oración 2, máx 15 palabras]. [oración 3, máx 15 palabras]. [oración 4, máx 15 palabras].
-• [Nombre alerta 2]: [oración 1, máx 15 palabras]. [oración 2, máx 15 palabras]. [oración 3, máx 15 palabras]. [oración 4, máx 15 palabras].
-• [Nombre alerta 3]: [oración 1, máx 15 palabras]. [oración 2, máx 15 palabras]. [oración 3, máx 15 palabras]. [oración 4, máx 15 palabras].`,
+• [Nombre alerta 1]: [oración 1, máx 15 palabras]. [oración 2, máx 15 palabras]. [oración 3, máx 15 palabras].
+• [Nombre alerta 2]: [oración 1, máx 15 palabras]. [oración 2, máx 15 palabras]. [oración 3, máx 15 palabras].
+• [Nombre alerta 3]: [oración 1, máx 15 palabras]. [oración 2, máx 15 palabras]. [oración 3, máx 15 palabras].
+• [Nombre alerta 4]: [oración 1, máx 15 palabras]. [oración 2, máx 15 palabras]. [oración 3, máx 15 palabras].`,
 
     preguntas: `
 Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.
@@ -283,20 +286,23 @@ REGLAS ESTRICTAS:
 - Usá la información del test Y del transcript para dar observaciones específicas y concretas de este negocio.
 - Solo español. Prohibido: "pricing" (→ estrategia de precios), "data" (→ información), "roadmap" (→ hoja de ruta).
 - Sin asteriscos ni negritas.
-- Cada bullet: exactamente 4 oraciones cortas. MÁXIMO 15 palabras por oración. MÁXIMO 60 palabras por bullet.
-- Las oraciones deben ser concretas y específicas para este negocio. Nada genérico.
+- SIEMPRE exactamente 4 bullets. Ni más, ni menos.
+- Cada bullet: exactamente 3 oraciones. MÁXIMO 15 palabras por oración.
+- Concretas y específicas para este negocio. Nada genérico.
 
-Respondé ÚNICAMENTE con este formato:
+Respondé ÚNICAMENTE con este formato (siempre 4 bullets):
 
 SITUACION:
-• [oración 1: situación actual, máx 15 palabras]. [oración 2: detalle concreto, máx 15 palabras]. [oración 3: consecuencia, máx 15 palabras]. [oración 4: impacto en el negocio, máx 15 palabras].
-• [oración 1, máx 15 palabras]. [oración 2, máx 15 palabras]. [oración 3, máx 15 palabras]. [oración 4, máx 15 palabras].
-• [oración 1, máx 15 palabras]. [oración 2, máx 15 palabras]. [oración 3, máx 15 palabras]. [oración 4, máx 15 palabras].
+• [oración 1, máx 15 palabras]. [oración 2, máx 15 palabras]. [oración 3, máx 15 palabras].
+• [oración 1, máx 15 palabras]. [oración 2, máx 15 palabras]. [oración 3, máx 15 palabras].
+• [oración 1, máx 15 palabras]. [oración 2, máx 15 palabras]. [oración 3, máx 15 palabras].
+• [oración 1, máx 15 palabras]. [oración 2, máx 15 palabras]. [oración 3, máx 15 palabras].
 
 ALERTAS:
-• [Nombre alerta 1]: [oración 1, máx 15 palabras]. [oración 2, máx 15 palabras]. [oración 3, máx 15 palabras]. [oración 4, máx 15 palabras].
-• [Nombre alerta 2]: [oración 1, máx 15 palabras]. [oración 2, máx 15 palabras]. [oración 3, máx 15 palabras]. [oración 4, máx 15 palabras].
-• [Nombre alerta 3]: [oración 1, máx 15 palabras]. [oración 2, máx 15 palabras]. [oración 3, máx 15 palabras]. [oración 4, máx 15 palabras].`,
+• [Nombre alerta 1]: [oración 1, máx 15 palabras]. [oración 2, máx 15 palabras]. [oración 3, máx 15 palabras].
+• [Nombre alerta 2]: [oración 1, máx 15 palabras]. [oración 2, máx 15 palabras]. [oración 3, máx 15 palabras].
+• [Nombre alerta 3]: [oración 1, máx 15 palabras]. [oración 2, máx 15 palabras]. [oración 3, máx 15 palabras].
+• [Nombre alerta 4]: [oración 1, máx 15 palabras]. [oración 2, máx 15 palabras]. [oración 3, máx 15 palabras].`,
 
     // ── STAGE 3: DIAGNÓSTICO 360° ─────────────────────────────────────────────
     estructura: `
