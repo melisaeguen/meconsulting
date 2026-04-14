@@ -261,7 +261,9 @@ const C_CREAM = { red: 250/255, green: 249/255, blue: 247/255 };
 const C_WHITE = { red: 1, green: 1, blue: 1 };
 
 function sText(slide, text, x, y, w, h, opts) {
-  const tb = slide.insertTextBox(text, x, y, w, h);
+  // Google Slides API falla con string vacío — usar espacio como fallback
+  const safeText = (text !== undefined && text !== null && String(text).trim() !== '') ? String(text) : ' ';
+  const tb = slide.insertTextBox(safeText, x, y, w, h);
   const tf = tb.getText();
   const ts = tf.getTextStyle();
   ts.setFontFamily('DM Sans');
