@@ -272,12 +272,14 @@ function sText(slide, text, x, y, w, h, opts) {
   if (opts.color) ts.setForegroundColor(opts.color);
   if (opts.italic) ts.setItalic(true);
   const align = opts.align || 'LEFT';
-  tf.getParagraphs().forEach(p => {
-    const pStyle = p.getRange().getParagraphStyle();
-    if (align === 'CENTER')         pStyle.setParagraphAlignment(SlidesApp.ParagraphAlignment.CENTER);
-    else if (align === 'RIGHT')     pStyle.setParagraphAlignment(SlidesApp.ParagraphAlignment.RIGHT);
-    else if (align === 'JUSTIFIED') pStyle.setParagraphAlignment(SlidesApp.ParagraphAlignment.START);
-    else                            pStyle.setParagraphAlignment(SlidesApp.ParagraphAlignment.START);
+  tf.getParagraphs().forEach(function(p) {
+    try {
+      var pStyle = p.getRange().getParagraphStyle();
+      if (align === 'CENTER')         pStyle.setParagraphAlignment(SlidesApp.ParagraphAlignment.CENTER);
+      else if (align === 'RIGHT')     pStyle.setParagraphAlignment(SlidesApp.ParagraphAlignment.RIGHT);
+      else if (align === 'JUSTIFIED') pStyle.setParagraphAlignment(SlidesApp.ParagraphAlignment.JUSTIFIED);
+      else                            pStyle.setParagraphAlignment(SlidesApp.ParagraphAlignment.START);
+    } catch(e) { /* skip empty/unsupported paragraphs */ }
   });
   tb.setContentAlignment(SlidesApp.ContentAlignment.TOP);
   const s = tb.getBorder().getLineFill().setSolidFill(0, 0, 0, 0); // transparent border
