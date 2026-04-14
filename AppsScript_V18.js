@@ -274,9 +274,10 @@ function sText(slide, text, x, y, w, h, opts) {
   const align = opts.align || 'LEFT';
   tf.getParagraphs().forEach(p => {
     const pStyle = p.getRange().getParagraphStyle();
-    if (align === 'CENTER')       pStyle.setParagraphAlignment(SlidesApp.ParagraphAlignment.CENTER);
-    else if (align === 'RIGHT')   pStyle.setParagraphAlignment(SlidesApp.ParagraphAlignment.RIGHT);
-    else                          pStyle.setParagraphAlignment(SlidesApp.ParagraphAlignment.START);
+    if (align === 'CENTER')         pStyle.setParagraphAlignment(SlidesApp.ParagraphAlignment.CENTER);
+    else if (align === 'RIGHT')     pStyle.setParagraphAlignment(SlidesApp.ParagraphAlignment.RIGHT);
+    else if (align === 'JUSTIFIED') pStyle.setParagraphAlignment(SlidesApp.ParagraphAlignment.JUSTIFIED);
+    else                            pStyle.setParagraphAlignment(SlidesApp.ParagraphAlignment.START);
   });
   tb.setContentAlignment(SlidesApp.ContentAlignment.TOP);
   const s = tb.getBorder().getLineFill().setSolidFill(0, 0, 0, 0); // transparent border
@@ -311,14 +312,14 @@ function buildContentSlide(slide, title, bullets, empresa) {
   bar.getBorder().getLineFill().setSolidFill(0, 0, 0, 0);
   // Title — empresa on same line: "Situación actual — ATLAS GARDEN"
   const fullTitle = empresa ? title + ' — ' + empresa : title;
-  sText(slide, fullTitle, 26, 14, W - 34, 26,
-    { size: 14, bold: true, color: '#1b2340', align: 'LEFT' });
-  const top = 46;
+  sText(slide, fullTitle, 26, 14, W - 34, 28,
+    { size: 16, bold: true, color: '#1b2340', align: 'LEFT' });
+  const top = 66; // bullets start lower, leaving breathing room under title
   const rowH = 60; // fixed: 3 lines at 11.5pt + small gap between bullets
   bullets.forEach(function(b, i) {
     const txt = typeof b === 'string' ? b : (b.text || String(b));
     sText(slide, '•  ' + txt, 26, top + i * rowH, W - 52, 56,
-      { size: 11.5, bold: false, color: '#1b2340', align: 'LEFT' });
+      { size: 11.5, bold: false, color: '#1b2340', align: 'JUSTIFIED' });
   });
   addFooter(slide);
 }
