@@ -179,22 +179,22 @@ REGLAS ESTRICTAS:
 - Prohibido: "pricing", "data", "roadmap", "performance", "feedback", "revenue".
 - Sin asteriscos ni negritas.
 - SIEMPRE exactamente 4 bullets. Ni más, ni menos.
-- Cada bullet: MÁXIMO 40 palabras en total. 3 oraciones cortas.
+- Cada bullet: un párrafo de ENTRE 35 Y 40 PALABRAS. Ni menos de 35, ni más de 40.
 - Concretas y específicas para este negocio. Nada genérico.
 
-Respondé ÚNICAMENTE con este formato (siempre 4 bullets, cada uno máx 40 palabras):
+Respondé ÚNICAMENTE con este formato (siempre 4 bullets, cada uno entre 35 y 40 palabras):
 
 SITUACION:
-• [3 oraciones, total máx 40 palabras].
-• [3 oraciones, total máx 40 palabras].
-• [3 oraciones, total máx 40 palabras].
-• [3 oraciones, total máx 40 palabras].
+• [párrafo de 35-40 palabras sobre este negocio específico].
+• [párrafo de 35-40 palabras sobre este negocio específico].
+• [párrafo de 35-40 palabras sobre este negocio específico].
+• [párrafo de 35-40 palabras sobre este negocio específico].
 
 ALERTAS:
-• [Nombre alerta 1]: [3 oraciones, total máx 40 palabras].
-• [Nombre alerta 2]: [3 oraciones, total máx 40 palabras].
-• [Nombre alerta 3]: [3 oraciones, total máx 40 palabras].
-• [Nombre alerta 4]: [3 oraciones, total máx 40 palabras].`,
+• [Nombre alerta 1]: [párrafo de 35-40 palabras sobre este negocio específico].
+• [Nombre alerta 2]: [párrafo de 35-40 palabras sobre este negocio específico].
+• [Nombre alerta 3]: [párrafo de 35-40 palabras sobre este negocio específico].
+• [Nombre alerta 4]: [párrafo de 35-40 palabras sobre este negocio específico].`,
 
     preguntas: `
 Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.
@@ -287,22 +287,22 @@ REGLAS ESTRICTAS:
 - Solo español. Prohibido: "pricing" (→ estrategia de precios), "data" (→ información), "roadmap" (→ hoja de ruta).
 - Sin asteriscos ni negritas.
 - SIEMPRE exactamente 4 bullets. Ni más, ni menos.
-- Cada bullet: MÁXIMO 40 palabras en total. 3 oraciones cortas.
+- Cada bullet: un párrafo de ENTRE 35 Y 40 PALABRAS. Ni menos de 35, ni más de 40.
 - Concretas y específicas para este negocio. Nada genérico.
 
-Respondé ÚNICAMENTE con este formato (siempre 4 bullets, cada uno máx 40 palabras):
+Respondé ÚNICAMENTE con este formato (siempre 4 bullets, cada uno entre 35 y 40 palabras):
 
 SITUACION:
-• [3 oraciones, total máx 40 palabras].
-• [3 oraciones, total máx 40 palabras].
-• [3 oraciones, total máx 40 palabras].
-• [3 oraciones, total máx 40 palabras].
+• [párrafo de 35-40 palabras sobre este negocio específico].
+• [párrafo de 35-40 palabras sobre este negocio específico].
+• [párrafo de 35-40 palabras sobre este negocio específico].
+• [párrafo de 35-40 palabras sobre este negocio específico].
 
 ALERTAS:
-• [Nombre alerta 1]: [3 oraciones, total máx 40 palabras].
-• [Nombre alerta 2]: [3 oraciones, total máx 40 palabras].
-• [Nombre alerta 3]: [3 oraciones, total máx 40 palabras].
-• [Nombre alerta 4]: [3 oraciones, total máx 40 palabras].`,
+• [Nombre alerta 1]: [párrafo de 35-40 palabras sobre este negocio específico].
+• [Nombre alerta 2]: [párrafo de 35-40 palabras sobre este negocio específico].
+• [Nombre alerta 3]: [párrafo de 35-40 palabras sobre este negocio específico].
+• [Nombre alerta 4]: [párrafo de 35-40 palabras sobre este negocio específico].`,
 
     // ── STAGE 3: DIAGNÓSTICO 360° ─────────────────────────────────────────────
     estructura: `
