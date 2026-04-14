@@ -365,8 +365,8 @@ function buildIncluyeSlide(slide, title) {
     const cx  = 26 + col * cellW;
     const cy  = gridTop + row * (cellH + 5);
     const box = slide.insertShape(SlidesApp.ShapeType.RECTANGLE, cx, cy, cellW - 8, cellH);
-    box.getFill().setSolidFill(255, 255, 255, 0.07 * 255);
-    box.getBorder().getLineFill().setSolidFill(255, 255, 255, 0.12 * 255);
+    box.getFill().setSolidFill(255, 255, 255, 0.07);
+    box.getBorder().getLineFill().setSolidFill(255, 255, 255, 0.12);
     sText(slide, it.icon, cx + 8, cy + 8, 24, 24, { size: 16, align: 'LEFT', color: '#ffffff' });
     sText(slide, it.label, cx + 36, cy + 12, cellW - 48, 20,
       { size: 11, bold: false, color: '#faf9f7', align: 'LEFT' });
