@@ -1017,7 +1017,7 @@ function renderTranscriptSection(email) {
         <span class="cop-icon">🎙️</span>
         <div class="cop-title-text">
           <strong>Transcript de la sesión</strong>
-          <span>Pegá el texto de la reunión para usar en el Pre-Diagnóstico</span>
+          <span>Pegá el texto de la reunión para usar en el Presupuesto Diagnóstico 360°</span>
         </div>
       </div>
       ${transcript ? `<span class="transcript-ok">✓ Cargado</span>` : ''}
@@ -1369,18 +1369,16 @@ async function createDoc(email, actionId) {
   const text = crm.aiOutputs?.[actionId] || crm.aiOutputs?.[actionId + '_text'] || '';
   if (!text) return showToast('Generá el contenido primero', true);
 
-  // prediag y presupuesto → Google Slides, el resto → Google Doc
-  const useSlides = ['prediag','presupuesto'].includes(actionId);
+  // presupuesto → Google Slides, el resto → Google Doc
+  const useSlides = actionId === 'presupuesto';
   const action    = useSlides ? 'createSlides' : 'createDoc';
   const label     = useSlides ? 'Presentación' : 'Google Doc';
 
   const empresa = cl?.empresa || cl?.nombre || email;
   const mes     = new Date().toLocaleDateString('es-AR', {month:'long', year:'numeric'});
-  const titles  = {
-    prediag:     `Pre-Diagnóstico 360° — ${empresa} — ${mes}`,
-    presupuesto: `Propuesta Diagnóstico 360° — ${empresa} — ${mes}`,
-  };
-  const title = titles[actionId] || `${actionId} — ${empresa} — ${mes}`;
+  const title   = actionId === 'presupuesto'
+    ? `Presupuesto Diagnóstico 360° — ${empresa} — ${mes}`
+    : `${actionId} — ${empresa} — ${mes}`;
 
   // Para slides: quedarse solo con los primeros 5 bloques [SLIDE]
   // y cortar cualquier texto que el modelo agregue después del TYPE: de cada bloque

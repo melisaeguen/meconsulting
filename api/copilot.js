@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     const prompt = buildPrompt(action, stage, client);
     if (!prompt) return res.status(400).json({ error: 'Acción no reconocida' });
 
-    const isSlides = ['prediag', 'presupuesto'].includes(action);
+    const isSlides = action === 'presupuesto';
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -53,10 +53,9 @@ export default async function handler(req, res) {
 
     const raw = data.content?.[0]?.text || '';
 
-    // Para prediag y presupuesto: ensamblar los [SLIDE] bloques acá,
+    // Para presupuesto: ensamblar los [SLIDE] bloques acá,
     // el modelo solo generó el contenido variable
     let result = raw;
-    if (action === 'prediag')      result = assemblePrediag(raw, client);
     if (action === 'presupuesto')  result = assemblePresupuesto(raw, client);
 
     return res.status(200).json({ result });
@@ -91,31 +90,6 @@ function parseFields(text) {
   }
   if (curKey) result[curKey] = buf.join('\n').trim();
   return result;
-}
-
-function assemblePrediag(raw, c) {
-  const f       = parseFields(raw);
-  const empresa = c.empresa || '';
-  const precio  = c.price ? `$${Number(c.price).toLocaleString('es-AR')}` : '$—';
-
-  const slides = [
-    // Slide 1 — cover fijo
-    `[SLIDE]\nTITLE: PRE-DIAGNÓSTICO 360°\nSUBTITLE: ${empresa}\nTYPE: cover`,
-
-    // Slide 2 — situación actual (variable)
-    `[SLIDE]\nTITLE: Situación actual\n${f.SITUACION || ''}`,
-
-    // Slide 3 — alertas (variable)
-    `[SLIDE]\nTITLE: Principales alertas identificadas\n${f.ALERTAS || ''}`,
-
-    // Slide 4 — incluye (100% fija)
-    `[SLIDE]\nTITLE: DIAGNÓSTICO 360° COMPLETO\nTYPE: incluye`,
-
-    // Slide 5 — inversión (precio de la calculadora)
-    `[SLIDE]\nTITLE: INVERSIÓN\nHIGHLIGHT: ${precio}\nTYPE: inversion`,
-  ];
-
-  return slides.join('\n\n');
 }
 
 function assemblePresupuesto(raw, c) {
@@ -162,40 +136,6 @@ CLIENTE:
   const prompts = {
 
     // ── STAGE 2: SESIÓN ESTRATÉGICA ──────────────────────────────────────────
-
-    // Solo genera SITUACION y ALERTAS — el código arma los 5 slides
-    prediag: `
-Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.
-
-${context}
-
-TRANSCRIPT DE LA SESIÓN ESTRATÉGICA:
-${c.transcript || '(sin transcript disponible)'}
-
-Generá el contenido para 2 secciones de un Pre-Diagnóstico 360°.
-
-REGLAS ESTRICTAS:
-- Solo español. Sin tecnicismos. Lenguaje claro y directo.
-- Prohibido: "pricing", "data", "roadmap", "performance", "feedback", "revenue".
-- Sin asteriscos ni negritas.
-- SIEMPRE exactamente 4 bullets. Ni más, ni menos.
-- SITUACION: cada bullet es un párrafo de entre 45 y 50 palabras en total.
-- ALERTAS: cada bullet tiene formato "Nombre: texto". El nombre es 2-4 palabras. El texto después del nombre tiene que tener entre 42 y 46 palabras. Total del bullet (nombre + texto) = entre 45 y 50 palabras.
-- Concreto y específico para este negocio. Nada genérico.
-
-Respondé ÚNICAMENTE con este formato:
-
-SITUACION:
-• [párrafo de 45-50 palabras totales].
-• [párrafo de 45-50 palabras totales].
-• [párrafo de 45-50 palabras totales].
-• [párrafo de 45-50 palabras totales].
-
-ALERTAS:
-• [Nombre corto 2-4 palabras]: [texto de 42-46 palabras. Total bullet = 45-50 palabras].
-• [Nombre corto 2-4 palabras]: [texto de 42-46 palabras. Total bullet = 45-50 palabras].
-• [Nombre corto 2-4 palabras]: [texto de 42-46 palabras. Total bullet = 45-50 palabras].
-• [Nombre corto 2-4 palabras]: [texto de 42-46 palabras. Total bullet = 45-50 palabras].`,
 
     preguntas: `
 Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.
