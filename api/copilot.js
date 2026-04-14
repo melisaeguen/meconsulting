@@ -174,23 +174,24 @@ ${c.transcript || '(sin transcript disponible)'}
 
 Generá el contenido para 2 secciones de un Pre-Diagnóstico 360°.
 
-REGLAS:
+REGLAS ESTRICTAS:
 - Solo español. Sin tecnicismos. Lenguaje claro y directo.
 - Prohibido: "pricing", "data", "roadmap", "performance", "feedback", "revenue".
 - Sin asteriscos ni negritas.
-- Cada bullet tiene exactamente 3 oraciones. Concretas, específicas para este negocio.
+- Cada bullet: exactamente 2 oraciones cortas. MÁXIMO 25 palabras por oración. MÁXIMO 50 palabras por bullet.
+- Las oraciones deben ser concretas y específicas para este negocio. Nada genérico.
 
 Respondé ÚNICAMENTE con este formato:
 
 SITUACION:
-• [oración 1 sobre qué está pasando hoy]. [oración 2 con detalle concreto]. [oración 3 con el impacto en el negocio].
-• [oración 1 sobre segunda observación]. [oración 2 con detalle]. [oración 3 con consecuencia].
-• [oración 1 sobre la limitación principal]. [oración 2 con detalle]. [oración 3 con lo que frena].
+• [oración 1: qué está pasando hoy, máx 25 palabras]. [oración 2: impacto concreto en el negocio, máx 25 palabras].
+• [oración 1: segunda observación específica, máx 25 palabras]. [oración 2: consecuencia directa, máx 25 palabras].
+• [oración 1: limitación principal, máx 25 palabras]. [oración 2: qué frena o bloquea, máx 25 palabras].
 
 ALERTAS:
-• [Nombre alerta 1]: [oración 1 explicando el problema]. [oración 2 con evidencia concreta]. [oración 3 con consecuencia].
-• [Nombre alerta 2]: [oración 1]. [oración 2]. [oración 3].
-• [Nombre alerta 3]: [oración 1]. [oración 2]. [oración 3].`,
+• [Nombre alerta 1]: [oración 1: descripción del problema, máx 25 palabras]. [oración 2: consecuencia concreta, máx 25 palabras].
+• [Nombre alerta 2]: [oración 1, máx 25 palabras]. [oración 2, máx 25 palabras].
+• [Nombre alerta 3]: [oración 1, máx 25 palabras]. [oración 2, máx 25 palabras].`,
 
     preguntas: `
 Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.
@@ -278,23 +279,24 @@ ${c.transcript || '(sin transcript disponible)'}
 
 Generá el contenido variable para una propuesta comercial del Diagnóstico 360°.
 
-REGLAS:
+REGLAS ESTRICTAS:
 - Usá la información del test Y del transcript para dar observaciones específicas y concretas de este negocio.
 - Solo español. Prohibido: "pricing" (→ estrategia de precios), "data" (→ información), "roadmap" (→ hoja de ruta).
 - Sin asteriscos ni negritas.
-- Cada bullet tiene exactamente 3 oraciones. Concretas, específicas para este negocio.
+- Cada bullet: exactamente 2 oraciones cortas. MÁXIMO 25 palabras por oración. MÁXIMO 50 palabras por bullet.
+- Las oraciones deben ser concretas y específicas para este negocio. Nada genérico.
 
 Respondé ÚNICAMENTE con este formato:
 
 SITUACION:
-• [oración 1 sobre qué está pasando hoy]. [oración 2 con detalle concreto]. [oración 3 con el impacto en el negocio].
-• [oración 1 sobre segunda observación]. [oración 2 con detalle]. [oración 3 con consecuencia].
-• [oración 1 sobre la limitación principal]. [oración 2 con detalle]. [oración 3 con lo que frena].
+• [oración 1: qué está pasando hoy, máx 25 palabras]. [oración 2: impacto concreto en el negocio, máx 25 palabras].
+• [oración 1: segunda observación específica, máx 25 palabras]. [oración 2: consecuencia directa, máx 25 palabras].
+• [oración 1: limitación principal, máx 25 palabras]. [oración 2: qué frena o bloquea, máx 25 palabras].
 
 ALERTAS:
-• [Nombre alerta 1]: [oración 1 explicando el problema]. [oración 2 con evidencia concreta]. [oración 3 con consecuencia].
-• [Nombre alerta 2]: [oración 1]. [oración 2]. [oración 3].
-• [Nombre alerta 3]: [oración 1]. [oración 2]. [oración 3].`,
+• [Nombre alerta 1]: [oración 1: descripción del problema, máx 25 palabras]. [oración 2: consecuencia concreta, máx 25 palabras].
+• [Nombre alerta 2]: [oración 1, máx 25 palabras]. [oración 2, máx 25 palabras].
+• [Nombre alerta 3]: [oración 1, máx 25 palabras]. [oración 2, máx 25 palabras].`,
 
     // ── STAGE 3: DIAGNÓSTICO 360° ─────────────────────────────────────────────
     estructura: `

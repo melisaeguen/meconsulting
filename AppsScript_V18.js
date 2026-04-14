@@ -318,12 +318,11 @@ function buildContentSlide(slide, title, bullets, empresa) {
       { size: 11, bold: false, color: '#c9a96e', align: 'LEFT' });
   }
   const top = empresa ? 62 : 48;
-  const available = H - top - 28;
-  // Cap row height so bullets don't spread too far apart
-  const rowH = Math.min(56, Math.floor(available / Math.max(bullets.length, 1)));
+  // Fixed 64px per bullet (~4 lines at 11.5pt) — regardless of bullet count
+  const rowH = 64;
   bullets.forEach(function(b, i) {
     const txt = typeof b === 'string' ? b : (b.text || String(b));
-    sText(slide, '•  ' + txt, 26, top + i * rowH, W - 52, rowH - 2,
+    sText(slide, '•  ' + txt, 26, top + i * rowH, W - 52, rowH - 4,
       { size: 11.5, bold: false, color: '#1b2340', align: 'LEFT' });
   });
   addFooter(slide);
