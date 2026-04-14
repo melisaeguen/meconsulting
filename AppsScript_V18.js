@@ -303,116 +303,129 @@ function buildCoverSlide(slide, title, subtitle) {
   addFooter(slide);
 }
 
-function buildContentSlide(slide, title, bullets, subtitle) {
+function buildContentSlide(slide, title, bullets, empresa) {
   slide.getBackground().setSolidFill(C_CREAM.red * 255, C_CREAM.green * 255, C_CREAM.blue * 255);
   // Gold accent top bar
   const bar = slide.insertShape(SlidesApp.ShapeType.RECTANGLE, 0, 0, W, 4);
   bar.getFill().setSolidFill(C_GOLD.red * 255, C_GOLD.green * 255, C_GOLD.blue * 255);
   bar.getBorder().getLineFill().setSolidFill(0, 0, 0, 0);
-  sText(slide, title, 26, 14, W - 34, 28,
-    { size: 16, bold: true, color: '#1b2340', align: 'LEFT' });
-  if (subtitle) {
-    sText(slide, subtitle, 26, 40, W - 34, 20,
-      { size: 11, bold: false, color: '#8a8a8a', align: 'LEFT', italic: true });
-  }
-  const top = subtitle ? 64 : 50;
-  const available = H - top - 28;
-  const rowH = Math.floor(available / Math.max(bullets.length, 1));
-  bullets.forEach((b, i) => {
-    const txt = typeof b === 'string' ? b : (b.text || String(b));
-    sText(slide, '•  ' + txt, 26, top + i * rowH, W - 34, rowH - 4,
-      { size: 12, bold: false, color: '#1b2340', align: 'LEFT' });
-  });
-  addFooter(slide);
-}
-
-function buildIncluyeSlide(slide, title) {
-  slide.getBackground().setSolidFill(C_NAVY.red * 255, C_NAVY.green * 255, C_NAVY.blue * 255);
-  const bar = slide.insertShape(SlidesApp.ShapeType.RECTANGLE, 0, 0, W, 4);
-  bar.getFill().setSolidFill(C_GOLD.red * 255, C_GOLD.green * 255, C_GOLD.blue * 255);
-  bar.getBorder().getLineFill().setSolidFill(0, 0, 0, 0);
-
   // Title
-  sText(slide, title, 26, 14, W - 34, 28,
-    { size: 15, bold: true, color: '#c9a96e', align: 'LEFT' });
-
-  // Intro paragraph
-  const para = '2 semanas de trabajo que transforman datos en decisiones. Combinamos análisis financiero, '
-    + 'operativo y estratégico con inteligencia artificial para darte un mapa claro de dónde estás y hacia dónde ir.';
-  sText(slide, para, 26, 72, W - 52, 82,
-    { size: 11, bold: false, color: '#faf9f7', align: 'LEFT' });
-
-  // "¿Qué incluye?" label
-  sText(slide, '¿Qué incluye?', 26, 200, 200, 22,
-    { size: 13, bold: true, color: '#c9a96e', align: 'LEFT' });
-
-  // Grid: 2 rows × 3 cols
-  const items = [
-    { icon: '📊', label: 'Diagnóstico financiero' },
-    { icon: '⚙️', label: 'Análisis operativo' },
-    { icon: '🎯', label: 'Mapa estratégico' },
-    { icon: '🤖', label: 'Análisis con IA' },
-    { icon: '📋', label: 'Plan de acción' },
-    { icon: '🗓️', label: 'Sesión de cierre' },
-  ];
-  const cols = 3, rows = 2;
-  const cellW = (W - 52) / cols;
-  const cellH = 62;
-  const gridTop = 228;
-  items.forEach((it, idx) => {
-    const col = idx % cols;
-    const row = Math.floor(idx / cols);
-    const cx  = 26 + col * cellW;
-    const cy  = gridTop + row * (cellH + 5);
-    const box = slide.insertShape(SlidesApp.ShapeType.RECTANGLE, cx, cy, cellW - 8, cellH);
-    box.getFill().setSolidFill(255, 255, 255, 0.07);
-    box.getBorder().getLineFill().setSolidFill(255, 255, 255, 0.12);
-    sText(slide, it.icon, cx + 8, cy + 8, 24, 24, { size: 16, align: 'LEFT', color: '#ffffff' });
-    sText(slide, it.label, cx + 36, cy + 12, cellW - 48, 20,
-      { size: 11, bold: false, color: '#faf9f7', align: 'LEFT' });
+  sText(slide, title, 26, 14, W - 34, 26,
+    { size: 15, bold: true, color: '#1b2340', align: 'LEFT' });
+  // Company name in gold right after title
+  if (empresa) {
+    sText(slide, empresa, 26, 38, W - 34, 18,
+      { size: 11, bold: false, color: '#c9a96e', align: 'LEFT' });
+  }
+  const top = empresa ? 62 : 48;
+  const available = H - top - 28;
+  // Cap row height so bullets don't spread too far apart
+  const rowH = Math.min(56, Math.floor(available / Math.max(bullets.length, 1)));
+  bullets.forEach(function(b, i) {
+    const txt = typeof b === 'string' ? b : (b.text || String(b));
+    sText(slide, '•  ' + txt, 26, top + i * rowH, W - 52, rowH - 2,
+      { size: 11.5, bold: false, color: '#1b2340', align: 'LEFT' });
   });
   addFooter(slide);
 }
 
-function buildInversionSlide(slide, title, subtitle, horas, total) {
-  slide.getBackground().setSolidFill(C_CREAM.red * 255, C_CREAM.green * 255, C_CREAM.blue * 255);
-  const bar = slide.insertShape(SlidesApp.ShapeType.RECTANGLE, 0, 0, W, 4);
-  bar.getFill().setSolidFill(C_GOLD.red * 255, C_GOLD.green * 255, C_GOLD.blue * 255);
-  bar.getBorder().getLineFill().setSolidFill(0, 0, 0, 0);
+function buildIncluyeSlide(slide) {
+  slide.getBackground().setSolidFill(C_NAVY.red * 255, C_NAVY.green * 255, C_NAVY.blue * 255);
 
-  sText(slide, title, 26, 14, W - 34, 28,
-    { size: 16, bold: true, color: '#1b2340', align: 'LEFT' });
-  if (subtitle) {
-    sText(slide, subtitle, 26, 42, W - 34, 20,
-      { size: 11, bold: false, color: '#8a8a8a', align: 'LEFT', italic: true });
-  }
+  // Centered gold title
+  sText(slide, 'DIAGNÓSTICO 360° COMPLETO', 26, 18, W - 52, 28,
+    { size: 18, bold: true, color: '#c9a96e', align: 'CENTER' });
 
-  // Price box
-  const boxY = 76;
-  const box = slide.insertShape(SlidesApp.ShapeType.RECTANGLE, W/2 - 140, boxY, 280, 90);
-  box.getFill().setSolidFill(C_NAVY.red * 255, C_NAVY.green * 255, C_NAVY.blue * 255);
-  box.getBorder().getLineFill().setSolidFill(0, 0, 0, 0);
-  const priceStr = '$' + Number(total).toLocaleString('es-AR');
-  sText(slide, priceStr, W/2 - 130, boxY + 10, 260, 42,
-    { size: 30, bold: true, color: '#c9a96e', align: 'CENTER' });
-  sText(slide, 'Inversión total  ·  ' + horas + ' horas de trabajo', W/2 - 130, boxY + 52, 260, 22,
-    { size: 11, bold: false, color: '#faf9f7', align: 'CENTER' });
+  // Gold divider line (centered)
+  const div = slide.insertShape(SlidesApp.ShapeType.RECTANGLE, W/2 - 60, 52, 120, 2);
+  div.getFill().setSolidFill(C_GOLD.red * 255, C_GOLD.green * 255, C_GOLD.blue * 255);
+  div.getBorder().getLineFill().setSolidFill(0, 0, 0, 0);
 
-  // Value props
-  const props = [
-    'Diagnóstico personalizado, no genérico',
-    'Entregables concretos: informes, modelos y plan de acción',
-    'ROI medible desde el primer mes de implementación',
+  // Intro para 1
+  sText(slide,
+    'El Diagnóstico 360° es el paso fundamental para diseñar soluciones reales e implementarlas con impacto. ' +
+    'Sin un diagnóstico riguroso, cualquier intervención es un disparo a ciegas.',
+    60, 62, W - 120, 44,
+    { size: 10.5, bold: false, color: '#faf9f7', align: 'CENTER' });
+
+  // Intro para 2
+  sText(slide,
+    'Profundizamos todo lo que apareció en la sesión, validamos con información real del negocio e ' +
+    'identificamos las palancas concretas de mejora con su plan de acción.',
+    60, 108, W - 120, 40,
+    { size: 10.5, bold: false, color: '#faf9f7', align: 'CENTER' });
+
+  // "¿Qué incluye?" label — left aligned
+  sText(slide, '¿Qué incluye?', 44, 162, 200, 20,
+    { size: 12, bold: true, color: '#c9a96e', align: 'LEFT' });
+
+  // 2×2 grid — gold bullet dot + text, no boxes
+  const items = [
+    'Análisis de las 4 dimensiones del negocio:\nFinanzas · Operaciones · Gestión · Estrategia',
+    'Entrevistas en profundidad con el equipo\nclave y revisión de información existente',
+    'Identificación de las palancas de mayor\nimpacto y cuellos de botella prioritarios',
+    'Informe ejecutivo con hallazgos y\nrecomendaciones accionables para el siguiente paso',
   ];
-  props.forEach((p, i) => {
-    sText(slide, '✓  ' + p, 60, 185 + i * 30, W - 120, 26,
-      { size: 12, bold: false, color: '#1b2340', align: 'LEFT' });
+  const colW  = (W - 88) / 2;
+  const gridTop = 186;
+  const rowH    = 82;
+  items.forEach(function(txt, idx) {
+    const col = idx % 2;
+    const row = Math.floor(idx / 2);
+    const cx  = 44 + col * (colW + 8);
+    const cy  = gridTop + row * rowH;
+    // Gold bullet circle
+    const dot = slide.insertShape(SlidesApp.ShapeType.ELLIPSE, cx, cy + 6, 8, 8);
+    dot.getFill().setSolidFill(C_GOLD.red * 255, C_GOLD.green * 255, C_GOLD.blue * 255);
+    dot.getBorder().getLineFill().setSolidFill(0, 0, 0, 0);
+    // Item text
+    sText(slide, txt, cx + 16, cy, colW - 20, rowH - 8,
+      { size: 10.5, bold: false, color: '#faf9f7', align: 'LEFT' });
   });
 
-  // CTA
-  sText(slide, 'Agendá tu sesión de inicio → calendly.com/melisaeguen/30min',
-    26, H - 50, W - 52, 20,
-    { size: 11, bold: true, color: '#b45309', align: 'CENTER' });
+  addFooter(slide);
+}
+
+function buildInversionSlide(slide, total) {
+  slide.getBackground().setSolidFill(C_NAVY.red * 255, C_NAVY.green * 255, C_NAVY.blue * 255);
+
+  // Gold centered title
+  sText(slide, 'INVERSIÓN', 26, 20, W - 52, 22,
+    { size: 14, bold: true, color: '#c9a96e', align: 'CENTER' });
+
+  // Large white price
+  const priceStr = '$' + Number(total).toLocaleString('es-AR');
+  sText(slide, priceStr, 26, 48, W - 52, 72,
+    { size: 56, bold: true, color: '#faf9f7', align: 'CENTER' });
+
+  // Gold italic value phrase
+  sText(slide,
+    'El diagnóstico no es un gasto: es la inversión que te permite saber exactamente dónde mejorar.',
+    80, 130, W - 160, 30,
+    { size: 10.5, bold: false, color: '#c9a96e', italic: true, align: 'CENTER' });
+
+  // Gold divider
+  const div = slide.insertShape(SlidesApp.ShapeType.RECTANGLE, W/2 - 80, 168, 160, 1);
+  div.getFill().setSolidFill(C_GOLD.red * 255, C_GOLD.green * 255, C_GOLD.blue * 255);
+  div.getBorder().getLineFill().setSolidFill(0, 0, 0, 0);
+
+  // Payment terms
+  sText(slide, 'Forma de pago: 50% al inicio · 50% al entregable final',
+    60, 178, W - 120, 22,
+    { size: 10.5, bold: false, color: '#faf9f7', align: 'CENTER' });
+
+  // Credit offer
+  sText(slide,
+    'Si al finalizar el Diagnóstico decidís continuar con el diseño e implementación de soluciones, ' +
+    'te reintegramos el 30% del valor del Diagnóstico como crédito para el siguiente paso.',
+    60, 210, W - 120, 44,
+    { size: 10, bold: false, color: '#faf9f7', align: 'CENTER' });
+
+  // Cancellation
+  sText(slide, 'Cancelación: aviso con 72 hs · baja con 1 mes de anticipación',
+    60, 262, W - 120, 20,
+    { size: 10, bold: false, color: '#8899bb', align: 'CENTER' });
+
   addFooter(slide);
 }
 
@@ -449,67 +462,84 @@ function buildSituacionSlide(slide, title, situacion, alertas) {
   addFooter(slide);
 }
 
+// ── SLIDE CONTENT PARSER ─────────────────────────────────────────────
+function parseSlideBlocks(content) {
+  // Split the [SLIDE] text format into structured objects
+  const blocks = (content || '').split(/\[SLIDE\]/g).filter(b => b.trim());
+  return blocks.map(function(block) {
+    var lines   = block.trim().split('\n');
+    var slide   = { title: '', type: '', subtitle: '', highlight: '', bullets: [] };
+    lines.forEach(function(line) {
+      var t = line.trim();
+      if (!t) return;
+      var m;
+      if ((m = t.match(/^TITLE:\s*(.+)$/)))     { slide.title     = m[1]; return; }
+      if ((m = t.match(/^TYPE:\s*(.+)$/)))       { slide.type      = m[1].toLowerCase(); return; }
+      if ((m = t.match(/^SUBTITLE:\s*(.+)$/)))   { slide.subtitle  = m[1]; return; }
+      if ((m = t.match(/^HIGHLIGHT:\s*(.+)$/)))  { slide.highlight = m[1]; return; }
+      if ((m = t.match(/^HORAS:\s*(.+)$/)))      { slide.horas     = m[1]; return; }
+      if ((m = t.match(/^TOTAL:\s*(.+)$/)))      { slide.total     = m[1]; return; }
+      if (t.charAt(0) === '\u2022') {
+        // bullet line: strip the • and optional space
+        slide.bullets.push(t.replace(/^\u2022\s*/, ''));
+      }
+    });
+    return slide;
+  });
+}
+
 // ── CREATE PRESUPUESTO ───────────────────────────────────────────────
 function createPresupuesto(data) {
-  const empresa  = data.empresa  || 'Cliente';
-  const nombre   = data.nombre   || '';
-  const mes      = data.mes      || new Date().toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
-  const horas    = data.horas    || 10;
-  const total    = data.total    || horas * 40000;
-  const slides   = data.slides   || [];
+  const empresa = data.empresa || 'Cliente';
+  const mes     = data.mes     || new Date().toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
 
-  // Find slide data blocks by type
-  const findSlide = (type) => slides.find(s => s.type === type) || {};
-  const situacionSlide = findSlide('SITUACION');
-  const alertasSlide   = findSlide('ALERTAS');
+  // Parse slide blocks from assembled content
+  const slideBlocks = parseSlideBlocks(data.content || '');
 
-  // Build bullets for content slides from the slides array
-  const getBullets = (type) => {
-    const s = findSlide(type);
-    return s.bullets || s.items || [];
+  const findByTitle = function(keyword) {
+    return slideBlocks.find(function(s) {
+      return s.title.toLowerCase().indexOf(keyword.toLowerCase()) !== -1;
+    }) || {};
+  };
+  const findByType = function(type) {
+    return slideBlocks.find(function(s) { return s.type === type; }) || {};
   };
 
-  const pres = SlidesApp.create(`Diagnóstico 360° — ${empresa} — ${mes}`);
-  pres.getSlides().forEach(s => s.remove()); // remove default blank slide
+  const situacionSlide = findByTitle('situaci');   // "Situación actual"
+  const alertasSlide   = findByTitle('alerta');    // "Principales alertas"
+  const inversionSlide = findByType('inversion');
+
+  // Horas y total: prefer explicit data fields, fall back to content parse
+  const horas = data.horas || 0;
+  let total   = data.total  || 0;
+  if (!total && inversionSlide.highlight) {
+    total = parseInt(inversionSlide.highlight.replace(/[^0-9]/g, ''), 10) || 0;
+  }
+
+  const pres = SlidesApp.create('Diagnóstico 360° — ' + empresa + ' — ' + mes);
+  pres.getSlides().forEach(function(s) { s.remove(); });
 
   // Slide 1: Cover
   const s1 = pres.appendSlide();
-  buildCoverSlide(s1,
-    `PRESUPUESTO\nDIAGNÓSTICO 360°`,
-    `${empresa}  ·  ${mes}`
-  );
+  buildCoverSlide(s1, 'PRESUPUESTO\nDIAGNÓSTICO 360°', empresa + '  ·  ' + mes);
 
-  // Slide 2: Situación actual + alertas (AI-generated)
+  // Slide 2: Situación actual — full-width AI bullets
   const s2 = pres.appendSlide();
-  buildSituacionSlide(s2,
-    'Diagnóstico preliminar',
-    situacionSlide.content || situacionSlide.text || '',
-    alertasSlide.bullets   || alertasSlide.items  || []
-  );
+  buildContentSlide(s2, 'Situación actual', situacionSlide.bullets || [], empresa);
 
-  // Slide 3: Alcance del trabajo (content)
-  const alcanceBullets = getBullets('ALCANCE').length
-    ? getBullets('ALCANCE')
-    : [
-        'Relevamiento financiero: flujo de caja, costos, rentabilidad por línea de negocio',
-        'Diagnóstico operativo: procesos críticos, cuellos de botella, eficiencia del equipo',
-        'Análisis estratégico: posicionamiento, competencia, oportunidades de crecimiento',
-        'Revisión de herramientas y sistemas actuales (CRM, ERP, gestión, reportes)',
-        'Entrevistas con el equipo clave y análisis de la estructura organizacional',
-      ];
+  // Slide 3: Alertas — full-width AI bullets
   const s3 = pres.appendSlide();
-  buildContentSlide(s3, 'Alcance del diagnóstico', alcanceBullets,
-    'Qué vamos a analizar en las 2 semanas');
+  buildContentSlide(s3, 'Principales alertas identificadas', alertasSlide.bullets || [], empresa);
 
-  // Slide 4: Qué incluye
+  // Slide 4: Qué incluye (navy grid)
   const s4 = pres.appendSlide();
-  buildIncluyeSlide(s4, '¿Qué incluye el Diagnóstico 360°?');
+  buildIncluyeSlide(s4);
 
   // Slide 5: Inversión
   const s5 = pres.appendSlide();
-  buildInversionSlide(s5, 'Inversión', empresa + '  ·  ' + mes, horas, total);
+  buildInversionSlide(s5, total);
 
-  // Move to folder
+  // Move to ME Consultora folder
   const folders = DriveApp.getFoldersByName(FOLDER_NAME);
   const folder  = folders.hasNext() ? folders.next() : DriveApp.createFolder(FOLDER_NAME);
   DriveApp.getFileById(pres.getId()).moveTo(folder);

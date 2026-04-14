@@ -1152,7 +1152,8 @@ async function generateAndCreatePresupuesto(email) {
       body: JSON.stringify({
         action: 'createPresupuesto',
         title: `Propuesta Diagnóstico 360° — ${empresa} — ${mes}`,
-        empresa, nombre: cl.nombre,
+        empresa, nombre: cl.nombre, mes,
+        horas: total, total: price,
         actionId: 'presupuesto',
         content,
       })
