@@ -457,6 +457,92 @@ function buildSituacionSlide(slide, title, situacion, alertas) {
   addFooter(slide);
 }
 
+// ── ROADMAP SLIDE (fixed, between alertas and incluye) ───────────────
+function buildRoadmapSlide(slide) {
+  slide.getBackground().setSolidFill(C_NAVY.red * 255, C_NAVY.green * 255, C_NAVY.blue * 255);
+  const bar = slide.insertShape(SlidesApp.ShapeType.RECTANGLE, 0, 0, W, 4);
+  bar.getFill().setSolidFill(C_GOLD.red * 255, C_GOLD.green * 255, C_GOLD.blue * 255);
+  bar.getBorder().getLineFill().setSolidFill(0, 0, 0, 0);
+
+  // Title
+  sText(slide, 'NUESTRO PROCESO', 26, 12, W - 52, 26,
+    { size: 15, bold: true, color: '#c9a96e', align: 'CENTER' });
+
+  // Gold divider
+  var div = slide.insertShape(SlidesApp.ShapeType.RECTANGLE, W/2 - 50, 42, 100, 2);
+  div.getFill().setSolidFill(C_GOLD.red * 255, C_GOLD.green * 255, C_GOLD.blue * 255);
+  div.getBorder().getLineFill().setSolidFill(0, 0, 0, 0);
+
+  // Subtitle
+  sText(slide, 'Ya completaste los primeros dos pasos. El Diagnóstico 360° es el siguiente.',
+    100, 50, W - 200, 22,
+    { size: 10, bold: false, color: '#faf9f7', align: 'CENTER' });
+
+  // Steps definition
+  var steps = [
+    { n: '1', label: 'Test de Salud',               badge: '✓  Completado',  state: 'done'    },
+    { n: '2', label: 'Sesión Estratégica',           badge: '✓  Completado',  state: 'done'    },
+    { n: '3', label: 'Diagnóstico 360°',             badge: '→  Próximo paso',state: 'current' },
+    { n: '4', label: 'Implementación de Soluciones', badge: 'Siguiente',      state: 'future'  },
+    { n: '5', label: 'Partner Estratégico',          badge: 'Futuro',         state: 'future'  },
+  ];
+
+  var cx   = 88;   // circle center X
+  var cR   = 13;   // circle radius
+  var sTop = 86;   // first step center Y
+  var sGap = 54;   // vertical gap between steps
+
+  steps.forEach(function(step, i) {
+    var midY = sTop + i * sGap;
+
+    // Connector line from previous step bottom to this step top
+    if (i > 0) {
+      var prevMidY = sTop + (i - 1) * sGap;
+      var lineY = prevMidY + cR + 2;
+      var lineH = midY - cR - 2 - lineY;
+      var ln = slide.insertShape(SlidesApp.ShapeType.RECTANGLE, cx - 1, lineY, 2, Math.max(lineH, 1));
+      if (step.state === 'done' || step.state === 'current') {
+        ln.getFill().setSolidFill(C_GOLD.red * 255, C_GOLD.green * 255, C_GOLD.blue * 255);
+      } else {
+        ln.getFill().setSolidFill(255, 255, 255, 0.15);
+      }
+      ln.getBorder().getLineFill().setSolidFill(0, 0, 0, 0);
+    }
+
+    // Circle
+    var circ = slide.insertShape(SlidesApp.ShapeType.ELLIPSE, cx - cR, midY - cR, cR * 2, cR * 2);
+    if (step.state === 'done') {
+      circ.getFill().setSolidFill(39, 174, 96);       // green
+    } else if (step.state === 'current') {
+      circ.getFill().setSolidFill(C_GOLD.red * 255, C_GOLD.green * 255, C_GOLD.blue * 255);
+    } else {
+      circ.getFill().setSolidFill(255, 255, 255, 0.1);
+    }
+    circ.getBorder().getLineFill().setSolidFill(0, 0, 0, 0);
+
+    // Number / checkmark inside circle
+    var numCol = step.state === 'current' ? '#1b2340' : (step.state === 'done' ? '#ffffff' : '#8899bb');
+    sText(slide, step.state === 'done' ? '✓' : step.n,
+      cx - cR, midY - cR, cR * 2, cR * 2,
+      { size: 9, bold: true, color: numCol, align: 'CENTER' });
+
+    // Step label
+    var lSize  = step.state === 'current' ? 13 : 11;
+    var lBold  = step.state === 'current';
+    var lColor = step.state === 'done' ? '#faf9f7' : (step.state === 'current' ? '#c9a96e' : '#8899bb');
+    sText(slide, step.label, cx + cR + 14, midY - 10, 330, 22,
+      { size: lSize, bold: lBold, color: lColor, align: 'LEFT' });
+
+    // Badge (right side)
+    var bColor = step.state === 'done' ? '#4ade80' : (step.state === 'current' ? '#c9a96e' : '#8899bb');
+    var bBold  = step.state !== 'future';
+    sText(slide, step.badge, W - 200, midY - 10, 170, 22,
+      { size: 9, bold: bBold, color: bColor, align: 'RIGHT' });
+  });
+
+  addFooter(slide);
+}
+
 // ── SLIDE CONTENT PARSER ─────────────────────────────────────────────
 function parseSlideBlocks(content) {
   // Split the [SLIDE] text format into structured objects
@@ -526,13 +612,17 @@ function createPresupuesto(data) {
   const s3 = pres.appendSlide();
   buildContentSlide(s3, 'Principales alertas identificadas', alertasSlide.bullets || [], empresa);
 
-  // Slide 4: Qué incluye (navy grid)
+  // Slide 4: Nuestro proceso (roadmap fijo)
   const s4 = pres.appendSlide();
-  buildIncluyeSlide(s4);
+  buildRoadmapSlide(s4);
 
-  // Slide 5: Inversión
+  // Slide 5: Qué incluye (navy grid)
   const s5 = pres.appendSlide();
-  buildInversionSlide(s5, total);
+  buildIncluyeSlide(s5);
+
+  // Slide 6: Inversión
+  const s6 = pres.appendSlide();
+  buildInversionSlide(s6, total);
 
   // Move to ME Consultora folder
   const folders = DriveApp.getFoldersByName(FOLDER_NAME);
