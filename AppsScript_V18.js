@@ -480,7 +480,7 @@ function buildRoadmapSlide(slide) {
   // Subtitle
   sText(slide, 'Transformamos tu negocio en una empresa rentable, ordenada y lista para crecer, actuando como tu equipo estratégico para combinar finanzas, operaciones y gestión. Utilizamos datos reales para entender a fondo tu situación, identificamos prioridades y diseñamos un roadmap claro y accionable.',
     60, 50, W - 120, 56,
-    { size: 9.5, bold: false, color: '#faf9f7', align: 'CENTER' });
+    { size: 10.5, bold: false, color: '#faf9f7', align: 'CENTER' });
 
   // ── Steps: 5 rows, each row = dot (10×10 rect) + label + badge ──
   var steps = [
@@ -537,20 +537,21 @@ function buildRoadmapSlide(slide) {
     var lColor = step.state === 'done'    ? '#faf9f7'
                : step.state === 'current' ? '#c9a96e'
                :                            '#8899bb';
-    sText(slide, step.label, dotX + 52, midY - 10, 320, 22,
+    sText(slide, step.label, dotX + 52, midY - 10, 250, 22,
       { size: lSize, bold: lBold, color: lColor, align: 'LEFT' });
 
-    // Badge (right side, pill-style background for current)
+    // Badge (closer to label, pill-style background for current)
+    var badgeX = dotX + 52 + 258;  // right after label (~370px from left)
     if (step.state === 'current') {
-      var pill = slide.insertShape(SlidesApp.ShapeType.ROUND_RECTANGLE, W - 178, midY - 12, 148, 22);
+      var pill = slide.insertShape(SlidesApp.ShapeType.ROUND_RECTANGLE, badgeX, midY - 12, 148, 22);
       pill.getFill().setSolidFill(C_GOLD.red * 255, C_GOLD.green * 255, C_GOLD.blue * 255);
       pill.getBorder().getLineFill().setSolidFill(0, 0, 0, 0);
-      sText(slide, step.badge, W - 178, midY - 12, 148, 22,
+      sText(slide, step.badge, badgeX, midY - 12, 148, 22,
         { size: 9, bold: true, color: '#1b2340', align: 'CENTER' });
     } else {
       var bColor = step.state === 'done' ? '#27ae60' : '#8899bb';
-      sText(slide, step.badge, W - 178, midY - 10, 148, 20,
-        { size: 9, bold: false, color: bColor, align: 'RIGHT' });
+      sText(slide, step.badge, badgeX, midY - 10, 148, 20,
+        { size: 9, bold: false, color: bColor, align: 'LEFT' });
     }
   });
 
