@@ -1150,7 +1150,7 @@ async function generateAndCreatePresupuesto(email) {
     const resSlides = await fetch('/api/crm', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
-        action: 'createSlides',
+        action: 'createPresupuesto',
         title: `Propuesta Diagnóstico 360° — ${empresa} — ${mes}`,
         empresa, nombre: cl.nombre,
         actionId: 'presupuesto',
