@@ -462,7 +462,9 @@ function buildSituacionSlide(slide, title, situacion, alertas) {
 // ── ROADMAP SLIDE (fixed, between alertas and incluye) ───────────────
 function buildRoadmapSlide(slide) {
   slide.getBackground().setSolidFill(C_NAVY.red * 255, C_NAVY.green * 255, C_NAVY.blue * 255);
-  const bar = slide.insertShape(SlidesApp.ShapeType.RECTANGLE, 0, 0, W, 4);
+
+  // Gold top bar
+  var bar = slide.insertShape(SlidesApp.ShapeType.RECTANGLE, 0, 0, W, 4);
   bar.getFill().setSolidFill(C_GOLD.red * 255, C_GOLD.green * 255, C_GOLD.blue * 255);
   bar.getBorder().getLineFill().setSolidFill(0, 0, 0, 0);
 
@@ -477,69 +479,79 @@ function buildRoadmapSlide(slide) {
 
   // Subtitle
   sText(slide, 'Ya completaste los primeros dos pasos. El Diagnóstico 360° es el siguiente.',
-    100, 50, W - 200, 22,
-    { size: 10, bold: false, color: '#faf9f7', align: 'CENTER' });
+    80, 50, W - 160, 22,
+    { size: 9.5, bold: false, color: '#faf9f7', align: 'CENTER' });
 
-  // Steps definition
+  // ── Steps: 5 rows, each row = dot (10×10 rect) + label + badge ──
   var steps = [
-    { n: '1', label: 'Test de Salud',               badge: '✓  Completado',  state: 'done'    },
-    { n: '2', label: 'Sesión Estratégica',           badge: '✓  Completado',  state: 'done'    },
-    { n: '3', label: 'Diagnóstico 360°',             badge: '→  Próximo paso',state: 'current' },
-    { n: '4', label: 'Implementación de Soluciones', badge: 'Siguiente',      state: 'future'  },
-    { n: '5', label: 'Partner Estratégico',          badge: 'Futuro',         state: 'future'  },
+    { n: '01', label: 'Test de Salud',                badge: 'Completado',    state: 'done'    },
+    { n: '02', label: 'Sesión Estratégica',            badge: 'Completado',    state: 'done'    },
+    { n: '03', label: 'Diagnóstico 360°',              badge: 'Próximo paso',  state: 'current' },
+    { n: '04', label: 'Implementación de Soluciones',  badge: 'Siguiente',     state: 'future'  },
+    { n: '05', label: 'Partner Estratégico',           badge: 'Futuro',        state: 'future'  },
   ];
 
-  var cx   = 88;   // circle center X
-  var cR   = 13;   // circle radius
-  var sTop = 86;   // first step center Y
-  var sGap = 54;   // vertical gap between steps
+  var rowY  = 82;   // Y of first row
+  var rowH  = 48;   // height per row
+  var dotX  = 60;   // X center of dot column
+  var dotSz = 10;   // dot square size
 
   steps.forEach(function(step, i) {
-    var midY = sTop + i * sGap;
+    var midY = rowY + i * rowH + rowH / 2;  // vertical center of this row
 
-    // Connector line from previous step bottom to this step top
+    // Connector line between dots (except before first)
     if (i > 0) {
-      var prevMidY = sTop + (i - 1) * sGap;
-      var lineY = prevMidY + cR + 2;
-      var lineH = midY - cR - 2 - lineY;
-      var ln = slide.insertShape(SlidesApp.ShapeType.RECTANGLE, cx - 1, lineY, 2, Math.max(lineH, 1));
-      if (step.state === 'done' || step.state === 'current') {
-        ln.getFill().setSolidFill(C_GOLD.red * 255, C_GOLD.green * 255, C_GOLD.blue * 255);
+      var prevMidY = rowY + (i - 1) * rowH + rowH / 2;
+      var lineTop  = prevMidY + dotSz / 2 + 2;
+      var lineBot  = midY - dotSz / 2 - 2;
+      var lineH    = Math.max(lineBot - lineTop, 2);
+      var ln = slide.insertShape(SlidesApp.ShapeType.RECTANGLE, dotX - 1, lineTop, 2, lineH);
+      if (step.state === 'future') {
+        ln.getFill().setSolidFill(100, 110, 140);
       } else {
-        ln.getFill().setSolidFill(255, 255, 255, 0.15);
+        ln.getFill().setSolidFill(C_GOLD.red * 255, C_GOLD.green * 255, C_GOLD.blue * 255);
       }
       ln.getBorder().getLineFill().setSolidFill(0, 0, 0, 0);
     }
 
-    // Circle
-    var circ = slide.insertShape(SlidesApp.ShapeType.ELLIPSE, cx - cR, midY - cR, cR * 2, cR * 2);
+    // Dot (square, centered at dotX / midY)
+    var dot = slide.insertShape(SlidesApp.ShapeType.RECTANGLE,
+      dotX - dotSz / 2, midY - dotSz / 2, dotSz, dotSz);
     if (step.state === 'done') {
-      circ.getFill().setSolidFill(39, 174, 96);       // green
+      dot.getFill().setSolidFill(39, 174, 96);
     } else if (step.state === 'current') {
-      circ.getFill().setSolidFill(C_GOLD.red * 255, C_GOLD.green * 255, C_GOLD.blue * 255);
+      dot.getFill().setSolidFill(C_GOLD.red * 255, C_GOLD.green * 255, C_GOLD.blue * 255);
     } else {
-      circ.getFill().setSolidFill(255, 255, 255, 0.1);
+      dot.getFill().setSolidFill(100, 110, 140);
     }
-    circ.getBorder().getLineFill().setSolidFill(0, 0, 0, 0);
+    dot.getBorder().getLineFill().setSolidFill(0, 0, 0, 0);
 
-    // Number / checkmark inside circle
-    var numCol = step.state === 'current' ? '#1b2340' : (step.state === 'done' ? '#ffffff' : '#8899bb');
-    sText(slide, step.state === 'done' ? '✓' : step.n,
-      cx - cR, midY - cR, cR * 2, cR * 2,
-      { size: 9, bold: true, color: numCol, align: 'CENTER' });
+    // Step number
+    var nColor = step.state === 'future' ? '#8899bb' : '#c9a96e';
+    sText(slide, step.n, dotX + 18, midY - 10, 30, 20,
+      { size: 9, bold: true, color: nColor, align: 'LEFT' });
 
     // Step label
     var lSize  = step.state === 'current' ? 13 : 11;
     var lBold  = step.state === 'current';
-    var lColor = step.state === 'done' ? '#faf9f7' : (step.state === 'current' ? '#c9a96e' : '#8899bb');
-    sText(slide, step.label, cx + cR + 14, midY - 10, 330, 22,
+    var lColor = step.state === 'done'    ? '#faf9f7'
+               : step.state === 'current' ? '#c9a96e'
+               :                            '#8899bb';
+    sText(slide, step.label, dotX + 52, midY - 10, 320, 22,
       { size: lSize, bold: lBold, color: lColor, align: 'LEFT' });
 
-    // Badge (right side)
-    var bColor = step.state === 'done' ? '#4ade80' : (step.state === 'current' ? '#c9a96e' : '#8899bb');
-    var bBold  = step.state !== 'future';
-    sText(slide, step.badge, W - 200, midY - 10, 170, 22,
-      { size: 9, bold: bBold, color: bColor, align: 'RIGHT' });
+    // Badge (right side, pill-style background for current)
+    if (step.state === 'current') {
+      var pill = slide.insertShape(SlidesApp.ShapeType.ROUND_RECTANGLE, W - 178, midY - 12, 148, 22);
+      pill.getFill().setSolidFill(C_GOLD.red * 255, C_GOLD.green * 255, C_GOLD.blue * 255);
+      pill.getBorder().getLineFill().setSolidFill(0, 0, 0, 0);
+      sText(slide, step.badge, W - 178, midY - 12, 148, 22,
+        { size: 9, bold: true, color: '#1b2340', align: 'CENTER' });
+    } else {
+      var bColor = step.state === 'done' ? '#27ae60' : '#8899bb';
+      sText(slide, step.badge, W - 178, midY - 10, 148, 20,
+        { size: 9, bold: false, color: bColor, align: 'RIGHT' });
+    }
   });
 
   addFooter(slide);
