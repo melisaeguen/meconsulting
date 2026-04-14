@@ -276,7 +276,7 @@ function sText(slide, text, x, y, w, h, opts) {
     const pStyle = p.getRange().getParagraphStyle();
     if (align === 'CENTER')         pStyle.setParagraphAlignment(SlidesApp.ParagraphAlignment.CENTER);
     else if (align === 'RIGHT')     pStyle.setParagraphAlignment(SlidesApp.ParagraphAlignment.RIGHT);
-    else if (align === 'JUSTIFIED') pStyle.setParagraphAlignment(SlidesApp.ParagraphAlignment.JUSTIFIED);
+    else if (align === 'JUSTIFIED') pStyle.setParagraphAlignment(SlidesApp.ParagraphAlignment.START);
     else                            pStyle.setParagraphAlignment(SlidesApp.ParagraphAlignment.START);
   });
   tb.setContentAlignment(SlidesApp.ContentAlignment.TOP);
