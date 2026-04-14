@@ -478,8 +478,8 @@ function buildRoadmapSlide(slide) {
   div.getBorder().getLineFill().setSolidFill(0, 0, 0, 0);
 
   // Subtitle
-  sText(slide, 'Ya completaste los primeros dos pasos. El Diagnóstico 360° es el siguiente.',
-    80, 50, W - 160, 22,
+  sText(slide, 'Transformamos tu negocio en una empresa rentable, ordenada y lista para crecer, actuando como tu equipo estratégico para combinar finanzas, operaciones y gestión. Utilizamos datos reales para entender a fondo tu situación, identificamos prioridades y diseñamos un roadmap claro y accionable.',
+    60, 50, W - 120, 56,
     { size: 9.5, bold: false, color: '#faf9f7', align: 'CENTER' });
 
   // ── Steps: 5 rows, each row = dot (10×10 rect) + label + badge ──
@@ -491,8 +491,8 @@ function buildRoadmapSlide(slide) {
     { n: '05', label: 'Partner Estratégico',           badge: 'Futuro',        state: 'future'  },
   ];
 
-  var rowY  = 82;   // Y of first row
-  var rowH  = 48;   // height per row
+  var rowY  = 114;  // Y of first row (below subtitle)
+  var rowH  = 42;   // height per row (closer together)
   var dotX  = 60;   // X center of dot column
   var dotSz = 10;   // dot square size
 
