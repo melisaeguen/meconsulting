@@ -179,23 +179,23 @@ REGLAS ESTRICTAS:
 - Prohibido: "pricing", "data", "roadmap", "performance", "feedback", "revenue".
 - Sin asteriscos ni negritas.
 - SIEMPRE exactamente 4 bullets. Ni más, ni menos.
-- Cada bullet: un párrafo continuo de EXACTAMENTE entre 45 y 50 palabras. Contá las palabras antes de escribir.
-- En ALERTAS, el "Nombre alerta:" NO cuenta — el texto después del label tiene que tener entre 45 y 50 palabras.
+- SITUACION: cada bullet es un párrafo de entre 45 y 50 palabras en total.
+- ALERTAS: cada bullet tiene formato "Nombre: texto". El nombre es 2-4 palabras. El texto después del nombre tiene que tener entre 42 y 46 palabras. Total del bullet (nombre + texto) = entre 45 y 50 palabras.
 - Concreto y específico para este negocio. Nada genérico.
 
 Respondé ÚNICAMENTE con este formato:
 
 SITUACION:
-• [párrafo de 45-50 palabras exactas].
-• [párrafo de 45-50 palabras exactas].
-• [párrafo de 45-50 palabras exactas].
-• [párrafo de 45-50 palabras exactas].
+• [párrafo de 45-50 palabras totales].
+• [párrafo de 45-50 palabras totales].
+• [párrafo de 45-50 palabras totales].
+• [párrafo de 45-50 palabras totales].
 
 ALERTAS:
-• [Nombre alerta 1]: [45-50 palabras exactas después del label].
-• [Nombre alerta 2]: [45-50 palabras exactas después del label].
-• [Nombre alerta 3]: [45-50 palabras exactas después del label].
-• [Nombre alerta 4]: [45-50 palabras exactas después del label].`,
+• [Nombre corto 2-4 palabras]: [texto de 42-46 palabras. Total bullet = 45-50 palabras].
+• [Nombre corto 2-4 palabras]: [texto de 42-46 palabras. Total bullet = 45-50 palabras].
+• [Nombre corto 2-4 palabras]: [texto de 42-46 palabras. Total bullet = 45-50 palabras].
+• [Nombre corto 2-4 palabras]: [texto de 42-46 palabras. Total bullet = 45-50 palabras].`,
 
     preguntas: `
 Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.
@@ -288,23 +288,23 @@ REGLAS ESTRICTAS:
 - Solo español. Prohibido: "pricing" (→ estrategia de precios), "data" (→ información), "roadmap" (→ hoja de ruta).
 - Sin asteriscos ni negritas.
 - SIEMPRE exactamente 4 bullets. Ni más, ni menos.
-- Cada bullet: un párrafo continuo de EXACTAMENTE entre 45 y 50 palabras. Contá las palabras antes de escribir.
-- En ALERTAS, el "Nombre alerta:" NO cuenta — el texto después del label tiene que tener entre 45 y 50 palabras.
+- SITUACION: cada bullet es un párrafo de entre 45 y 50 palabras en total.
+- ALERTAS: cada bullet tiene formato "Nombre: texto". El nombre es 2-4 palabras. El texto después del nombre tiene que tener entre 42 y 46 palabras. Total del bullet (nombre + texto) = entre 45 y 50 palabras.
 - Concreto y específico para este negocio. Nada genérico.
 
 Respondé ÚNICAMENTE con este formato:
 
 SITUACION:
-• [párrafo de 45-50 palabras exactas].
-• [párrafo de 45-50 palabras exactas].
-• [párrafo de 45-50 palabras exactas].
-• [párrafo de 45-50 palabras exactas].
+• [párrafo de 45-50 palabras totales].
+• [párrafo de 45-50 palabras totales].
+• [párrafo de 45-50 palabras totales].
+• [párrafo de 45-50 palabras totales].
 
 ALERTAS:
-• [Nombre alerta 1]: [45-50 palabras exactas después del label].
-• [Nombre alerta 2]: [45-50 palabras exactas después del label].
-• [Nombre alerta 3]: [45-50 palabras exactas después del label].
-• [Nombre alerta 4]: [45-50 palabras exactas después del label].`,
+• [Nombre corto 2-4 palabras]: [texto de 42-46 palabras. Total bullet = 45-50 palabras].
+• [Nombre corto 2-4 palabras]: [texto de 42-46 palabras. Total bullet = 45-50 palabras].
+• [Nombre corto 2-4 palabras]: [texto de 42-46 palabras. Total bullet = 45-50 palabras].
+• [Nombre corto 2-4 palabras]: [texto de 42-46 palabras. Total bullet = 45-50 palabras].`,
 
     // ── STAGE 3: DIAGNÓSTICO 360° ─────────────────────────────────────────────
     estructura: `
