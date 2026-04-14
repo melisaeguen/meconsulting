@@ -818,58 +818,41 @@ function saveToSheets(contact, answers, scores, diag) {
       });
       return { pregunta: worst ? worst.text : '—', score: worstScore === 999 ? 0 : worstScore };
     }
-    const payload = JSON.stringify({
-      nombre:      contact.name,
-      empresa:     contact.company     || '',
-      email:       contact.email,
-      celular:     contact.phone       || '',
-      industria:   contact.industry    || '',
-      descripcion: contact.description || '',
-      scoreTotal:  scores.total,
-      perfil:      profile.label,
-      scores: {
-        finanzas:    scores.dims.finanzas,
-        operaciones: scores.dims.operaciones,
-        gestion:     scores.dims.gestion,
-        estrategia:  scores.dims.estrategia,
-      },
-      preguntaDebil: {
-        finanzas:    weakestQ('finanzas'),
-        operaciones: weakestQ('operaciones'),
-        gestion:     weakestQ('gestion'),
-        estrategia:  weakestQ('estrategia'),
-      },
-      diagnostico: {
-        resumen:       diag.resumen_ejecutivo       || '',
-        palancaTitulo: diag.palanca_principal?.titulo      || '',
-        palancaDesc:   diag.palanca_principal?.descripcion || '',
-        fraseCierre:   diag.frase_cierre            || '',
-      },
-      problemaAbierto: contact.openQuestion || '',
-    });
-    // Usa iframe + form para evitar CORS desde file://
-    // Google Apps Script acepta POST via form con campo 'payload'
-    const iframe = document.createElement('iframe');
-    iframe.name = 'gs_iframe_' + Date.now();
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = SHEETS_URL;
-    form.target = iframe.name;
-    form.style.display = 'none';
-    const input = document.createElement('input');
-    input.type  = 'hidden';
-    input.name  = 'payload';
-    input.value = payload;
-    form.appendChild(input);
-    document.body.appendChild(form);
-    form.submit();
-    // Limpieza después de enviar
-    setTimeout(() => {
-      document.body.removeChild(form);
-      document.body.removeChild(iframe);
-    }, 5000);
+    // Envía por /api/crm (Vercel proxy → Apps Script) — mismo canal que el CRM
+    fetch('/api/crm', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action:      'saveFromTest',
+        nombre:      contact.name,
+        empresa:     contact.company     || '',
+        email:       contact.email,
+        celular:     contact.phone       || '',
+        industria:   contact.industry    || '',
+        descripcion: contact.description || '',
+        scoreTotal:  scores.total,
+        perfil:      profile.label,
+        scores: {
+          finanzas:    scores.dims.finanzas,
+          operaciones: scores.dims.operaciones,
+          gestion:     scores.dims.gestion,
+          estrategia:  scores.dims.estrategia,
+        },
+        preguntaDebil: {
+          finanzas:    weakestQ('finanzas'),
+          operaciones: weakestQ('operaciones'),
+          gestion:     weakestQ('gestion'),
+          estrategia:  weakestQ('estrategia'),
+        },
+        diagnostico: {
+          resumen:       diag.resumen_ejecutivo              || '',
+          palancaTitulo: diag.palanca_principal?.titulo      || '',
+          palancaDesc:   diag.palanca_principal?.descripcion || '',
+          fraseCierre:   diag.frase_cierre                  || '',
+        },
+        problemaAbierto: contact.openQuestion || '',
+      }),
+    }).catch(e => console.warn('saveToSheets error:', e));
   } catch(e) {
     console.warn('saveToSheets error:', e);
   }
