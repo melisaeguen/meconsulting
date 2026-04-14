@@ -179,22 +179,23 @@ REGLAS ESTRICTAS:
 - Prohibido: "pricing", "data", "roadmap", "performance", "feedback", "revenue".
 - Sin asteriscos ni negritas.
 - SIEMPRE exactamente 4 bullets. Ni más, ni menos.
-- Cada bullet: un párrafo de ENTRE 35 Y 40 PALABRAS. Ni menos de 35, ni más de 40.
-- Concretas y específicas para este negocio. Nada genérico.
+- Cada bullet: un párrafo continuo de EXACTAMENTE entre 35 y 40 palabras. Contá las palabras antes de escribir.
+- En ALERTAS, el "Nombre alerta:" NO cuenta como palabras — el texto que viene después tiene que tener entre 35 y 40 palabras.
+- Concreto y específico para este negocio. Nada genérico.
 
-Respondé ÚNICAMENTE con este formato (siempre 4 bullets, cada uno entre 35 y 40 palabras):
+Respondé ÚNICAMENTE con este formato:
 
 SITUACION:
-• [párrafo de 35-40 palabras sobre este negocio específico].
-• [párrafo de 35-40 palabras sobre este negocio específico].
-• [párrafo de 35-40 palabras sobre este negocio específico].
-• [párrafo de 35-40 palabras sobre este negocio específico].
+• [párrafo continuo. contá: debe tener entre 35 y 40 palabras exactas].
+• [párrafo continuo. contá: debe tener entre 35 y 40 palabras exactas].
+• [párrafo continuo. contá: debe tener entre 35 y 40 palabras exactas].
+• [párrafo continuo. contá: debe tener entre 35 y 40 palabras exactas].
 
 ALERTAS:
-• [Nombre alerta 1]: [párrafo de 35-40 palabras sobre este negocio específico].
-• [Nombre alerta 2]: [párrafo de 35-40 palabras sobre este negocio específico].
-• [Nombre alerta 3]: [párrafo de 35-40 palabras sobre este negocio específico].
-• [Nombre alerta 4]: [párrafo de 35-40 palabras sobre este negocio específico].`,
+• [Nombre alerta 1]: [texto después del label: entre 35 y 40 palabras exactas. el label no cuenta].
+• [Nombre alerta 2]: [texto después del label: entre 35 y 40 palabras exactas. el label no cuenta].
+• [Nombre alerta 3]: [texto después del label: entre 35 y 40 palabras exactas. el label no cuenta].
+• [Nombre alerta 4]: [texto después del label: entre 35 y 40 palabras exactas. el label no cuenta].`,
 
     preguntas: `
 Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.
@@ -287,22 +288,23 @@ REGLAS ESTRICTAS:
 - Solo español. Prohibido: "pricing" (→ estrategia de precios), "data" (→ información), "roadmap" (→ hoja de ruta).
 - Sin asteriscos ni negritas.
 - SIEMPRE exactamente 4 bullets. Ni más, ni menos.
-- Cada bullet: un párrafo de ENTRE 35 Y 40 PALABRAS. Ni menos de 35, ni más de 40.
-- Concretas y específicas para este negocio. Nada genérico.
+- Cada bullet: un párrafo continuo de EXACTAMENTE entre 35 y 40 palabras. Contá las palabras antes de escribir.
+- En ALERTAS, el "Nombre alerta:" NO cuenta como palabras — el texto que viene después tiene que tener entre 35 y 40 palabras.
+- Concreto y específico para este negocio. Nada genérico.
 
-Respondé ÚNICAMENTE con este formato (siempre 4 bullets, cada uno entre 35 y 40 palabras):
+Respondé ÚNICAMENTE con este formato:
 
 SITUACION:
-• [párrafo de 35-40 palabras sobre este negocio específico].
-• [párrafo de 35-40 palabras sobre este negocio específico].
-• [párrafo de 35-40 palabras sobre este negocio específico].
-• [párrafo de 35-40 palabras sobre este negocio específico].
+• [párrafo continuo. contá: debe tener entre 35 y 40 palabras exactas].
+• [párrafo continuo. contá: debe tener entre 35 y 40 palabras exactas].
+• [párrafo continuo. contá: debe tener entre 35 y 40 palabras exactas].
+• [párrafo continuo. contá: debe tener entre 35 y 40 palabras exactas].
 
 ALERTAS:
-• [Nombre alerta 1]: [párrafo de 35-40 palabras sobre este negocio específico].
-• [Nombre alerta 2]: [párrafo de 35-40 palabras sobre este negocio específico].
-• [Nombre alerta 3]: [párrafo de 35-40 palabras sobre este negocio específico].
-• [Nombre alerta 4]: [párrafo de 35-40 palabras sobre este negocio específico].`,
+• [Nombre alerta 1]: [texto después del label: entre 35 y 40 palabras exactas. el label no cuenta].
+• [Nombre alerta 2]: [texto después del label: entre 35 y 40 palabras exactas. el label no cuenta].
+• [Nombre alerta 3]: [texto después del label: entre 35 y 40 palabras exactas. el label no cuenta].
+• [Nombre alerta 4]: [texto después del label: entre 35 y 40 palabras exactas. el label no cuenta].`,
 
     // ── STAGE 3: DIAGNÓSTICO 360° ─────────────────────────────────────────────
     estructura: `
