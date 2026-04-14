@@ -284,7 +284,7 @@ function sText(slide, text, x, y, w, h, opts) {
 
 function addFooter(slide) {
   sText(slide, 'ME CONSULTORA  ·  meconsulting.com.ar', 0, H - 22, W, 18,
-    { size: 8, bold: false, color: 'rgba(255,255,255,0.4)', align: 'CENTER' });
+    { size: 8, bold: false, color: '#8899bb', align: 'CENTER' });
 }
 
 function buildCoverSlide(slide, title, subtitle) {
