@@ -196,6 +196,8 @@ a{color:inherit;text-decoration:none}
 .transcript-textarea:focus{outline:none;border-color:var(--navy)}
 .transcript-ok{font-size:11px;font-weight:600;color:#2e7d32;background:#e8f5e9;padding:3px 10px;border-radius:20px;flex-shrink:0}
 .prediag-locked-msg{background:#fff8e1;border-left:3px solid var(--gold);border-radius:0 6px 6px 0;padding:8px 12px;font-size:12px;color:#7a5200;margin:0 14px 2px}
+.diag-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:white;background:var(--navy);padding:7px 14px;border-radius:7px;margin:14px 0 8px;display:flex;align-items:center;gap:7px}
+.relev-ok{font-size:11px;font-weight:600;color:#2e7d32;background:#e8f5e9;padding:3px 10px;border-radius:20px;flex-shrink:0}
 
 /* ── DOCS TAB ── */
 .docs-sec{margin-bottom:24px}
@@ -353,10 +355,7 @@ const COPILOT_ACTIONS = {
     {id:'preguntas',   icon:'💬', title:'Preguntas para la sesión',     desc:'5 preguntas profundas para la reunión estratégica'},
     {id:'quickwins',   icon:'⚡', title:'Quick wins para llevar',       desc:'5 acciones concretas e inmediatas para el cliente'},
   ],
-  3:[
-    {id:'estructura',  icon:'🔍', title:'Estructura del diagnóstico',  desc:'Plan detallado del diagnóstico a realizar'},
-    {id:'propuesta',   icon:'📋', title:'Propuesta de implementación', desc:'Borrador de propuesta para la stage siguiente'},
-  ],
+  3:[],
   4:[
     {id:'hitos',       icon:'📅', title:'Plan de hitos',              desc:'Cronograma con milestones del proyecto'},
     {id:'informe',     icon:'📊', title:'Informe de avance',          desc:'Template para reportar el progreso al cliente'},
@@ -1174,7 +1173,394 @@ async function generateAndCreatePresupuesto(email) {
   }
 }
 
+// ── STAGE 3: DIAGNÓSTICO 360° ────────────────────────────────────────────────
 
+function renderCopilotStage3(email) {
+  const cl = S.clients[email];
+  const crm = getCRM(email);
+  const ao = crm.aiOutputs || {};
+  const scores = {Finanzas: cl.scoreFinanzas||0, Operaciones: cl.scoreOps||0, Gestión: cl.scoreGestion||0, Estrategia: cl.scoreEst||0};
+  const weakest = Object.entries(scores).sort((a,b)=>a[1]-b[1])[0]?.[0]||'';
+  return `
+    <div class="cop-intro">Diagnóstico 360° para <strong>${esc(cl.empresa||cl.nombre)}</strong>. Dimensión más débil: <strong style="color:#c9593b">${esc(weakest)}</strong>.</div>
+    <div class="diag-section-title">📋 Relevamiento</div>
+    ${renderFrameworkSection(email, ao)}
+    ${renderRelevInput(email,'entrevistas','🎙️','Notas de entrevistas','Transcript o notas de las sesiones profundas con el CEO y equipo','Pegá aquí el transcript o notas de las entrevistas...')}
+    ${renderRelevInput(email,'datos_internos','📊','Datos internos relevados','Información financiera, procesos, estructura organizacional','Pegá aquí la información relevada...')}
+    ${renderRelevInput(email,'benchmarking','🔍','Benchmarking y competencia','Observaciones del sector, competidores y oportunidades de mercado','Pegá aquí el análisis de benchmarking...')}
+    <div class="diag-section-title">📄 Entregables</div>
+    ${renderInformeDiagSection(email, ao)}
+    ${renderPresentacionDiagSection(email, ao)}
+    ${renderImplCalc(email)}`;
+}
+
+function renderFrameworkSection(email, ao) {
+  const done = ao.framework_url;
+  return `
+  <div class="cop-action" id="ca-framework">
+    <div class="cop-action-hdr">
+      <div class="cop-action-title">
+        <span class="cop-icon">📋</span>
+        <div class="cop-title-text">
+          <strong>Framework de preguntas</strong>
+          <span>Guía de entrevistas por dimensión para el Diagnóstico 360°</span>
+        </div>
+      </div>
+      ${done ? `<span class="relev-ok">✓ Generado</span>` : ''}
+    </div>
+    <div class="cop-result" style="padding:12px 14px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn-gen" id="bg-framework" onclick="generateFramework('${email}')">
+        ${done ? '↺ Regenerar' : '📝 Generar framework'}
+      </button>
+      ${done ? `<button class="btn-doc" onclick="window.open('${done}','_blank')">📄 Abrir Doc</button>` : ''}
+    </div>
+  </div>`;
+}
+
+function renderRelevInput(email, field, icon, title, desc, ph) {
+  const crm = getCRM(email);
+  const val = crm.aiOutputs?.[field] || '';
+  return `
+  <div class="cop-action" id="ca-${field}">
+    <div class="cop-action-hdr">
+      <div class="cop-action-title">
+        <span class="cop-icon">${icon}</span>
+        <div class="cop-title-text">
+          <strong>${title}</strong>
+          <span>${desc}</span>
+        </div>
+      </div>
+      ${val ? `<span class="relev-ok">✓ Guardado</span>` : ''}
+    </div>
+    <div class="cop-result">
+      <textarea id="relev-${field}" class="transcript-textarea" placeholder="${ph}">${esc(val)}</textarea>
+      <button class="btn-gen" style="width:100%;margin-top:8px" onclick="saveRelevField('${email}','${field}')">
+        ${val ? 'Actualizar' : 'Guardar'}
+      </button>
+    </div>
+  </div>`;
+}
+
+function saveRelevField(email, field) {
+  const ta = document.getElementById('relev-' + field);
+  if (!ta) return;
+  const val = ta.value.trim();
+  const ao = {...(getCRM(email).aiOutputs||{}), [field]: val};
+  updateCRM(email, {aiOutputs: ao});
+  showToast(val ? field.replace('_',' ') + ' guardado ✓' : field.replace('_',' ') + ' borrado');
+  renderTabContent(email);
+}
+
+function renderInformeDiagSection(email, ao) {
+  const done = ao.informe_url;
+  return `
+  <div class="cop-action" id="ca-informe-diag">
+    <div class="cop-action-hdr">
+      <div class="cop-action-title">
+        <span class="cop-icon">📄</span>
+        <div class="cop-title-text">
+          <strong>Informe Diagnóstico 360°</strong>
+          <span>Reporte ejecutivo completo: FODA, Lean Canvas, Radiografía, Problemas y Plan de acción</span>
+        </div>
+      </div>
+      ${done ? `<span class="relev-ok">✓ Generado</span>` : ''}
+    </div>
+    <div class="cop-result" style="padding:12px 14px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn-gen" id="bg-informe-diag" onclick="generateInformeDiag('${email}')">
+        ${done ? '↺ Regenerar' : '📝 Generar informe'}
+      </button>
+      ${done ? `<button class="btn-doc" onclick="window.open('${done}','_blank')">📄 Abrir Doc</button>` : ''}
+    </div>
+  </div>`;
+}
+
+function renderPresentacionDiagSection(email, ao) {
+  const done = ao.presentacion_diag_url;
+  return `
+  <div class="cop-action" id="ca-presentacion-diag">
+    <div class="cop-action-hdr">
+      <div class="cop-action-title">
+        <span class="cop-icon">📊</span>
+        <div class="cop-title-text">
+          <strong>Presentación para el cliente</strong>
+          <span>Google Slides para la reunión de cierre del diagnóstico</span>
+        </div>
+      </div>
+      ${done ? `<span class="relev-ok">✓ Generado</span>` : ''}
+    </div>
+    <div class="cop-result" style="padding:12px 14px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn-gen" id="bg-presentacion-diag" onclick="generatePresentacionDiag('${email}')">
+        ${done ? '↺ Regenerar' : '📊 Generar presentación'}
+      </button>
+      ${done ? `<button class="btn-doc" onclick="window.open('${done}','_blank')">📊 Abrir Slides</button>` : ''}
+    </div>
+  </div>`;
+}
+
+function renderImplCalc(email) {
+  const crm = getCRM(email);
+  const h = crm.aiOutputs?.impl_hours || {impl_diseno:8, impl_implementacion:20, impl_capacitacion:6, impl_seguimiento:6};
+  const total = Object.values(h).reduce((a,b)=>a+Number(b),0);
+  const price = total * 40000;
+  return `
+  <div class="cop-action" id="ca-impl-calc">
+    <div class="cop-action-hdr">
+      <div class="cop-action-title">
+        <span class="cop-icon">💰</span>
+        <div class="cop-title-text">
+          <strong>Presupuesto Implementación</strong>
+          <span>Calculá las horas para el diseño e implementación de soluciones</span>
+        </div>
+      </div>
+    </div>
+    <div class="cop-result">
+      <div class="calc-grid">
+        <span class="calc-lbl">Diseño de soluciones</span>
+        <input class="calc-inp" type="number" id="hi-diseno" value="${h.impl_diseno}" min="1" max="60" oninput="updateImplCalc('${email}')"/>
+        <span class="calc-unit">hs</span>
+        <span class="calc-lbl">Implementación</span>
+        <input class="calc-inp" type="number" id="hi-implementacion" value="${h.impl_implementacion}" min="1" max="60" oninput="updateImplCalc('${email}')"/>
+        <span class="calc-unit">hs</span>
+        <span class="calc-lbl">Capacitación y acompañamiento</span>
+        <input class="calc-inp" type="number" id="hi-capacitacion" value="${h.impl_capacitacion}" min="1" max="60" oninput="updateImplCalc('${email}')"/>
+        <span class="calc-unit">hs</span>
+        <span class="calc-lbl">Seguimiento</span>
+        <input class="calc-inp" type="number" id="hi-seguimiento" value="${h.impl_seguimiento}" min="1" max="60" oninput="updateImplCalc('${email}')"/>
+        <span class="calc-unit">hs</span>
+      </div>
+      <div class="calc-total-row">
+        <span>Total: <span id="impl-total-hs">${total}</span> horas</span>
+        <span class="calc-total-price">$<span id="impl-total-price">${price.toLocaleString('es-AR')}</span></span>
+      </div>
+      <button class="btn-gen" id="bg-impl-presupuesto" style="width:100%" onclick="generateAndCreateImpl('${email}')">
+        📊 Generar presupuesto implementación
+      </button>
+    </div>
+  </div>`;
+}
+
+function updateImplCalc(email) {
+  const h = {
+    impl_diseno:         Number(document.getElementById('hi-diseno')?.value)||0,
+    impl_implementacion: Number(document.getElementById('hi-implementacion')?.value)||0,
+    impl_capacitacion:   Number(document.getElementById('hi-capacitacion')?.value)||0,
+    impl_seguimiento:    Number(document.getElementById('hi-seguimiento')?.value)||0,
+  };
+  const total = Object.values(h).reduce((a,b)=>a+b,0);
+  const el1 = document.getElementById('impl-total-hs');
+  const el2 = document.getElementById('impl-total-price');
+  if(el1) el1.textContent = total;
+  if(el2) el2.textContent = (total*40000).toLocaleString('es-AR');
+  const ao = {...(getCRM(email).aiOutputs||{}), impl_hours:h};
+  S.crm[email] = {...getCRM(email), aiOutputs:ao};
+  markDirty();
+}
+
+async function generateFramework(email) {
+  const cl = S.clients[email];
+  const crm = getCRM(email);
+  const btn = document.getElementById('bg-framework');
+  if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Generando...';}
+  try {
+    const res = await fetch('/api/copilot', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        action:'framework', stage:3,
+        client:{
+          nombre:cl.nombre, empresa:cl.empresa, industria:cl.industria,
+          descripcion:cl.descripcion, scoreTotal:cl.scoreTotal,
+          scoreFinanzas:cl.scoreFinanzas, scoreOps:cl.scoreOps,
+          scoreGestion:cl.scoreGestion, scoreEst:cl.scoreEst,
+          perfil:cl.perfil, problema:cl.problemaAbierto,
+          transcript: crm.aiOutputs?.transcript||'',
+        }
+      })
+    });
+    const data = await res.json();
+    if(!data.result) throw new Error('Sin contenido');
+    if(btn) btn.innerHTML='<span class="spinner"></span> Creando Doc...';
+    const empresa = cl.empresa||cl.nombre||email;
+    const mes = new Date().toLocaleDateString('es-AR',{month:'long',year:'numeric'});
+    const docRes = await fetch('/api/crm',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action:'createFrameworkDoc', empresa, mes, content: data.result})
+    });
+    const docData = await docRes.json();
+    if(!docData.url) throw new Error(docData.error||'Sin URL');
+    const ao = {...(crm.aiOutputs||{}), framework_url: docData.url};
+    updateCRM(email, {aiOutputs:ao});
+    window.open(docData.url,'_blank');
+    showToast('Framework creado ✓');
+    renderTabContent(email);
+  } catch(err) {
+    showToast('Error al generar el framework', true);
+  } finally {
+    if(btn){btn.disabled=false;btn.innerHTML='📝 Generar framework';}
+  }
+}
+
+async function generateInformeDiag(email) {
+  const cl = S.clients[email];
+  const crm = getCRM(email);
+  const ao = crm.aiOutputs||{};
+  const btn = document.getElementById('bg-informe-diag');
+  if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Generando...';}
+  try {
+    const res = await fetch('/api/copilot', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        action:'informe_diag', stage:3,
+        client:{
+          nombre:cl.nombre, empresa:cl.empresa, industria:cl.industria,
+          descripcion:cl.descripcion, scoreTotal:cl.scoreTotal,
+          scoreFinanzas:cl.scoreFinanzas, scoreOps:cl.scoreOps,
+          scoreGestion:cl.scoreGestion, scoreEst:cl.scoreEst,
+          perfil:cl.perfil, problema:cl.problemaAbierto,
+          resumen:cl.resumen, palancaTitulo:cl.palancaTitulo, palancaDesc:cl.palancaDesc,
+          transcript:ao.transcript||'',
+          entrevistas:ao.entrevistas||'', datos_internos:ao.datos_internos||'', benchmarking:ao.benchmarking||'',
+        }
+      })
+    });
+    const data = await res.json();
+    if(!data.result) throw new Error('Sin contenido');
+    if(btn) btn.innerHTML='<span class="spinner"></span> Creando Doc...';
+    const empresa = cl.empresa||cl.nombre||email;
+    const mes = new Date().toLocaleDateString('es-AR',{month:'long',year:'numeric'});
+    const docRes = await fetch('/api/crm',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action:'createInformeDoc', empresa, mes, content: data.result})
+    });
+    const docData = await docRes.json();
+    if(!docData.url) throw new Error(docData.error||'Sin URL');
+    const ao2 = {...ao, informe_url: docData.url};
+    updateCRM(email, {aiOutputs:ao2});
+    window.open(docData.url,'_blank');
+    showToast('Informe creado ✓');
+    renderTabContent(email);
+  } catch(err) {
+    showToast('Error al generar el informe', true);
+  } finally {
+    if(btn){btn.disabled=false;btn.innerHTML='📝 Generar informe';}
+  }
+}
+
+async function generatePresentacionDiag(email) {
+  const cl = S.clients[email];
+  const crm = getCRM(email);
+  const ao = crm.aiOutputs||{};
+  const btn = document.getElementById('bg-presentacion-diag');
+  if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Generando...';}
+  try {
+    const res = await fetch('/api/copilot', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        action:'presentacion_diag', stage:3,
+        client:{
+          nombre:cl.nombre, empresa:cl.empresa, industria:cl.industria,
+          descripcion:cl.descripcion, scoreTotal:cl.scoreTotal,
+          scoreFinanzas:cl.scoreFinanzas, scoreOps:cl.scoreOps,
+          scoreGestion:cl.scoreGestion, scoreEst:cl.scoreEst,
+          perfil:cl.perfil, problema:cl.problemaAbierto,
+          resumen:cl.resumen, palancaTitulo:cl.palancaTitulo, palancaDesc:cl.palancaDesc,
+          transcript:ao.transcript||'',
+          entrevistas:ao.entrevistas||'', datos_internos:ao.datos_internos||'', benchmarking:ao.benchmarking||'',
+        }
+      })
+    });
+    const data = await res.json();
+    if(!data.result) throw new Error('Sin contenido');
+    if(btn) btn.innerHTML='<span class="spinner"></span> Creando Slides...';
+    const empresa = cl.empresa||cl.nombre||email;
+    const mes = new Date().toLocaleDateString('es-AR',{month:'long',year:'numeric'});
+    const slidesRes = await fetch('/api/crm',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({action:'createDiagSlides', empresa, mes, content: data.result})
+    });
+    const slidesData = await slidesRes.json();
+    if(!slidesData.url) throw new Error(slidesData.error||'Sin URL');
+    const ao2 = {...ao, presentacion_diag_url: slidesData.url};
+    updateCRM(email, {aiOutputs:ao2});
+    window.open(slidesData.url,'_blank');
+    showToast('Presentación creada ✓');
+    renderTabContent(email);
+  } catch(err) {
+    showToast('Error al generar la presentación', true);
+  } finally {
+    if(btn){btn.disabled=false;btn.innerHTML='📊 Generar presentación';}
+  }
+}
+
+async function generateAndCreateImpl(email) {
+  const cl  = S.clients[email];
+  const crm = getCRM(email);
+  const h = {
+    impl_diseno:         Number(document.getElementById('hi-diseno')?.value)||8,
+    impl_implementacion: Number(document.getElementById('hi-implementacion')?.value)||20,
+    impl_capacitacion:   Number(document.getElementById('hi-capacitacion')?.value)||6,
+    impl_seguimiento:    Number(document.getElementById('hi-seguimiento')?.value)||6,
+  };
+  const total = Object.values(h).reduce((a,b)=>a+b,0);
+  const price = total * 40000;
+
+  const btn = document.getElementById('bg-impl-presupuesto');
+  if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Generando...';}
+
+  try {
+    const res = await fetch('/api/copilot', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        action: 'presupuesto_impl', stage: 3,
+        client: {
+          nombre: cl.nombre, empresa: cl.empresa, industria: cl.industria,
+          descripcion: cl.descripcion, scoreTotal: cl.scoreTotal,
+          scoreFinanzas: cl.scoreFinanzas, scoreOps: cl.scoreOps,
+          scoreGestion: cl.scoreGestion, scoreEst: cl.scoreEst,
+          perfil: cl.perfil, problema: cl.problemaAbierto,
+          resumen: cl.resumen, palancaTitulo: cl.palancaTitulo,
+          palancaDesc: cl.palancaDesc,
+          transcript: crm.aiOutputs?.transcript || '',
+          entrevistas: crm.aiOutputs?.entrevistas || '',
+          datos_internos: crm.aiOutputs?.datos_internos || '',
+          benchmarking: crm.aiOutputs?.benchmarking || '',
+          price,
+        }
+      })
+    });
+    const data = await res.json();
+    const content = data.result || '';
+    if (!content) throw new Error('Sin contenido');
+
+    const ao = {...(crm.aiOutputs||{}), impl_hours:h};
+    S.crm[email] = {...getCRM(email), aiOutputs:ao};
+
+    if(btn) btn.innerHTML = '<span class="spinner"></span> Creando presentación...';
+    const empresa = cl.empresa || cl.nombre || email;
+    const mes = new Date().toLocaleDateString('es-AR', {month:'long', year:'numeric'});
+    const resSlides = await fetch('/api/crm', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        action: 'createPresupuestoImpl',
+        empresa, nombre: cl.nombre, mes,
+        horas: total, total: price,
+        content,
+      })
+    });
+    const rawText = await resSlides.text();
+    let slideData;
+    try { slideData = JSON.parse(rawText); } catch(e) { throw new Error('Sin respuesta válida del servidor'); }
+    if (slideData.url) {
+      window.open(slideData.url, '_blank');
+      showToast('Presupuesto implementación creado ✓');
+    } else {
+      throw new Error(slideData.error || 'Sin URL');
+    }
+  } catch(err) {
+    showToast('Error al generar el presupuesto de implementación', true);
+  } finally {
+    if(btn){btn.disabled=false;btn.innerHTML='📊 Generar presupuesto implementación';}
+  }
+}
 
 async function regenItem(email, type, index) {
   const crm = getCRM(email);
@@ -1236,7 +1622,11 @@ function renderCopilot(email) {
       ${renderPresupuestoCalc(email)}`;
   }
 
-  // Stages 3-5: generic rendering
+  if (crm.stage === 3) {
+    return renderCopilotStage3(email);
+  }
+
+  // Stages 4-5: generic rendering
   const outputs = crm.aiOutputs || {};
   return `
     <div class="cop-intro">Herramientas IA para <strong>${stName}</strong>. Los resultados se guardan automáticamente en el perfil del cliente.</div>

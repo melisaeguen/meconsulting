@@ -26,7 +26,11 @@ export default async function handler(req, res) {
     const prompt = buildPrompt(action, stage, client);
     if (!prompt) return res.status(400).json({ error: 'Acción no reconocida' });
 
-    const isSlides = action === 'presupuesto';
+    const isHeavy = ['framework', 'informe_diag', 'presentacion_diag'].includes(action);
+    const isDiagSlides = action === 'presentacion_diag';
+    const isSlides = action === 'presupuesto' || isDiagSlides || action === 'presupuesto_impl';
+    const model = isHeavy ? 'claude-sonnet-4-20250514' : 'claude-haiku-4-5-20251001';
+    const maxTokens = action === 'informe_diag' ? 4000 : (isHeavy ? 3000 : 1024);
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -36,8 +40,8 @@ export default async function handler(req, res) {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model:      'claude-haiku-4-5-20251001',
-        max_tokens: isSlides ? 1024 : 1024,
+        model,
+        max_tokens: maxTokens,
         ...(isSlides && {
           system: 'Sos un generador de contenido para presentaciones. Respondé ÚNICAMENTE con los campos del formato solicitado. Sin texto antes ni después. Sin secciones extra.',
         }),
@@ -56,7 +60,9 @@ export default async function handler(req, res) {
     // Para presupuesto: ensamblar los [SLIDE] bloques acá,
     // el modelo solo generó el contenido variable
     let result = raw;
-    if (action === 'presupuesto')  result = assemblePresupuesto(raw, client);
+    if (action === 'presupuesto')        result = assemblePresupuesto(raw, client);
+    if (action === 'presupuesto_impl')   result = assemblePresupuesto(raw, client);
+    if (action === 'presentacion_diag')  result = assemblePresentacionDiag(raw, client);
 
     return res.status(200).json({ result });
 
@@ -116,6 +122,13 @@ function assemblePresupuesto(raw, c) {
   ];
 
   return slides.join('\n\n');
+}
+
+function assemblePresentacionDiag(raw, c) {
+  const empresa = c.empresa || '';
+  const mes = new Date().toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
+  const cover = `[SLIDE]\nTYPE: cover_diag\nTITLE: DIAGNÓSTICO 360°\nSUBTITLE: ${empresa}  ·  ${mes}`;
+  return cover + '\n\n' + raw.trim();
 }
 
 // ── PROMPT BUILDER ────────────────────────────────────────────────────────────
@@ -247,71 +260,250 @@ ALERTAS:
 • [Nombre corto 2-4 palabras]: [texto de 42-46 palabras. Total bullet = 45-50 palabras].`,
 
     // ── STAGE 3: DIAGNÓSTICO 360° ─────────────────────────────────────────────
-    estructura: `
-Sos Melisa Eguen, consultora estratégica. Estás planificando el Diagnóstico 360° para este cliente.
+
+    framework: `
+Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.
+Tenés que hacer 2 horas de entrevistas profundas del Diagnóstico 360° con el dueño del negocio.
 
 ${context}
 
-Generá la estructura detallada del diagnóstico a realizar. Recordá que el diagnóstico:
-- Es un análisis profundo (no implementación — eso es Stage 4)
-- Incluye el "qué está pasando y por qué" con algunas recomendaciones de alto nivel
-- NO incluye el diseño detallado de soluciones ni el plan de implementación
-- Debe ser específico para esta empresa e industria
+TRANSCRIPT DE LA SESIÓN ESTRATÉGICA:
+${c.transcript || '(sin transcript disponible)'}
 
-Formato de respuesta:
+Generá un framework completo de preguntas para guiar las entrevistas. Las preguntas tienen que profundizar en lo que ya sabemos del cliente — no repetir lo básico.
 
-OBJETIVO DEL DIAGNÓSTICO
-[1 párrafo específico para este cliente]
+Reglas:
+- 12 preguntas para la dimensión más débil (${weakest}), 8 para cada una de las demás
+- Marcá la dimensión más débil con "★ MÁS DÉBIL" junto al título
+- Preguntas abiertas que generen conversación y reflexión en el dueño
+- Específicas para esta empresa e industria — nada genérico
+- De lo general a lo específico dentro de cada dimensión
+- Máximo 15 palabras por pregunta
+- Solo español, lenguaje claro y directo, sin tecnicismos
 
-ESTRUCTURA DE TRABAJO
-Por cada una de las 4 dimensiones (Finanzas, Operaciones, Gestión, Estrategia):
-**[Dimensión] — [estado: Crítico/En riesgo/Estable]**
-• Qué relevar: [3-4 puntos específicos]
-• Preguntas clave de diagnóstico: [2-3 preguntas]
-• Herramientas a usar: [ej: análisis de estados contables, entrevistas, etc.]
+Respondé ÚNICAMENTE con este formato, sin texto antes ni después:
 
-ENTREGABLES DEL DIAGNÓSTICO
-[Lista de 4-5 entregables concretos]
+FINANZAS[si es la más débil agregar: ★ MÁS DÉBIL]:
+1. ¿...?
+2. ¿...?
+[continuar hasta 8 o 12 preguntas]
 
-CRONOGRAMA SUGERIDO
-[Plan semanal de actividades]
+OPERACIONES[si aplica: ★ MÁS DÉBIL]:
+1. ¿...?
+[continuar]
 
-Respondé directamente sin introducción ni cierre.`,
+GESTIÓN[si aplica: ★ MÁS DÉBIL]:
+1. ¿...?
+[continuar]
 
-    propuesta: `
-Sos Melisa Eguen, consultora estratégica. Terminaste el Diagnóstico 360° y estás preparando la propuesta para la etapa de Implementación.
+ESTRATEGIA[si aplica: ★ MÁS DÉBIL]:
+1. ¿...?
+[continuar]`,
+
+    informe_diag: `
+Sos Melisa Eguen, consultora estratégica para PyMEs argentinas. Terminaste el Diagnóstico 360° de este cliente y vas a escribir el informe completo.
 
 ${context}
 
-Generá el borrador de propuesta de implementación. Recordá que:
-- La implementación diseña y ejecuta las soluciones (diferente al diagnóstico)
-- Debe priorizar las 2-3 palancas de mayor impacto identificadas
-- Tiene que ser alcanzable en 1-3 meses
-- El precio orientativo de implementación es desde $300.000
+TRANSCRIPT DE LA SESIÓN ESTRATÉGICA:
+${c.transcript || '(sin transcript disponible)'}
 
-Formato de respuesta:
+${[
+  c.entrevistas    ? 'NOTAS DE ENTREVISTAS:\n'         + c.entrevistas    : '',
+  c.datos_internos ? 'DATOS INTERNOS RELEVADOS:\n'     + c.datos_internos : '',
+  c.benchmarking   ? 'BENCHMARKING Y COMPETENCIA:\n'   + c.benchmarking   : '',
+].filter(Boolean).join('\n\n')}
 
-SÍNTESIS DEL DIAGNÓSTICO
-[3-4 líneas con los hallazgos principales]
+Generá el informe completo del Diagnóstico 360°. Todo en español, lenguaje claro y directo, sin tecnicismos. Específico para este negocio — nada genérico.
 
-ALCANCE DE LA IMPLEMENTACIÓN
-[Qué se va a diseñar e implementar — específico para este cliente]
+Respondé ÚNICAMENTE con este formato (no agregues texto antes ni después):
 
-PALANCAS PRIORIZADAS
-1. **[Palanca 1]** — [por qué es la más urgente]
-2. **[Palanca 2]** — [impacto esperado]
-3. **[Palanca 3]** — [si aplica]
+[FODA]
+FORTALEZAS:
+• [fortaleza concreta del negocio]
+• [fortaleza concreta]
+• [fortaleza concreta]
+• [fortaleza concreta]
+DEBILIDADES:
+• [debilidad concreta]
+• [debilidad concreta]
+• [debilidad concreta]
+• [debilidad concreta]
+OPORTUNIDADES:
+• [oportunidad concreta del mercado]
+• [oportunidad concreta]
+• [oportunidad concreta]
+AMENAZAS:
+• [amenaza concreta]
+• [amenaza concreta]
+• [amenaza concreta]
 
-PLAN DE TRABAJO
-[Cronograma mensual de actividades]
+[LEAN_CANVAS]
+PROBLEMA PRINCIPAL: [descripción del problema central que resuelve el negocio]
+SEGMENTOS DE CLIENTES: [quiénes son sus clientes]
+PROPUESTA DE VALOR: [qué valor único ofrece]
+SOLUCIÓN: [cómo resuelve el problema]
+CANALES: [cómo llega a sus clientes]
+FUENTES DE INGRESOS: [cómo genera dinero]
+ESTRUCTURA DE COSTOS: [principales costos del negocio]
+MÉTRICAS CLAVE: [qué medir para saber si el negocio funciona]
 
-INVERSIÓN ESTIMADA
-$[rango] + IVA | Duración: [X semanas/meses]
+[REPORTE_EJECUTIVO]
+[3-4 párrafos de síntesis ejecutiva. Qué está funcionando, qué no, y cuál es el diagnóstico general. 200-250 palabras.]
 
-MÉTRICAS DE ÉXITO
-[3-4 KPIs que vamos a medir]
+[RADIOGRAFIA]
+FINANZAS:
+[2-3 párrafos sobre la situación financiera real: rentabilidad, flujo de caja, estructura de costos, precios. 100-120 palabras.]
 
-Respondé directamente sin introducción ni cierre.`,
+OPERACIONES:
+[2-3 párrafos sobre procesos, eficiencia, cuellos de botella, sistemas. 100-120 palabras.]
+
+GESTIÓN:
+[2-3 párrafos sobre estructura, roles, delegación, capacidades del equipo. 100-120 palabras.]
+
+ESTRATEGIA:
+[2-3 párrafos sobre misión, visión, posicionamiento, modelo de negocio, competencia. 100-120 palabras.]
+
+[BENCHMARKING]
+[2-3 párrafos sobre el sector, buenas prácticas de la industria y dónde está este negocio respecto al mercado. 100-120 palabras.]
+
+[PROBLEMAS]
+1. [Nombre del problema — 3-5 palabras]:
+[Descripción del problema estructural real, no solo el síntoma. Qué lo causa y por qué es importante resolverlo. 60-80 palabras.]
+
+2. [Nombre]:
+[Descripción. 60-80 palabras.]
+
+3. [Nombre]:
+[Descripción. 60-80 palabras.]
+
+4. [Nombre]:
+[Descripción. 60-80 palabras.]
+
+5. [Nombre]:
+[Descripción. 60-80 palabras.]
+
+[PLAN_ACCION]
+1. [Nombre de la acción] — Plazo: [X semanas]:
+[Qué hacer exactamente y por qué es la primera prioridad. Qué resultado concreto se espera. 60-80 palabras.]
+
+2. [Nombre de la acción] — Plazo: [X semanas]:
+[Descripción. 60-80 palabras.]
+
+3. [Nombre de la acción] — Plazo: [X semanas]:
+[Descripción. 60-80 palabras.]
+
+4. [Nombre de la acción] — Plazo: [X meses]:
+[Descripción. 60-80 palabras.]
+
+5. [Nombre de la acción] — Plazo: [X meses]:
+[Descripción. 60-80 palabras.]`,
+
+    presentacion_diag: `
+Sos Melisa Eguen, consultora estratégica para PyMEs argentinas. Generá el contenido para la presentación de cierre del Diagnóstico 360° que le vas a mostrar al cliente.
+
+${context}
+
+TRANSCRIPT DE LA SESIÓN ESTRATÉGICA:
+${c.transcript || '(sin transcript disponible)'}
+
+${[
+  c.entrevistas    ? 'NOTAS DE ENTREVISTAS:\n'         + c.entrevistas    : '',
+  c.datos_internos ? 'DATOS INTERNOS RELEVADOS:\n'     + c.datos_internos : '',
+  c.benchmarking   ? 'BENCHMARKING Y COMPETENCIA:\n'   + c.benchmarking   : '',
+].filter(Boolean).join('\n\n')}
+
+Generá el contenido para 7 slides. Todo en español, lenguaje claro y directo, sin tecnicismos. Concreto y específico para este negocio.
+
+Respondé ÚNICAMENTE con este formato exacto, sin texto antes ni después:
+
+[SLIDE]
+TYPE: lean_canvas
+PROBLEMA: [máx 20 palabras]
+SEGMENTOS: [máx 15 palabras]
+VALOR: [máx 20 palabras]
+SOLUCION: [máx 20 palabras]
+CANALES: [máx 15 palabras]
+INGRESOS: [máx 15 palabras]
+COSTOS: [máx 15 palabras]
+METRICAS: [máx 15 palabras]
+
+[SLIDE]
+TYPE: foda
+FORTALEZAS: ítem 1 | ítem 2 | ítem 3 | ítem 4
+DEBILIDADES: ítem 1 | ítem 2 | ítem 3 | ítem 4
+OPORTUNIDADES: ítem 1 | ítem 2 | ítem 3 | ítem 4
+AMENAZAS: ítem 1 | ítem 2 | ítem 3 | ítem 4
+
+[SLIDE]
+TYPE: resumen_ejecutivo
+• [bullet de 40-50 palabras sobre el estado general del negocio]
+• [bullet de 40-50 palabras sobre los hallazgos principales]
+• [bullet de 40-50 palabras sobre la palanca de mayor impacto]
+• [bullet de 40-50 palabras sobre la urgencia de actuar]
+
+[SLIDE]
+TYPE: radiografia
+FINANZAS: [2-3 líneas concretas sobre la situación financiera]
+OPERACIONES: [2-3 líneas concretas sobre operaciones]
+GESTION: [2-3 líneas concretas sobre gestión]
+ESTRATEGIA: [2-3 líneas concretas sobre estrategia]
+
+[SLIDE]
+TYPE: problemas
+• [Nombre del problema]: [descripción concisa del problema estructural, 20-25 palabras]
+• [Nombre del problema]: [descripción, 20-25 palabras]
+• [Nombre del problema]: [descripción, 20-25 palabras]
+• [Nombre del problema]: [descripción, 20-25 palabras]
+• [Nombre del problema]: [descripción, 20-25 palabras]
+
+[SLIDE]
+TYPE: plan_accion
+• [Acción 1] — [descripción concisa] | Plazo: [X semanas]
+• [Acción 2] — [descripción concisa] | Plazo: [X semanas]
+• [Acción 3] — [descripción concisa] | Plazo: [X semanas]
+• [Acción 4] — [descripción concisa] | Plazo: [X meses]
+• [Acción 5] — [descripción concisa] | Plazo: [X meses]
+
+[SLIDE]
+TYPE: proximos_pasos
+• [próximo paso concreto 1]
+• [próximo paso concreto 2]
+• [próximo paso concreto 3]
+• [próximo paso concreto 4]`,
+
+    presupuesto_impl: `
+Sos Melisa Eguen, consultora estratégica para PyMEs argentinas.
+
+${context}
+
+TRANSCRIPT DE LA SESIÓN ESTRATÉGICA:
+${c.transcript || '(sin transcript disponible)'}
+
+Generá el contenido variable para la propuesta comercial del Diseño e Implementación de Soluciones.
+
+REGLAS ESTRICTAS:
+- Usá toda la información disponible del cliente para dar observaciones específicas y concretas.
+- Solo español. Prohibido: "pricing" (→ estrategia de precios), "data" (→ información), "roadmap" (→ hoja de ruta).
+- Sin asteriscos ni negritas.
+- SIEMPRE exactamente 4 bullets. Ni más, ni menos.
+- SITUACION: cada bullet es un párrafo de entre 45 y 50 palabras en total.
+- ALERTAS: cada bullet tiene formato "Nombre: texto". El nombre es 2-4 palabras. El texto después del nombre tiene que tener entre 42 y 46 palabras. Total del bullet (nombre + texto) = entre 45 y 50 palabras.
+- Concreto y específico para este negocio. Nada genérico.
+
+Respondé ÚNICAMENTE con este formato:
+
+SITUACION:
+• [párrafo de 45-50 palabras totales].
+• [párrafo de 45-50 palabras totales].
+• [párrafo de 45-50 palabras totales].
+• [párrafo de 45-50 palabras totales].
+
+ALERTAS:
+• [Nombre corto 2-4 palabras]: [texto de 42-46 palabras. Total bullet = 45-50 palabras].
+• [Nombre corto 2-4 palabras]: [texto de 42-46 palabras. Total bullet = 45-50 palabras].
+• [Nombre corto 2-4 palabras]: [texto de 42-46 palabras. Total bullet = 45-50 palabras].
+• [Nombre corto 2-4 palabras]: [texto de 42-46 palabras. Total bullet = 45-50 palabras].`,
 
     // ── STAGE 4: IMPLEMENTACIÓN ───────────────────────────────────────────────
     hitos: `

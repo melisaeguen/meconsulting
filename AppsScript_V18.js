@@ -45,6 +45,18 @@ function doPost(e) {
     if (action === 'createPresupuesto') {
       return jsonResponse(createPresupuesto(data));
     }
+    if (action === 'createFrameworkDoc') {
+      return jsonResponse(createFrameworkDoc(data));
+    }
+    if (action === 'createInformeDoc') {
+      return jsonResponse(createInformeDoc(data));
+    }
+    if (action === 'createDiagSlides') {
+      return jsonResponse(createDiagSlides(data));
+    }
+    if (action === 'createPresupuestoImpl') {
+      return jsonResponse(createPresupuestoImpl(data));
+    }
 
     return jsonResponse({ error: 'Acción no reconocida: ' + action });
   } catch (err) {
@@ -617,7 +629,7 @@ function createPresupuesto(data) {
 
   // Slide 1: Cover
   const s1 = pres.appendSlide();
-  buildCoverSlide(s1, 'PRESUPUESTO\nDIAGNÓSTICO 360°', empresa + '  ·  ' + mes);
+  buildCoverSlide(s1, data.titleOverride || 'PRESUPUESTO\nDIAGNÓSTICO 360°', empresa + '  ·  ' + mes);
 
   // Slide 2: Situación actual — full-width AI bullets
   const s2 = pres.appendSlide();
@@ -645,6 +657,333 @@ function createPresupuesto(data) {
   DriveApp.getFileById(pres.getId()).moveTo(folder);
 
   return { ok: true, url: pres.getUrl(), id: pres.getId() };
+}
+
+// ── HELPERS STAGE 3 ─────────────────────────────────────────────────
+function getOrCreateSubfolder(parentName, subName) {
+  var parentFolders = DriveApp.getFoldersByName(parentName);
+  var parent = parentFolders.hasNext() ? parentFolders.next() : DriveApp.createFolder(parentName);
+  var subs = parent.getFoldersByName(subName);
+  return subs.hasNext() ? subs.next() : parent.createFolder(subName);
+}
+
+// ── FRAMEWORK DE ENTREVISTAS (Google Doc) ────────────────────────────
+function createFrameworkDoc(data) {
+  var empresa = data.empresa || 'Cliente';
+  var mes     = data.mes || new Date().toLocaleDateString('es-AR', {month:'long', year:'numeric'});
+  var content = data.content || '';
+
+  var doc  = DocumentApp.create('Framework Entrevistas — ' + empresa + ' — ' + mes);
+  var body = doc.getBody();
+  body.clear();
+
+  var titlePar = body.appendParagraph('Framework de Entrevistas — Diagnóstico 360°');
+  titlePar.setHeading(DocumentApp.ParagraphHeading.TITLE);
+
+  var subPar = body.appendParagraph(empresa + '  ·  ' + mes + '  ·  ME Consultora');
+  subPar.setHeading(DocumentApp.ParagraphHeading.SUBTITLE);
+  body.appendParagraph('');
+
+  var lines = content.split('\n');
+  lines.forEach(function(line) {
+    var trimmed = line.trim();
+    if (!trimmed) return;
+    var isDimHeader = /^(FINANZAS|OPERACIONES|GESTIÓN|GESTION|ESTRATEGIA)/i.test(trimmed);
+    if (isDimHeader) {
+      body.appendParagraph('');
+      var hPar = body.appendParagraph(trimmed);
+      hPar.setHeading(DocumentApp.ParagraphHeading.HEADING2);
+      if (trimmed.indexOf('★') !== -1) {
+        hPar.editAsText().setForegroundColor('#b45309');
+        hPar.editAsText().setBold(true);
+      } else {
+        hPar.editAsText().setForegroundColor('#1b2340');
+      }
+    } else if (/^\d+\./.test(trimmed)) {
+      var qPar = body.appendParagraph(trimmed);
+      qPar.setHeading(DocumentApp.ParagraphHeading.NORMAL);
+      qPar.setIndentStart(20);
+    } else {
+      body.appendParagraph(trimmed);
+    }
+  });
+
+  var folder = getOrCreateSubfolder(FOLDER_NAME, 'Framework entrevistas');
+  DriveApp.getFileById(doc.getId()).moveTo(folder);
+  return { ok: true, url: doc.getUrl(), id: doc.getId() };
+}
+
+// ── INFORME DIAGNÓSTICO 360° (Google Doc) ────────────────────────────
+function createInformeDoc(data) {
+  var empresa = data.empresa || 'Cliente';
+  var mes     = data.mes || new Date().toLocaleDateString('es-AR', {month:'long', year:'numeric'});
+  var content = data.content || '';
+
+  var doc  = DocumentApp.create('Diagnóstico 360° — Informe Completo — ' + empresa + ' — ' + mes);
+  var body = doc.getBody();
+  body.clear();
+
+  var t = body.appendParagraph('DIAGNÓSTICO 360°');
+  t.setHeading(DocumentApp.ParagraphHeading.TITLE);
+  var s = body.appendParagraph(empresa + '  ·  ' + mes + '  ·  ME Consultora');
+  s.setHeading(DocumentApp.ParagraphHeading.SUBTITLE);
+
+  var sectionNames = {
+    'FODA':             'Análisis FODA',
+    'LEAN_CANVAS':      'Lean Canvas',
+    'REPORTE_EJECUTIVO':'Reporte Ejecutivo',
+    'RADIOGRAFIA':      'Radiografía del Negocio',
+    'BENCHMARKING':     'Benchmarking y Competencia',
+    'PROBLEMAS':        'Problemas Estructurales Identificados',
+    'PLAN_ACCION':      'Plan de Acción Priorizado',
+  };
+
+  // Split by [SECTION] markers
+  var parts = content.split(/\[([A-Z_]+)\]/);
+  for (var i = 1; i < parts.length; i += 2) {
+    var secKey     = parts[i].trim();
+    var secContent = parts[i+1] ? parts[i+1].trim() : '';
+    if (!secContent) continue;
+
+    body.appendParagraph('');
+    var h = body.appendParagraph(sectionNames[secKey] || secKey);
+    h.setHeading(DocumentApp.ParagraphHeading.HEADING1);
+    h.editAsText().setForegroundColor('#1b2340');
+
+    var lines = secContent.split('\n');
+    lines.forEach(function(line) {
+      var trimmed = line.trim();
+      if (!trimmed) return;
+
+      // Sub-headers (all-caps word + colon, standalone)
+      if (/^[A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ\s]{2,}:$/.test(trimmed)) {
+        var sh = body.appendParagraph(trimmed.slice(0, -1)); // remove trailing colon
+        sh.setHeading(DocumentApp.ParagraphHeading.HEADING2);
+        sh.editAsText().setForegroundColor('#b45309');
+      }
+      // Lean canvas KEY: value lines
+      else if (secKey === 'LEAN_CANVAS' && /^[A-ZÁÉÍÓÚÑ][^:]+:\s+\S/.test(trimmed)) {
+        var p = body.appendParagraph(trimmed);
+        p.setHeading(DocumentApp.ParagraphHeading.NORMAL);
+        var colonIdx = trimmed.indexOf(':');
+        if (colonIdx > 0) p.editAsText().setBold(0, colonIdx, true);
+      }
+      // Bullet points
+      else if (trimmed.charAt(0) === '•' || trimmed.charAt(0) === '-') {
+        var bp = body.appendParagraph(trimmed.replace(/^[•\-]\s*/, ''));
+        bp.setHeading(DocumentApp.ParagraphHeading.NORMAL);
+        bp.setIndentStart(20);
+      }
+      // Numbered items
+      else if (/^\d+\./.test(trimmed)) {
+        var np = body.appendParagraph(trimmed);
+        np.setHeading(DocumentApp.ParagraphHeading.NORMAL);
+        np.setIndentStart(20);
+      }
+      // Regular paragraph
+      else {
+        body.appendParagraph(trimmed);
+      }
+    });
+  }
+
+  var folder = getOrCreateSubfolder(FOLDER_NAME, 'Informes Diagnóstico');
+  DriveApp.getFileById(doc.getId()).moveTo(folder);
+  return { ok: true, url: doc.getUrl(), id: doc.getId() };
+}
+
+// ── PRESENTACIÓN DIAGNÓSTICO (Google Slides) ─────────────────────────
+function parseDiagBlocks(content) {
+  var blocks = (content || '').split(/\[SLIDE\]/g).filter(function(b){ return b.trim(); });
+  return blocks.map(function(block) {
+    var lines = block.trim().split('\n');
+    var obj = { type: '', title: '', subtitle: '', bullets: [], fields: {} };
+    var currentKey = null;
+    lines.forEach(function(line) {
+      var t = line.trim();
+      if (!t) return;
+      var m;
+      if ((m = t.match(/^TYPE:\s*(.+)$/)))     { obj.type     = m[1].toLowerCase().trim(); currentKey = null; return; }
+      if ((m = t.match(/^TITLE:\s*(.+)$/)))    { obj.title    = m[1]; currentKey = null; return; }
+      if ((m = t.match(/^SUBTITLE:\s*(.+)$/))) { obj.subtitle = m[1]; currentKey = null; return; }
+      if (t.charAt(0) === '\u2022') { obj.bullets.push(t.replace(/^\u2022\s*/, '')); currentKey = null; return; }
+      if ((m = t.match(/^([A-Z_ÁÉÍÓÚÑ]+):\s*(.+)$/))) {
+        obj.fields[m[1]] = m[2];
+        currentKey = m[1];
+        return;
+      }
+      // multi-line continuation
+      if (currentKey) obj.fields[currentKey] = (obj.fields[currentKey] || '') + ' ' + t;
+    });
+    return obj;
+  });
+}
+
+function createDiagSlides(data) {
+  var empresa = data.empresa || 'Cliente';
+  var mes     = data.mes || new Date().toLocaleDateString('es-AR', {month:'long', year:'numeric'});
+
+  var pres = SlidesApp.create('Diagnóstico 360° — ' + empresa + ' — ' + mes);
+  pres.getSlides().forEach(function(s){ s.remove(); });
+
+  var blocks = parseDiagBlocks(data.content || '');
+  blocks.forEach(function(block) {
+    var s = pres.appendSlide();
+    switch(block.type) {
+      case 'cover_diag':
+        buildCoverSlide(s, block.title || 'DIAGNÓSTICO 360°', block.subtitle || (empresa + '  ·  ' + mes));
+        break;
+      case 'lean_canvas':
+        buildLeanCanvasSlide(s, block, empresa);
+        break;
+      case 'foda':
+        buildFodaSlide(s, block, empresa);
+        break;
+      case 'resumen_ejecutivo':
+        buildContentSlide(s, 'Resumen ejecutivo', block.bullets || [], empresa);
+        break;
+      case 'radiografia':
+        buildRadiografiaSlide(s, block, empresa);
+        break;
+      case 'problemas':
+        buildContentSlide(s, 'Problemas identificados', block.bullets || [], empresa);
+        break;
+      case 'plan_accion':
+        buildContentSlide(s, 'Plan de acción', block.bullets || [], empresa);
+        break;
+      case 'proximos_pasos':
+        buildProximosPasosSlide(s, block, empresa);
+        break;
+      default:
+        buildContentSlide(s, block.title || block.type, block.bullets || [], empresa);
+    }
+  });
+
+  var folder = getOrCreateSubfolder(FOLDER_NAME, 'Presentaciones Diagnóstico');
+  DriveApp.getFileById(pres.getId()).moveTo(folder);
+  return { ok: true, url: pres.getUrl(), id: pres.getId() };
+}
+
+function buildLeanCanvasSlide(slide, block, empresa) {
+  slide.getBackground().setSolidFill(C_NAVY.red*255, C_NAVY.green*255, C_NAVY.blue*255);
+  var bar = slide.insertShape(SlidesApp.ShapeType.RECTANGLE, 0, 0, W, 4);
+  bar.getFill().setSolidFill(C_GOLD.red*255, C_GOLD.green*255, C_GOLD.blue*255);
+  bar.getBorder().getLineFill().setSolidFill(0,0,0,0);
+  sText(slide, 'LEAN CANVAS', 26, 10, W-52, 22, {size:14, bold:true, color:'#c9a96e', align:'CENTER'});
+  sText(slide, empresa, 26, 30, W-52, 16, {size:9, bold:false, color:'#8899bb', align:'CENTER'});
+
+  var fields = [
+    {key:'PROBLEMA',  label:'Problema'},
+    {key:'SEGMENTOS', label:'Segmentos'},
+    {key:'VALOR',     label:'Propuesta de valor'},
+    {key:'SOLUCION',  label:'Solución'},
+    {key:'CANALES',   label:'Canales'},
+    {key:'INGRESOS',  label:'Ingresos'},
+    {key:'COSTOS',    label:'Costos'},
+    {key:'METRICAS',  label:'Métricas'},
+  ];
+  var cols = 4, cellW = 172, cellH = 138, gap = 6, startX = 7, startY = 50;
+  fields.forEach(function(f, i) {
+    var col = i % cols, row = Math.floor(i / cols);
+    var x = startX + col * (cellW + gap), y = startY + row * (cellH + gap);
+    var cell = slide.insertShape(SlidesApp.ShapeType.RECTANGLE, x, y, cellW, cellH);
+    cell.getFill().setSolidFill(255, 255, 255, 0.07);
+    cell.getBorder().getLineFill().setSolidFill(201, 169, 110, 0.3);
+    sText(slide, f.label.toUpperCase(), x+6, y+6, cellW-12, 14, {size:7.5, bold:true, color:'#c9a96e', align:'LEFT'});
+    var val = block.fields[f.key] || '—';
+    sText(slide, val, x+6, y+22, cellW-12, cellH-28, {size:9.5, bold:false, color:'#faf9f7', align:'LEFT'});
+  });
+  addFooter(slide);
+}
+
+function buildFodaSlide(slide, block, empresa) {
+  slide.getBackground().setSolidFill(C_NAVY.red*255, C_NAVY.green*255, C_NAVY.blue*255);
+  var bar = slide.insertShape(SlidesApp.ShapeType.RECTANGLE, 0, 0, W, 4);
+  bar.getFill().setSolidFill(C_GOLD.red*255, C_GOLD.green*255, C_GOLD.blue*255);
+  bar.getBorder().getLineFill().setSolidFill(0,0,0,0);
+  sText(slide, 'ANÁLISIS FODA', 26, 10, W-52, 22, {size:14, bold:true, color:'#c9a96e', align:'CENTER'});
+  sText(slide, empresa, 26, 30, W-52, 16, {size:9, bold:false, color:'#8899bb', align:'CENTER'});
+
+  var quadrants = [
+    {key:'FORTALEZAS',    label:'Fortalezas',    r:39,  g:174, b:96,  x:6,   y:50},
+    {key:'OPORTUNIDADES', label:'Oportunidades', r:52,  g:152, b:219, x:363, y:50},
+    {key:'DEBILIDADES',   label:'Debilidades',   r:231, g:76,  b:60,  x:6,   y:222},
+    {key:'AMENAZAS',      label:'Amenazas',      r:230, g:126, b:34,  x:363, y:222},
+  ];
+  var qW = 351, qH = 165;
+  quadrants.forEach(function(q) {
+    var bg = slide.insertShape(SlidesApp.ShapeType.RECTANGLE, q.x, q.y, qW, qH);
+    bg.getFill().setSolidFill(255, 255, 255, 0.05);
+    bg.getBorder().getLineFill().setSolidFill(q.r, q.g, q.b, 0.4);
+    var tb = slide.insertShape(SlidesApp.ShapeType.RECTANGLE, q.x, q.y, qW, 3);
+    tb.getFill().setSolidFill(q.r, q.g, q.b);
+    tb.getBorder().getLineFill().setSolidFill(0,0,0,0);
+    var hexColor = '#' + ('0'+q.r.toString(16)).slice(-2) + ('0'+q.g.toString(16)).slice(-2) + ('0'+q.b.toString(16)).slice(-2);
+    sText(slide, q.label.toUpperCase(), q.x+8, q.y+6, qW-16, 14, {size:8.5, bold:true, color:hexColor, align:'LEFT'});
+    var items = (block.fields[q.key] || '').split('|').map(function(s){ return s.trim(); }).filter(Boolean);
+    var itemText = items.map(function(item){ return '• ' + item; }).join('\n');
+    sText(slide, itemText, q.x+8, q.y+22, qW-16, qH-28, {size:9, bold:false, color:'#faf9f7', align:'LEFT'});
+  });
+  addFooter(slide);
+}
+
+function buildRadiografiaSlide(slide, block, empresa) {
+  slide.getBackground().setSolidFill(C_CREAM.red*255, C_CREAM.green*255, C_CREAM.blue*255);
+  var bar = slide.insertShape(SlidesApp.ShapeType.RECTANGLE, 0, 0, W, 4);
+  bar.getFill().setSolidFill(C_GOLD.red*255, C_GOLD.green*255, C_GOLD.blue*255);
+  bar.getBorder().getLineFill().setSolidFill(0,0,0,0);
+  sText(slide, 'Radiografía del negocio — ' + empresa, 26, 10, W-52, 22, {size:13, bold:true, color:'#1b2340', align:'LEFT'});
+
+  var dims = [
+    {key:'FINANZAS',    label:'Finanzas'},
+    {key:'OPERACIONES', label:'Operaciones'},
+    {key:'GESTION',     label:'Gestión'},
+    {key:'ESTRATEGIA',  label:'Estrategia'},
+  ];
+  var rowY = 40, rowH = 76;
+  dims.forEach(function(dim, i) {
+    var y = rowY + i * rowH;
+    sText(slide, dim.label, 26, y+4, 88, 18, {size:10, bold:true, color:'#1b2340', align:'LEFT'});
+    var text = block.fields[dim.key] || '';
+    sText(slide, text, 118, y+2, W-144, 68, {size:10, bold:false, color:'#333333', align:'LEFT'});
+    if (i < dims.length - 1) {
+      var div = slide.insertShape(SlidesApp.ShapeType.RECTANGLE, 26, y+rowH-2, W-52, 1);
+      div.getFill().setSolidFill(201, 169, 110, 0.3);
+      div.getBorder().getLineFill().setSolidFill(0,0,0,0);
+    }
+  });
+  addFooter(slide);
+}
+
+function buildProximosPasosSlide(slide, block, empresa) {
+  slide.getBackground().setSolidFill(C_NAVY.red*255, C_NAVY.green*255, C_NAVY.blue*255);
+  var bar = slide.insertShape(SlidesApp.ShapeType.RECTANGLE, 0, 0, W, 4);
+  bar.getFill().setSolidFill(C_GOLD.red*255, C_GOLD.green*255, C_GOLD.blue*255);
+  bar.getBorder().getLineFill().setSolidFill(0,0,0,0);
+  sText(slide, 'PRÓXIMOS PASOS', 26, 12, W-52, 26, {size:15, bold:true, color:'#c9a96e', align:'CENTER'});
+  var div = slide.insertShape(SlidesApp.ShapeType.RECTANGLE, W/2-50, 42, 100, 2);
+  div.getFill().setSolidFill(C_GOLD.red*255, C_GOLD.green*255, C_GOLD.blue*255);
+  div.getBorder().getLineFill().setSolidFill(0,0,0,0);
+
+  var bullets = block.bullets || [];
+  var topY = 56, stepH = 52;
+  bullets.forEach(function(b, i) {
+    var y = topY + i * stepH;
+    var circ = slide.insertShape(SlidesApp.ShapeType.ELLIPSE, 30, y, 26, 26);
+    circ.getFill().setSolidFill(C_GOLD.red*255, C_GOLD.green*255, C_GOLD.blue*255);
+    circ.getBorder().getLineFill().setSolidFill(0,0,0,0);
+    sText(slide, String(i+1), 30, y, 26, 26, {size:10, bold:true, color:'#1b2340', align:'CENTER'});
+    sText(slide, b, 66, y+2, W-90, 24, {size:11, bold:false, color:'#faf9f7', align:'LEFT'});
+  });
+
+  sText(slide, 'ME CONSULTORA  ·  melisaeguen@gmail.com  ·  +54 9 351 305 0183', 0, H-40, W, 16, {size:8.5, bold:false, color:'#c9a96e', align:'CENTER'});
+  addFooter(slide);
+}
+
+// ── PRESUPUESTO IMPLEMENTACIÓN (reutiliza createPresupuesto con título distinto) ──
+function createPresupuestoImpl(data) {
+  data.titleOverride = 'PROPUESTA DE\nIMPLEMENTACIÓN';
+  return createPresupuesto(data);
 }
 
 // ── TEST FUNCTION (run manually in editor) ───────────────────────────
