@@ -688,8 +688,10 @@ function createFrameworkDoc(data) {
   lines.forEach(function(line) {
     var trimmed = line.trim();
     if (!trimmed) return;
-    var isDimHeader = /^(FINANZAS|OPERACIONES|GESTIÓN|GESTION|ESTRATEGIA)/i.test(trimmed);
-    if (isDimHeader) {
+    // Detectar headers de sección: "SECCIÓN X — NOMBRE" o dimensiones solas
+    var isSectionHeader = /^SECCI[ÓO]N\s+\d/i.test(trimmed) ||
+      /^(FINANZAS|OPERACIONES|GESTIÓN|GESTION|ESTRATEGIA|CONTEXTO|CIERRE)/i.test(trimmed);
+    if (isSectionHeader) {
       body.appendParagraph('');
       var hPar = body.appendParagraph(trimmed);
       hPar.setHeading(DocumentApp.ParagraphHeading.HEADING2);
