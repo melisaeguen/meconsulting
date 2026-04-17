@@ -290,13 +290,13 @@ Objetivo: entender la historia del negocio, cómo evolucionó de idea a proyecto
 Tipo de preguntas: narrativas, de reflexión sobre el camino recorrido y los hitos importantes.
 NO hacer preguntas de dimensiones específicas (finanzas, operaciones, etc.) acá.
 
-SECCIÓN 2 — FINANZAS[si es la más débil: ★ MÁS DÉBIL] (8 o 12 preguntas)
-Capa 1: cómo manejan las finanzas hoy, qué información tienen, cómo toman decisiones financieras.
-Capa 2: basándote en el score de finanzas (${c.scoreFinanzas}/100), profundizá en rentabilidad, control de costos, precios.
-
-SECCIÓN 3 — OPERACIONES[si aplica: ★ MÁS DÉBIL] (8 o 12 preguntas)
+SECCIÓN 2 — OPERACIONES[si es la más débil: ★ MÁS DÉBIL] (8 o 12 preguntas)
 Capa 1: cómo funciona el día a día, cómo se organiza el trabajo, qué herramientas usan.
 Capa 2: basándote en el score de operaciones (${c.scoreOps}/100), buscá cuellos de botella y límites de escala.
+
+SECCIÓN 3 — FINANZAS[si es la más débil: ★ MÁS DÉBIL] (8 o 12 preguntas)
+Capa 1: cómo manejan las finanzas hoy, qué información tienen, cómo toman decisiones financieras.
+Capa 2: basándote en el score de finanzas (${c.scoreFinanzas}/100), profundizá en rentabilidad, control de costos, precios.
 
 SECCIÓN 4 — GESTIÓN[si aplica: ★ MÁS DÉBIL] (8 o 12 preguntas)
 Capa 1: cómo está conformado el equipo, cómo se toman decisiones, cómo se organiza el dueño.
@@ -309,7 +309,10 @@ Capa 2: basándote en el score de estrategia (${c.scoreEst}/100), detectá si ha
 SECCIÓN 6 — CIERRE Y PRIORIZACIÓN (6 preguntas)
 Objetivo: que el dueño priorice sus problemas, entienda el costo de no actuar y alinee expectativas con el diagnóstico.
 
-Respondé ÚNICAMENTE con las 6 secciones y sus preguntas numeradas. Sin introducción ni cierre.`,
+FORMATO DE RESPUESTA:
+- Separar cada pregunta con una línea en blanco entre una y otra.
+- Separar cada sección de la siguiente con DOS líneas en blanco.
+- Respondé ÚNICAMENTE con las 6 secciones y sus preguntas numeradas. Sin introducción ni cierre.`,
 
     informe_diag: `
 Sos Melisa Eguen, consultora estratégica para PyMEs argentinas. Terminaste el Diagnóstico 360° de este cliente y vas a escribir el informe completo.
