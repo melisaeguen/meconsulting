@@ -262,51 +262,52 @@ ALERTAS:
     // ── STAGE 3: DIAGNÓSTICO 360° ─────────────────────────────────────────────
 
     framework: `
-Sos una consultora estratégica senior con perfil McKinsey/BCG especializada en PyMEs argentinas.
-Tu objetivo es construir un diagnóstico 360° real del negocio a través de 2 horas de entrevista profunda con el dueño.
+Sos una consultora estratégica senior especializada en PyMEs argentinas.
+Tu objetivo es construir un diagnóstico 360° real del negocio a través de 2 horas de entrevista con el dueño.
 
 ${context}
 
-TRANSCRIPT DE LA SESIÓN ESTRATÉGICA (ya tuviste una primera reunión con este cliente):
+TRANSCRIPT DE LA SESIÓN ESTRATÉGICA (ya tuviste una primera reunión):
 ${c.transcript || '(sin transcript disponible)'}
 
-Generá un framework de preguntas de diagnóstico profesional. Las preguntas deben construir una historia progresiva del negocio y detectar problemas estructurales reales.
+LÓGICA DE LAS PREGUNTAS — MUY IMPORTANTE:
+Las preguntas tienen que seguir una lógica de dos capas dentro de cada sección:
+- CAPA 1 (primeras preguntas): entender la base real del negocio. No asumas nada. El test da señales pero no confirmaciones. Empezá desde lo que el dueño vive, no desde lo que vos creés que pasa.
+- CAPA 2 (últimas preguntas de la sección): basándote en lo que ya sabés del test y la sesión anterior, profundizá en los puntos débiles específicos de ESTE negocio.
 
-REGLAS CRÍTICAS DE CALIDAD:
-1. PROHIBIDO: preguntas de sí/no ("¿Tenés X?", "¿Usás X?"). Todo debe ser abierto.
-2. PROHIBIDO: preguntas puramente descriptivas ("¿Qué hacés?", "¿Cuántos clientes tenés?"). Eso ya lo sabés.
-3. CADA pregunta debe servir para detectar al menos uno de estos:
-   - Un problema estructural escondido detrás de lo que dicen
-   - Una decisión mal tomada o postergada
-   - Un cuello de botella que limita el crecimiento
-   - Algo que el dueño no sabe o no mide y debería
-4. INCLUIR preguntas que generen insight real, no solo datos. Ejemplos del tipo que necesitás:
-   - No "¿cómo fijás precios?" sino "¿cuándo fue la última vez que subiste precios y qué te frenó?"
-   - No "¿tenés equipo?" sino "¿qué pasa en el negocio cuando vos no estás un día entero?"
-   - No "¿tenés competencia?" sino "¿por qué un cliente elegiría a otro en vez de a vos?"
-5. USAR el contexto del cliente: los scores del test, el problema declarado y la sesión anterior para hacer preguntas específicas de ESTE negocio, no genéricas.
-6. La dimensión más débil es ${weakest} — profundizá más ahí (más preguntas y más incisivas).
-7. Tono directo, simple y accionable. Sin academicismo ni tecnicismos.
+REGLAS DE CALIDAD:
+1. Las preguntas de la Capa 1 deben ser abiertas y exploratorias. Evitá los sí/no.
+2. Las preguntas de la Capa 2 deben ser más incisivas: exponer puntos ciegos, decisiones postergadas, cosas que no miden y deberían.
+3. NO hagas suposiciones graves sin base. Si el score de finanzas es bajo, preguntá primero cómo manejan las finanzas antes de asumir que no pueden pagar sueldos.
+4. Usá el contexto del cliente para hacer preguntas específicas de su industria y situación, no genéricas.
+5. La dimensión más débil es ${weakest} — dale más preguntas y más profundidad en esa sección.
+6. Tono directo, simple y conversacional. Sin academicismo ni tecnicismos.
 
 ESTRUCTURA: 6 secciones en este orden exacto:
 
 SECCIÓN 1 — CONTEXTO Y EVOLUCIÓN (8 preguntas)
-Objetivo: entender la historia real, decisiones clave y mentalidad del fundador.
+Objetivo: entender la historia del negocio, cómo evolucionó de idea a proyecto a empresa, qué motivó al dueño, qué oportunidades o problemas encontraron, y cómo ven el negocio hoy en general.
+Tipo de preguntas: narrativas, de reflexión sobre el camino recorrido y los hitos importantes.
+NO hacer preguntas de dimensiones específicas (finanzas, operaciones, etc.) acá.
 
 SECCIÓN 2 — FINANZAS[si es la más débil: ★ MÁS DÉBIL] (8 o 12 preguntas)
-Objetivo: detectar si el negocio es realmente rentable, si hay control real, y dónde se pierde plata.
+Capa 1: cómo manejan las finanzas hoy, qué información tienen, cómo toman decisiones financieras.
+Capa 2: basándote en el score de finanzas (${c.scoreFinanzas}/100), profundizá en rentabilidad, control de costos, precios.
 
 SECCIÓN 3 — OPERACIONES[si aplica: ★ MÁS DÉBIL] (8 o 12 preguntas)
-Objetivo: encontrar los cuellos de botella reales que limitan la escala.
+Capa 1: cómo funciona el día a día, cómo se organiza el trabajo, qué herramientas usan.
+Capa 2: basándote en el score de operaciones (${c.scoreOps}/100), buscá cuellos de botella y límites de escala.
 
 SECCIÓN 4 — GESTIÓN[si aplica: ★ MÁS DÉBIL] (8 o 12 preguntas)
-Objetivo: entender si el negocio depende del dueño y qué lo frena para soltar el control.
+Capa 1: cómo está conformado el equipo, cómo se toman decisiones, cómo se organiza el dueño.
+Capa 2: basándote en el score de gestión (${c.scoreGestion}/100), explorá dependencia del dueño y capacidad de delegación.
 
 SECCIÓN 5 — ESTRATEGIA[si aplica: ★ MÁS DÉBIL] (8 o 12 preguntas)
-Objetivo: detectar si hay una dirección clara o si se reacciona sin rumbo.
+Capa 1: hacia dónde va el negocio, qué quieren lograr, cómo se ven en el mercado.
+Capa 2: basándote en el score de estrategia (${c.scoreEst}/100), detectá si hay dirección real o si se reacciona sin rumbo.
 
 SECCIÓN 6 — CIERRE Y PRIORIZACIÓN (6 preguntas)
-Objetivo: forzar al dueño a priorizar, dimensionar el costo de no actuar y alinear expectativas.
+Objetivo: que el dueño priorice sus problemas, entienda el costo de no actuar y alinee expectativas con el diagnóstico.
 
 Respondé ÚNICAMENTE con las 6 secciones y sus preguntas numeradas. Sin introducción ni cierre.`,
 
