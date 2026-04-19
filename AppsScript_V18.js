@@ -731,13 +731,18 @@ function createInformeDoc(data) {
   s.setHeading(DocumentApp.ParagraphHeading.SUBTITLE);
 
   var sectionNames = {
-    'FODA':             'Análisis FODA',
-    'LEAN_CANVAS':      'Lean Canvas',
+    'FODA':             'Fortalezas, Debilidades, Oportunidades y Amenazas',
+    'LEAN_CANVAS':      'Mapa del Modelo de Negocio',
     'REPORTE_EJECUTIVO':'Reporte Ejecutivo',
     'RADIOGRAFIA':      'Radiografía del Negocio',
-    'BENCHMARKING':     'Benchmarking y Competencia',
-    'PROBLEMAS':        'Problemas Estructurales Identificados',
+    'BENCHMARKING':     'Contexto y Comparación con el Mercado',
+    'PROBLEMAS':        'Problemas Principales Identificados',
     'PLAN_ACCION':      'Plan de Acción Priorizado',
+  };
+
+  var sectionDescriptions = {
+    'LEAN_CANVAS': 'Una mirada simplificada del negocio en una sola página: qué problema resuelve, a quién le apunta, cómo genera valor y cómo gana dinero. Sirve para ver rápido si el modelo tiene sentido y dónde están las oportunidades de mejora.',
+    'FODA':        'Un resumen de la situación actual del negocio: qué está haciendo bien, qué necesita mejorar, qué oportunidades tiene por delante y qué riesgos enfrenta. Sirve como punto de partida para tomar decisiones con claridad.',
   };
 
   // Split by [SECTION] markers
@@ -751,6 +756,13 @@ function createInformeDoc(data) {
     var h = body.appendParagraph(sectionNames[secKey] || secKey);
     h.setHeading(DocumentApp.ParagraphHeading.HEADING1);
     h.editAsText().setForegroundColor('#1b2340');
+
+    if (sectionDescriptions[secKey]) {
+      var desc = body.appendParagraph(sectionDescriptions[secKey]);
+      desc.setHeading(DocumentApp.ParagraphHeading.NORMAL);
+      desc.editAsText().setItalic(true).setForegroundColor('#555555');
+      body.appendParagraph('');
+    }
 
     var lines = secContent.split('\n');
     lines.forEach(function(line) {

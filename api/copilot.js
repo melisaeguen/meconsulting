@@ -332,6 +332,19 @@ Generá el informe completo del Diagnóstico 360°. Todo en español, lenguaje c
 
 Respondé ÚNICAMENTE con este formato (no agregues texto antes ni después):
 
+[REPORTE_EJECUTIVO]
+[3-4 párrafos de síntesis ejecutiva. Qué está funcionando, qué no, y cuál es el diagnóstico general. 200-250 palabras.]
+
+[LEAN_CANVAS]
+PROBLEMA PRINCIPAL: [descripción del problema central que resuelve el negocio]
+SEGMENTOS DE CLIENTES: [quiénes son sus clientes]
+PROPUESTA DE VALOR: [qué valor único ofrece]
+SOLUCIÓN: [cómo resuelve el problema]
+CANALES: [cómo llega a sus clientes]
+FUENTES DE INGRESOS: [cómo genera dinero]
+ESTRUCTURA DE COSTOS: [principales costos del negocio]
+MÉTRICAS CLAVE: [qué medir para saber si el negocio funciona]
+
 [FODA]
 FORTALEZAS:
 • [fortaleza concreta del negocio]
@@ -351,19 +364,6 @@ AMENAZAS:
 • [amenaza concreta]
 • [amenaza concreta]
 • [amenaza concreta]
-
-[LEAN_CANVAS]
-PROBLEMA PRINCIPAL: [descripción del problema central que resuelve el negocio]
-SEGMENTOS DE CLIENTES: [quiénes son sus clientes]
-PROPUESTA DE VALOR: [qué valor único ofrece]
-SOLUCIÓN: [cómo resuelve el problema]
-CANALES: [cómo llega a sus clientes]
-FUENTES DE INGRESOS: [cómo genera dinero]
-ESTRUCTURA DE COSTOS: [principales costos del negocio]
-MÉTRICAS CLAVE: [qué medir para saber si el negocio funciona]
-
-[REPORTE_EJECUTIVO]
-[3-4 párrafos de síntesis ejecutiva. Qué está funcionando, qué no, y cuál es el diagnóstico general. 200-250 palabras.]
 
 [RADIOGRAFIA]
 FINANZAS:
