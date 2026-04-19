@@ -494,7 +494,11 @@ ${context}
 TRANSCRIPT DE LA SESIÓN ESTRATÉGICA:
 ${c.transcript || '(sin transcript disponible)'}
 
+SOLUCIONES A IMPLEMENTAR (definidas para este cliente):
+${c.soluciones || '(no especificadas)'}
+
 Generá el contenido variable para la propuesta comercial del Diseño e Implementación de Soluciones.
+Usá las soluciones listadas arriba como referencia concreta de lo que se va a hacer.
 
 REGLAS ESTRICTAS:
 - Usá toda la información disponible del cliente para dar observaciones específicas y concretas.
