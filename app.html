@@ -1324,6 +1324,15 @@ function renderImplCalc(email) {
           placeholder="Listá las soluciones a implementar, una por línea. Ej:&#10;• Implementación de tablero de control financiero&#10;• Rediseño del proceso de ventas&#10;• Sistema de seguimiento de clientes"
           oninput="saveSolucionesImpl('${email}')">${esc(soluciones)}</textarea>
       </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#1b2340;white-space:nowrap">
+          Tiempo de diseño e implementación
+        </div>
+        <input type="number" id="hi-meses" value="${meses}" min="1" max="24"
+          style="width:60px;padding:7px 10px;border:1.5px solid #ddd;border-radius:8px;font-size:13px;font-family:inherit;color:#1b2340;background:#faf9f7;text-align:center"
+          oninput="saveMesesImpl('${email}')"/>
+        <span style="font-size:13px;color:#666">meses</span>
+      </div>
       <div class="calc-grid">
         <span class="calc-lbl">Diseño de soluciones</span>
         <input class="calc-inp" type="number" id="hi-diseno" value="${h.impl_diseno}" min="1" max="60" oninput="updateImplCalc('${email}')"/>
@@ -1337,9 +1346,6 @@ function renderImplCalc(email) {
         <span class="calc-lbl">Seguimiento</span>
         <input class="calc-inp" type="number" id="hi-seguimiento" value="${h.impl_seguimiento}" min="1" max="60" oninput="updateImplCalc('${email}')"/>
         <span class="calc-unit">hs</span>
-        <span class="calc-lbl">Tiempo de diseño e implementación</span>
-        <input class="calc-inp" type="number" id="hi-meses" value="${meses}" min="1" max="24" oninput="updateImplCalc('${email}')"/>
-        <span class="calc-unit">meses</span>
       </div>
       <div class="calc-total-row">
         <span>Total: <span id="impl-total-hs">${total}</span> horas</span>
@@ -1366,13 +1372,19 @@ function updateImplCalc(email) {
     impl_capacitacion:   Number(document.getElementById('hi-capacitacion')?.value)||0,
     impl_seguimiento:    Number(document.getElementById('hi-seguimiento')?.value)||0,
   };
-  const meses = Number(document.getElementById('hi-meses')?.value)||2;
   const total = Object.values(h).reduce((a,b)=>a+b,0);
   const el1 = document.getElementById('impl-total-hs');
   const el2 = document.getElementById('impl-total-price');
   if(el1) el1.textContent = total;
   if(el2) el2.textContent = (total*40000).toLocaleString('es-AR');
-  const ao = {...(getCRM(email).aiOutputs||{}), impl_hours:h, impl_meses:meses};
+  const ao = {...(getCRM(email).aiOutputs||{}), impl_hours:h};
+  S.crm[email] = {...getCRM(email), aiOutputs:ao};
+  markDirty();
+}
+
+function saveMesesImpl(email) {
+  const meses = Number(document.getElementById('hi-meses')?.value)||2;
+  const ao = {...(getCRM(email).aiOutputs||{}), impl_meses:meses};
   S.crm[email] = {...getCRM(email), aiOutputs:ao};
   markDirty();
 }
