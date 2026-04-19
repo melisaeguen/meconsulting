@@ -1017,23 +1017,18 @@ function buildSolucionesDimSlide(slide, titulo, content, empresa) {
 
   // Parse bullets: "• Nombre: descripción"
   var lines = (content || '').split('\n').map(function(l){return l.trim();}).filter(function(l){return l.startsWith('•');});
-  var rowY = 64;
-  var rowH = 44;
+  var rowY = 66;
+  var rowH = 34;
   lines.forEach(function(line) {
-    var text = line.replace(/^•\s*/, '');
-    var colonIdx = text.indexOf(':');
-    var nombre = colonIdx > 0 ? text.slice(0, colonIdx).trim() : text;
-    var desc   = colonIdx > 0 ? text.slice(colonIdx+1).trim() : '';
+    var nombre = line.replace(/^•\s*/, '').replace(/:.*$/, '').trim();
 
     // Gold dot
-    var dot = slide.insertShape(SlidesApp.ShapeType.ELLIPSE, 30, rowY+7, 8, 8);
+    var dot = slide.insertShape(SlidesApp.ShapeType.ELLIPSE, 30, rowY+5, 8, 8);
     dot.getFill().setSolidFill(C_GOLD.red*255, C_GOLD.green*255, C_GOLD.blue*255);
     dot.getBorder().getLineFill().setSolidFill(0,0,0,0);
 
-    // Nombre en gold bold
-    sText(slide, nombre, 46, rowY, W-80, 18, {size:11, bold:true, color:'#c9a96e', align:'LEFT'});
-    // Descripción en cream
-    if (desc) sText(slide, desc, 46, rowY+17, W-80, 24, {size:9.5, bold:false, color:'#faf9f7', align:'LEFT'});
+    // Nombre en blanco
+    sText(slide, nombre, 46, rowY, W-80, 22, {size:12, bold:false, color:'#faf9f7', align:'LEFT'});
 
     rowY += rowH;
   });

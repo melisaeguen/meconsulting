@@ -520,19 +520,18 @@ Tu tarea es organizar y detallar las soluciones en dos slides, agrupadas por ár
 
 REGLAS:
 - Solo español. Sin tecnicismos ni palabras en inglés.
-- Cada solución tiene un nombre corto (2-5 palabras) y una descripción de 20-30 palabras que explica qué se implementa y qué resultado concreto produce.
-- Si alguna solución no encaja claramente en un área, asignala donde tenga más sentido.
-- Concreto y específico para este negocio. Nada genérico.
+- Tomá las soluciones tal como están escritas. No las modifiques ni agregues texto.
+- Si alguna no encaja claramente en un área, asignala donde tenga más sentido.
 
 Respondé ÚNICAMENTE con este formato (sin texto antes ni después):
 
 SOLUCIONES_EST_FIN:
-• [Nombre de la solución]: [descripción de 20-30 palabras]
-• [Nombre de la solución]: [descripción de 20-30 palabras]
+• [Nombre de la solución, tal como está en el listado]
+• [Nombre de la solución]
 
 SOLUCIONES_OPS_GES:
-• [Nombre de la solución]: [descripción de 20-30 palabras]
-• [Nombre de la solución]: [descripción de 20-30 palabras]`,
+• [Nombre de la solución, tal como está en el listado]
+• [Nombre de la solución]`,
 
     // ── STAGE 4: IMPLEMENTACIÓN ───────────────────────────────────────────────
     hitos: `
