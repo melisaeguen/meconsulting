@@ -1101,7 +1101,7 @@ function createPresupuestoImpl(data) {
   };
 
   var pres = SlidesApp.create('Propuesta Implementación — ' + empresa + ' — ' + mes);
-  pres.getSlides().forEach(function(s){ pres.removeSlide(s); });
+  pres.getSlides().forEach(function(s){ s.remove(); });
 
   // Slide 1: Cover
   var s1 = pres.appendSlide();
