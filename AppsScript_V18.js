@@ -576,7 +576,8 @@ function parseSlideBlocks(content) {
   const blocks = (content || '').split(/\[SLIDE\]/g).filter(b => b.trim());
   return blocks.map(function(block) {
     var lines   = block.trim().split('\n');
-    var slide   = { title: '', type: '', subtitle: '', highlight: '', bullets: [] };
+    var slide   = { title: '', type: '', subtitle: '', highlight: '', meses: '', bullets: [], rawContent: '' };
+    var rawLines = [];
     lines.forEach(function(line) {
       var t = line.trim();
       if (!t) return;
@@ -587,11 +588,13 @@ function parseSlideBlocks(content) {
       if ((m = t.match(/^HIGHLIGHT:\s*(.+)$/)))  { slide.highlight = m[1]; return; }
       if ((m = t.match(/^HORAS:\s*(.+)$/)))      { slide.horas     = m[1]; return; }
       if ((m = t.match(/^TOTAL:\s*(.+)$/)))      { slide.total     = m[1]; return; }
+      if ((m = t.match(/^MESES:\s*(.+)$/)))      { slide.meses     = m[1]; return; }
       if (t.charAt(0) === '\u2022') {
-        // bullet line: strip the • and optional space
         slide.bullets.push(t.replace(/^\u2022\s*/, ''));
+        rawLines.push(t);
       }
     });
+    slide.rawContent = rawLines.join('\n');
     return slide;
   });
 }
@@ -994,10 +997,133 @@ function buildProximosPasosSlide(slide, block, empresa) {
   addFooter(slide);
 }
 
-// ── PRESUPUESTO IMPLEMENTACIÓN (reutiliza createPresupuesto con título distinto) ──
+// ── SLIDE: SOLUCIONES POR DIMENSIÓN ─────────────────────────────────────────
+function buildSolucionesDimSlide(slide, titulo, content, empresa) {
+  slide.getBackground().setSolidFill(C_NAVY.red*255, C_NAVY.green*255, C_NAVY.blue*255);
+
+  // Gold bar top
+  var bar = slide.insertShape(SlidesApp.ShapeType.RECTANGLE, 0, 0, W, 4);
+  bar.getFill().setSolidFill(C_GOLD.red*255, C_GOLD.green*255, C_GOLD.blue*255);
+  bar.getBorder().getLineFill().setSolidFill(0,0,0,0);
+
+  // Title
+  sText(slide, titulo, 30, 12, W-60, 22, {size:13, bold:true, color:'#c9a96e', align:'LEFT'});
+  sText(slide, empresa, 30, 32, W-60, 14, {size:8.5, bold:false, color:'#8899bb', align:'LEFT'});
+
+  // Divider
+  var div = slide.insertShape(SlidesApp.ShapeType.RECTANGLE, 30, 52, W-60, 1);
+  div.getFill().setSolidFill(C_GOLD.red*255, C_GOLD.green*255, C_GOLD.blue*255);
+  div.getBorder().getLineFill().setSolidFill(0,0,0,0);
+
+  // Parse bullets: "• Nombre: descripción"
+  var lines = (content || '').split('\n').map(function(l){return l.trim();}).filter(function(l){return l.startsWith('•');});
+  var rowY = 64;
+  var rowH = 44;
+  lines.forEach(function(line) {
+    var text = line.replace(/^•\s*/, '');
+    var colonIdx = text.indexOf(':');
+    var nombre = colonIdx > 0 ? text.slice(0, colonIdx).trim() : text;
+    var desc   = colonIdx > 0 ? text.slice(colonIdx+1).trim() : '';
+
+    // Gold dot
+    var dot = slide.insertShape(SlidesApp.ShapeType.ELLIPSE, 30, rowY+7, 8, 8);
+    dot.getFill().setSolidFill(C_GOLD.red*255, C_GOLD.green*255, C_GOLD.blue*255);
+    dot.getBorder().getLineFill().setSolidFill(0,0,0,0);
+
+    // Nombre en gold bold
+    sText(slide, nombre, 46, rowY, W-80, 18, {size:11, bold:true, color:'#c9a96e', align:'LEFT'});
+    // Descripción en cream
+    if (desc) sText(slide, desc, 46, rowY+17, W-80, 24, {size:9.5, bold:false, color:'#faf9f7', align:'LEFT'});
+
+    rowY += rowH;
+  });
+
+  addFooter(slide);
+}
+
+// ── SLIDE: INVERSIÓN IMPLEMENTACIÓN ─────────────────────────────────────────
+function buildInversionImplSlide(slide, total, meses) {
+  slide.getBackground().setSolidFill(C_NAVY.red*255, C_NAVY.green*255, C_NAVY.blue*255);
+
+  // Title
+  sText(slide, 'INVERSIÓN', 26, 15, W-52, 20, {size:14, bold:true, color:'#c9a96e', align:'CENTER'});
+
+  // Large price
+  var priceStr = '$' + Number(total).toLocaleString('es-AR');
+  sText(slide, priceStr, 26, 42, W-52, 70, {size:52, bold:true, color:'#faf9f7', align:'CENTER'});
+
+  // Phrase
+  sText(slide,
+    'Las mejores estrategias no son las más complejas, sino las que se ejecutan. Nuestro foco está en convertir ideas en resultados concretos.',
+    80, 122, W-160, 38,
+    {size:10, bold:false, color:'#c9a96e', italic:true, align:'CENTER'});
+
+  // Divider
+  var div = slide.insertShape(SlidesApp.ShapeType.RECTANGLE, W/2-80, 167, 160, 1);
+  div.getFill().setSolidFill(C_GOLD.red*255, C_GOLD.green*255, C_GOLD.blue*255);
+  div.getBorder().getLineFill().setSolidFill(0,0,0,0);
+
+  // Forma de pago
+  var mesesNum = Number(meses) || 2;
+  var cuota = Math.round(Number(total) / mesesNum);
+  var pagoStr = 'Forma de pago: ' + mesesNum + ' pagos de $' + cuota.toLocaleString('es-AR');
+  sText(slide, pagoStr, 60, 175, W-120, 20, {size:10.5, bold:false, color:'#faf9f7', align:'CENTER'});
+
+  // Disclaimer 1
+  sText(slide,
+    'Los plazos indicados corresponden a estimaciones bajo condiciones normales de trabajo. La velocidad de implementación dependerá del nivel de involucramiento del cliente, disponibilidad de información y capacidad de ejecución interna.',
+    50, 205, W-100, 50,
+    {size:8.5, bold:false, color:'#8899bb', align:'CENTER'});
+
+  // Disclaimer 2
+  sText(slide,
+    'El presupuesto incluye una cantidad estimada de horas de consultoría para el diseño e implementación. Cualquier requerimiento adicional o fuera del alcance definido podrá ser cotizado por separado.',
+    50, 262, W-100, 44,
+    {size:8.5, bold:false, color:'#8899bb', align:'CENTER'});
+
+  addFooter(slide);
+}
+
+// ── PRESUPUESTO IMPLEMENTACIÓN ───────────────────────────────────────────────
 function createPresupuestoImpl(data) {
-  data.titleOverride = 'PROPUESTA DE\nIMPLEMENTACIÓN';
-  return createPresupuesto(data);
+  var empresa = data.empresa || 'Cliente';
+  var mes     = data.mes || new Date().toLocaleDateString('es-AR', {month:'long', year:'numeric'});
+  var total   = data.total || 0;
+  var meses   = data.meses || 2;
+
+  var slideBlocks = parseSlideBlocks(data.content || '');
+
+  var findByType = function(type) {
+    return slideBlocks.find(function(s){ return s.type === type; }) || {};
+  };
+  var findAllByType = function(type) {
+    return slideBlocks.filter(function(s){ return s.type === type; });
+  };
+
+  var pres = SlidesApp.create('Propuesta Implementación — ' + empresa + ' — ' + mes);
+  pres.getSlides().forEach(function(s){ pres.removeSlide(s); });
+
+  // Slide 1: Cover
+  var s1 = pres.appendSlide();
+  buildCoverSlide(s1, 'PROPUESTA DE\nIMPLEMENTACIÓN', empresa + '  ·  ' + mes);
+
+  // Slides 2 y 3: Soluciones por dimensión
+  var dimSlides = findAllByType('soluciones_dim');
+  dimSlides.forEach(function(block) {
+    var s = pres.appendSlide();
+    buildSolucionesDimSlide(s, block.title || 'Soluciones', block.rawContent || '', empresa);
+  });
+
+  // Slide 4: Inversión
+  var s4 = pres.appendSlide();
+  buildInversionImplSlide(s4, total, meses);
+
+  // Mover a carpeta ME Consultora
+  var folders = DriveApp.getFoldersByName(FOLDER_NAME);
+  var folder  = folders.hasNext() ? folders.next() : DriveApp.createFolder(FOLDER_NAME);
+  DriveApp.getFileById(pres.getId()).moveTo(folder);
+
+  return { url: pres.getUrl() };
 }
 
 // ── TEST FUNCTION (run manually in editor) ───────────────────────────

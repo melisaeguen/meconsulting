@@ -61,7 +61,7 @@ export default async function handler(req, res) {
     // el modelo solo generó el contenido variable
     let result = raw;
     if (action === 'presupuesto')        result = assemblePresupuesto(raw, client);
-    if (action === 'presupuesto_impl')   result = assemblePresupuesto(raw, client);
+    if (action === 'presupuesto_impl')   result = assemblePresupuestoImpl(raw, client);
     if (action === 'presentacion_diag')  result = assemblePresentacionDiag(raw, client);
 
     return res.status(200).json({ result });
@@ -119,6 +119,23 @@ function assemblePresupuesto(raw, c) {
 
     // Slide 5 — inversión (solo el precio es variable, resto fijo en Apps Script)
     `[SLIDE]\nTITLE: INVERSIÓN\nHIGHLIGHT: ${precio}\nTYPE: inversion`,
+  ];
+
+  return slides.join('\n\n');
+}
+
+function assemblePresupuestoImpl(raw, c) {
+  const f       = parseFields(raw);
+  const empresa = c.empresa || '';
+  const mes     = new Date().toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
+  const precio  = c.price ? `$${Number(c.price).toLocaleString('es-AR')}` : '$—';
+  const meses   = c.meses || 2;
+
+  const slides = [
+    `[SLIDE]\nTYPE: cover\nTITLE: PROPUESTA DE\nIMPLEMENTACIÓN\nSUBTITLE: ${empresa}  ·  ${mes}`,
+    `[SLIDE]\nTYPE: soluciones_dim\nTITLE: Soluciones · Estrategia y Finanzas\n${f.SOLUCIONES_EST_FIN || ''}`,
+    `[SLIDE]\nTYPE: soluciones_dim\nTITLE: Soluciones · Operaciones y Gestión\n${f.SOLUCIONES_OPS_GES || ''}`,
+    `[SLIDE]\nTYPE: inversion_impl\nTITLE: INVERSIÓN\nHIGHLIGHT: ${precio}\nMESES: ${meses}`,
   ];
 
   return slides.join('\n\n');
@@ -497,33 +514,25 @@ ${c.transcript || '(sin transcript disponible)'}
 SOLUCIONES A IMPLEMENTAR (definidas para este cliente):
 ${c.soluciones || '(no especificadas)'}
 
-TIEMPO ESTIMADO DE DISEÑO E IMPLEMENTACIÓN: ${c.meses || '?'} meses
+TIEMPO DE IMPLEMENTACIÓN: ${c.meses || '?'} meses
 
-Generá el contenido variable para la propuesta comercial del Diseño e Implementación de Soluciones.
-Usá las soluciones listadas arriba y el tiempo estimado como referencia concreta.
+Tu tarea es organizar y detallar las soluciones en dos slides, agrupadas por área.
 
-REGLAS ESTRICTAS:
-- Usá toda la información disponible del cliente para dar observaciones específicas y concretas.
-- Solo español. Prohibido: "pricing" (→ estrategia de precios), "data" (→ información), "roadmap" (→ hoja de ruta).
-- Sin asteriscos ni negritas.
-- SIEMPRE exactamente 4 bullets. Ni más, ni menos.
-- SITUACION: cada bullet es un párrafo de entre 45 y 50 palabras en total.
-- ALERTAS: cada bullet tiene formato "Nombre: texto". El nombre es 2-4 palabras. El texto después del nombre tiene que tener entre 42 y 46 palabras. Total del bullet (nombre + texto) = entre 45 y 50 palabras.
+REGLAS:
+- Solo español. Sin tecnicismos ni palabras en inglés.
+- Cada solución tiene un nombre corto (2-5 palabras) y una descripción de 20-30 palabras que explica qué se implementa y qué resultado concreto produce.
+- Si alguna solución no encaja claramente en un área, asignala donde tenga más sentido.
 - Concreto y específico para este negocio. Nada genérico.
 
-Respondé ÚNICAMENTE con este formato:
+Respondé ÚNICAMENTE con este formato (sin texto antes ni después):
 
-SITUACION:
-• [párrafo de 45-50 palabras totales].
-• [párrafo de 45-50 palabras totales].
-• [párrafo de 45-50 palabras totales].
-• [párrafo de 45-50 palabras totales].
+SOLUCIONES_EST_FIN:
+• [Nombre de la solución]: [descripción de 20-30 palabras]
+• [Nombre de la solución]: [descripción de 20-30 palabras]
 
-ALERTAS:
-• [Nombre corto 2-4 palabras]: [texto de 42-46 palabras. Total bullet = 45-50 palabras].
-• [Nombre corto 2-4 palabras]: [texto de 42-46 palabras. Total bullet = 45-50 palabras].
-• [Nombre corto 2-4 palabras]: [texto de 42-46 palabras. Total bullet = 45-50 palabras].
-• [Nombre corto 2-4 palabras]: [texto de 42-46 palabras. Total bullet = 45-50 palabras].`,
+SOLUCIONES_OPS_GES:
+• [Nombre de la solución]: [descripción de 20-30 palabras]
+• [Nombre de la solución]: [descripción de 20-30 palabras]`,
 
     // ── STAGE 4: IMPLEMENTACIÓN ───────────────────────────────────────────────
     hitos: `
