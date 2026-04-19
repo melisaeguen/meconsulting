@@ -497,8 +497,10 @@ ${c.transcript || '(sin transcript disponible)'}
 SOLUCIONES A IMPLEMENTAR (definidas para este cliente):
 ${c.soluciones || '(no especificadas)'}
 
+TIEMPO ESTIMADO DE DISEÑO E IMPLEMENTACIÓN: ${c.meses || '?'} meses
+
 Generá el contenido variable para la propuesta comercial del Diseño e Implementación de Soluciones.
-Usá las soluciones listadas arriba como referencia concreta de lo que se va a hacer.
+Usá las soluciones listadas arriba y el tiempo estimado como referencia concreta.
 
 REGLAS ESTRICTAS:
 - Usá toda la información disponible del cliente para dar observaciones específicas y concretas.

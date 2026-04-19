@@ -1302,6 +1302,7 @@ function renderImplCalc(email) {
   const total = Object.values(h).reduce((a,b)=>a+Number(b),0);
   const price = total * 40000;
   const soluciones = crm.aiOutputs?.soluciones || '';
+  const meses = crm.aiOutputs?.impl_meses ?? 2;
   return `
   <div class="cop-action" id="ca-impl-calc">
     <div class="cop-action-hdr">
@@ -1336,6 +1337,9 @@ function renderImplCalc(email) {
         <span class="calc-lbl">Seguimiento</span>
         <input class="calc-inp" type="number" id="hi-seguimiento" value="${h.impl_seguimiento}" min="1" max="60" oninput="updateImplCalc('${email}')"/>
         <span class="calc-unit">hs</span>
+        <span class="calc-lbl">Tiempo de diseño e implementación</span>
+        <input class="calc-inp" type="number" id="hi-meses" value="${meses}" min="1" max="24" oninput="updateImplCalc('${email}')"/>
+        <span class="calc-unit">meses</span>
       </div>
       <div class="calc-total-row">
         <span>Total: <span id="impl-total-hs">${total}</span> horas</span>
@@ -1362,12 +1366,13 @@ function updateImplCalc(email) {
     impl_capacitacion:   Number(document.getElementById('hi-capacitacion')?.value)||0,
     impl_seguimiento:    Number(document.getElementById('hi-seguimiento')?.value)||0,
   };
+  const meses = Number(document.getElementById('hi-meses')?.value)||2;
   const total = Object.values(h).reduce((a,b)=>a+b,0);
   const el1 = document.getElementById('impl-total-hs');
   const el2 = document.getElementById('impl-total-price');
   if(el1) el1.textContent = total;
   if(el2) el2.textContent = (total*40000).toLocaleString('es-AR');
-  const ao = {...(getCRM(email).aiOutputs||{}), impl_hours:h};
+  const ao = {...(getCRM(email).aiOutputs||{}), impl_hours:h, impl_meses:meses};
   S.crm[email] = {...getCRM(email), aiOutputs:ao};
   markDirty();
 }
@@ -1517,6 +1522,7 @@ async function generateAndCreateImpl(email) {
     impl_seguimiento:    Number(document.getElementById('hi-seguimiento')?.value)||6,
   };
   const soluciones = document.getElementById('impl-soluciones')?.value || crm.aiOutputs?.soluciones || '';
+  const meses = Number(document.getElementById('hi-meses')?.value) || crm.aiOutputs?.impl_meses || 2;
   const total = Object.values(h).reduce((a,b)=>a+b,0);
   const price = total * 40000;
 
@@ -1541,6 +1547,7 @@ async function generateAndCreateImpl(email) {
           datos_internos: crm.aiOutputs?.datos_internos || '',
           benchmarking: crm.aiOutputs?.benchmarking || '',
           soluciones,
+          meses,
           price,
         }
       })
