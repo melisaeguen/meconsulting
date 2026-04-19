@@ -1058,11 +1058,11 @@ function buildInversionImplSlide(slide, total, meses) {
   div.getFill().setSolidFill(C_GOLD.red*255, C_GOLD.green*255, C_GOLD.blue*255);
   div.getBorder().getLineFill().setSolidFill(0,0,0,0);
 
-  // Forma de pago
+  // Tiempo + Forma de pago
   var mesesNum = Number(meses) || 2;
   var cuota = Math.round(Number(total) / mesesNum);
-  var pagoStr = 'Forma de pago: ' + mesesNum + ' pagos de $' + cuota.toLocaleString('es-AR');
-  sText(slide, pagoStr, 60, 175, W-120, 20, {size:10.5, bold:false, color:'#faf9f7', align:'CENTER'});
+  var pagoStr = 'Tiempo de diseño e implementación: ' + mesesNum + ' meses  /  Forma de pago: ' + mesesNum + ' pagos mensuales de $' + cuota.toLocaleString('es-AR');
+  sText(slide, pagoStr, 50, 175, W-100, 24, {size:10, bold:false, color:'#faf9f7', align:'CENTER'});
 
   // Disclaimer 1
   sText(slide,
