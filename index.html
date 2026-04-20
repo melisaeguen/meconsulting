@@ -29,7 +29,8 @@
   --r:10px; --r-lg:14px;
 }
 html{scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+html{overflow-x:hidden}
 .serif{font-family:'Playfair Display',serif}
 a{text-decoration:none;color:inherit}
 button{cursor:pointer;font-family:'DM Sans',sans-serif}
@@ -62,6 +63,7 @@ section{padding:5rem 0}
 }
 .logo-name{color:#fff;font-size:15px;font-weight:500;font-family:'Playfair Display',serif}
 .logo-sub{color:var(--gold);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;opacity:0.75;margin-left:8px}
+.nav-links{display:flex;gap:4px;align-items:center}
 .nav-cta{
   background:var(--gold);color:var(--navy);
   border:none;border-radius:7px;padding:8px 18px;
@@ -397,7 +399,7 @@ section{padding:5rem 0}
         <span class="logo-name">ME Consultora</span>
       </div>
       <div style="display:flex;gap:4px;align-items:center">
-        <div class="nav-links" style="display:flex;gap:4px;align-items:center">
+        <div class="nav-links">
           <a href="#pain" style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.6);padding:6px 14px;border-radius:6px;transition:color 0.15s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Soluciones</a>
           <a href="#como-trabajamos" style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.6);padding:6px 14px;border-radius:6px;transition:color 0.15s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Cómo trabajamos</a>
           <a href="#soluciones" style="font-size:12px;font-weight:500;color:rgba(255,255,255,0.6);padding:6px 14px;border-radius:6px;transition:color 0.15s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.6)'">Tecnología AI</a>
