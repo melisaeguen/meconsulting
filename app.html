@@ -1193,6 +1193,33 @@ function renderCopilotStage3(email) {
     ${renderImplCalc(email)}`;
 }
 
+function renderCopilotStage4(email) {
+  const cl = S.clients[email];
+  const crm = getCRM(email);
+  const ao = crm.aiOutputs || {};
+  const trackerDone = ao.tracker_url;
+  return `
+    <div class="cop-intro">Implementación en curso para <strong>${esc(cl.empresa||cl.nombre)}</strong>. Generá el tracker para gestionar el avance de cada solución.</div>
+    <div class="cop-action" id="ca-tracker">
+      <div class="cop-action-hdr">
+        <div class="cop-action-title">
+          <span class="cop-icon">📊</span>
+          <div class="cop-title-text">
+            <strong>Tracker de Soluciones</strong>
+            <span>Google Sheet con el seguimiento de cada solución: responsable, progreso y fechas</span>
+          </div>
+        </div>
+        ${trackerDone ? `<span class="relev-ok">✓ Creado</span>` : ''}
+      </div>
+      <div class="cop-result" style="padding:12px 14px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn-gen" id="bg-tracker" onclick="generateTrackerImpl('${email}')">
+          ${trackerDone ? '↺ Regenerar' : '📊 Generar tracker'}
+        </button>
+        ${trackerDone ? `<button class="btn-doc" onclick="window.open('${trackerDone}','_blank')">📊 Abrir Sheet</button>` : ''}
+      </div>
+    </div>`;
+}
+
 function renderFrameworkSection(email, ao) {
   const done = ao.framework_url;
   return `
@@ -1524,6 +1551,68 @@ async function generatePresentacionDiag(email) {
   }
 }
 
+async function generateTrackerImpl(email) {
+  const cl  = S.clients[email];
+  const crm = getCRM(email);
+  const btn = document.getElementById('bg-tracker');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Generando...'; }
+
+  try {
+    // Step 1: AI assigns dimensions to each solution
+    const res = await fetch('/api/copilot', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'tracker_impl', stage: 4,
+        client: {
+          nombre: cl.nombre, empresa: cl.empresa, industria: cl.industria,
+          scoreFinanzas: cl.scoreFinanzas, scoreOps: cl.scoreOps,
+          scoreGestion: cl.scoreGestion, scoreEst: cl.scoreEst,
+          soluciones: crm.aiOutputs?.soluciones || '',
+        }
+      })
+    });
+    const data = await res.json();
+    const raw = data.result || '';
+    if (!raw) throw new Error('Sin contenido');
+
+    // Step 2: Parse "DIMENSION|Solucion" lines
+    const rows = raw.split('\n')
+      .map(l => l.trim())
+      .filter(l => l.includes('|'))
+      .map(l => {
+        const [dim, ...rest] = l.split('|');
+        return { dimension: dim.trim(), solucion: rest.join('|').trim() };
+      });
+
+    if (rows.length === 0) throw new Error('Sin soluciones para procesar');
+
+    if (btn) btn.innerHTML = '<span class="spinner"></span> Creando sheet...';
+
+    // Step 3: Create Google Sheet via Apps Script
+    const empresa = cl.empresa || cl.nombre || email;
+    const mes = new Date().toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
+    const resSheet = await fetch('/api/crm', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'createTrackerSheet', empresa, mes, rows })
+    });
+    const sheetData = await resSheet.json();
+    if (!sheetData.url) throw new Error('No se obtuvo URL del sheet');
+
+    // Step 4: Save URL and re-render
+    const ao = { ...(crm.aiOutputs || {}), tracker_url: sheetData.url };
+    S.crm[email] = { ...getCRM(email), aiOutputs: ao };
+    markDirty();
+    window.open(sheetData.url, '_blank');
+    showToast('Tracker creado exitosamente');
+    renderApp();
+
+  } catch(err) {
+    console.error('generateTrackerImpl error:', err);
+    showToast('Error al generar el tracker', true);
+    if (btn) { btn.disabled = false; btn.innerHTML = '📊 Generar tracker'; }
+  }
+}
+
 async function generateAndCreateImpl(email) {
   const cl  = S.clients[email];
   const crm = getCRM(email);
@@ -1662,6 +1751,10 @@ function renderCopilot(email) {
 
   if (crm.stage === 3) {
     return renderCopilotStage3(email);
+  }
+
+  if (crm.stage === 4) {
+    return renderCopilotStage4(email);
   }
 
   // Stages 4-5: generic rendering

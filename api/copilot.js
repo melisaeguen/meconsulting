@@ -534,6 +534,26 @@ SOLUCIONES_OPS_GES:
 • [Nombre de la solución]`,
 
     // ── STAGE 4: IMPLEMENTACIÓN ───────────────────────────────────────────────
+    tracker_impl: `
+Sos una consultora estratégica especializada en PyMEs argentinas.
+
+CLIENTE: ${c.empresa} | ${c.industria}
+SCORES: Finanzas: ${c.scoreFinanzas}/100 | Operaciones: ${c.scoreOps}/100 | Gestión: ${c.scoreGestion}/100 | Estrategia: ${c.scoreEst}/100
+
+SOLUCIONES A IMPLEMENTAR:
+${c.soluciones || '(sin soluciones cargadas)'}
+
+Asigná cada solución a su dimensión correspondiente. Las dimensiones posibles son: Finanzas, Operaciones, Gestión, Estrategia.
+Usá el contexto del cliente y sus scores para decidir la dimensión más adecuada.
+Si una solución aplica a varias dimensiones, elegí la más relevante.
+Incluí TODAS las soluciones del listado, sin omitir ninguna.
+
+Respondé ÚNICAMENTE con este formato exacto, una línea por solución, sin texto antes ni después:
+FINANZAS|Nombre exacto de la solución
+OPERACIONES|Nombre exacto de la solución
+GESTIÓN|Nombre exacto de la solución
+ESTRATEGIA|Nombre exacto de la solución`,
+
     hitos: `
 Sos Melisa Eguen, consultora estratégica. Estás en la etapa de implementación con este cliente.
 

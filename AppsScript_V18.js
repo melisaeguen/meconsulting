@@ -57,6 +57,7 @@ function doPost(e) {
     if (action === 'createPresupuestoImpl') {
       return jsonResponse(createPresupuestoImpl(data));
     }
+    if (action === 'createTrackerSheet') return jsonResponse(createTrackerSheet(data));
 
     return jsonResponse({ error: 'Acción no reconocida: ' + action });
   } catch (err) {
@@ -1119,6 +1120,112 @@ function createPresupuestoImpl(data) {
   DriveApp.getFileById(pres.getId()).moveTo(folder);
 
   return { url: pres.getUrl() };
+}
+
+// ── TRACKER DE SOLUCIONES (Google Sheet) ────────────────────────────────────
+function createTrackerSheet(data) {
+  var empresa = data.empresa || 'Cliente';
+  var mes = new Date().toLocaleDateString('es-AR', {month:'long', year:'numeric'});
+  var rows = data.rows || [];
+
+  // Create spreadsheet
+  var ss = SpreadsheetApp.create('Tracker Soluciones — ' + empresa + ' — ' + mes);
+  var sheet = ss.getActiveSheet();
+  sheet.setName('Soluciones');
+
+  // Headers
+  var headers = ['Dimensión', 'Solución', 'Responsable', 'Fecha Cierre', 'Progreso', 'Notas'];
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+
+  // Format header row — navy bg, gold text, bold
+  var headerRange = sheet.getRange(1, 1, 1, headers.length);
+  headerRange.setBackground('#1b2340');
+  headerRange.setFontColor('#c9a96e');
+  headerRange.setFontWeight('bold');
+  headerRange.setFontSize(11);
+  headerRange.setHorizontalAlignment('center');
+
+  // Column widths
+  sheet.setColumnWidth(1, 130);
+  sheet.setColumnWidth(2, 300);
+  sheet.setColumnWidth(3, 160);
+  sheet.setColumnWidth(4, 130);
+  sheet.setColumnWidth(5, 160);
+  sheet.setColumnWidth(6, 260);
+
+  // Freeze header row
+  sheet.setFrozenRows(1);
+
+  if (rows.length > 0) {
+    // Data values — default Responsable = ME Consultora, Progreso = Sin empezar
+    var dataValues = rows.map(function(r) {
+      return [r.dimension || '', r.solucion || '', 'ME Consultora', '', 'Sin empezar', ''];
+    });
+    sheet.getRange(2, 1, dataValues.length, headers.length).setValues(dataValues);
+
+    // Font and alignment for data
+    var dataRange = sheet.getRange(2, 1, dataValues.length, headers.length);
+    dataRange.setFontSize(10);
+    dataRange.setVerticalAlignment('middle');
+    dataRange.setFontFamily('Arial');
+
+    // Alternating row colors
+    for (var i = 0; i < rows.length; i++) {
+      var bg = (i % 2 === 0) ? '#faf9f7' : '#ffffff';
+      sheet.getRange(i + 2, 1, 1, headers.length).setBackground(bg);
+    }
+
+    // Dropdown — Responsable (col 3)
+    var responsableRule = SpreadsheetApp.newDataValidation()
+      .requireValueInList(['ME Consultora', 'Cliente', 'Conjunto'], true)
+      .setAllowInvalid(false)
+      .build();
+    sheet.getRange(2, 3, rows.length, 1).setDataValidation(responsableRule);
+
+    // Dropdown — Progreso (col 5)
+    var progresoRule = SpreadsheetApp.newDataValidation()
+      .requireValueInList(['Sin empezar', 'En diseño', 'En producción', 'Implementado'], true)
+      .setAllowInvalid(false)
+      .build();
+    sheet.getRange(2, 5, rows.length, 1).setDataValidation(progresoRule);
+
+    // Conditional formatting — Progreso column
+    var progresoRange = sheet.getRange(2, 5, rows.length, 1);
+    var cfRules = sheet.getConditionalFormatRules();
+    cfRules.push(SpreadsheetApp.newConditionalFormatRule()
+      .whenTextEqualTo('Sin empezar')
+      .setBackground('#f2f2f2').setFontColor('#666666')
+      .setRanges([progresoRange]).build());
+    cfRules.push(SpreadsheetApp.newConditionalFormatRule()
+      .whenTextEqualTo('En diseño')
+      .setBackground('#fff3cd').setFontColor('#856404')
+      .setRanges([progresoRange]).build());
+    cfRules.push(SpreadsheetApp.newConditionalFormatRule()
+      .whenTextEqualTo('En producción')
+      .setBackground('#fde8c8').setFontColor('#8a4500')
+      .setRanges([progresoRange]).build());
+    cfRules.push(SpreadsheetApp.newConditionalFormatRule()
+      .whenTextEqualTo('Implementado')
+      .setBackground('#d4edda').setFontColor('#155724')
+      .setRanges([progresoRange]).build());
+    sheet.setConditionalFormatRules(cfRules);
+
+    // Row height for readability
+    sheet.setRowHeights(2, rows.length, 28);
+  }
+
+  // Folder structure: "Soluciones" > "[Empresa] — [Mes]"
+  var solucionesFolder;
+  var rootFolders = DriveApp.getFoldersByName('Soluciones');
+  solucionesFolder = rootFolders.hasNext() ? rootFolders.next() : DriveApp.createFolder('Soluciones');
+
+  var subName = empresa + ' — ' + mes;
+  var subFolders = solucionesFolder.getFoldersByName(subName);
+  var subFolder = subFolders.hasNext() ? subFolders.next() : solucionesFolder.createFolder(subName);
+
+  DriveApp.getFileById(ss.getId()).moveTo(subFolder);
+
+  return { url: ss.getUrl() };
 }
 
 // ── TEST FUNCTION (run manually in editor) ───────────────────────────
