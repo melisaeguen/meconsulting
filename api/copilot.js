@@ -26,11 +26,11 @@ export default async function handler(req, res) {
     const prompt = buildPrompt(action, stage, client);
     if (!prompt) return res.status(400).json({ error: 'Acción no reconocida' });
 
-    const isHeavy = ['framework', 'informe_diag', 'presentacion_diag'].includes(action);
+    const isHeavy = ['framework', 'informe_diag', 'presentacion_diag', 'guia_impl'].includes(action);
     const isDiagSlides = action === 'presentacion_diag';
     const isSlides = action === 'presupuesto' || isDiagSlides || action === 'presupuesto_impl';
     const model = isHeavy ? 'claude-sonnet-4-20250514' : 'claude-haiku-4-5-20251001';
-    const maxTokens = action === 'informe_diag' ? 4000 : (isHeavy ? 3000 : 1024);
+    const maxTokens = action === 'informe_diag' ? 4000 : action === 'guia_impl' ? 4000 : (isHeavy ? 3000 : 1024);
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -534,6 +534,41 @@ SOLUCIONES_OPS_GES:
 • [Nombre de la solución]`,
 
     // ── STAGE 4: IMPLEMENTACIÓN ───────────────────────────────────────────────
+
+    guia_impl: `
+Sos Melisa Eguen, consultora estratégica para PyMEs argentinas. Esta es tu guía de trabajo interna para implementar las soluciones acordadas con el cliente.
+
+CLIENTE: ${c.empresa} | ${c.industria}
+DESCRIPCIÓN: ${c.descripcion}
+SCORES: Finanzas: ${c.scoreFinanzas}/100 | Operaciones: ${c.scoreOps}/100 | Gestión: ${c.scoreGestion}/100 | Estrategia: ${c.scoreEst}/100
+
+SOLUCIONES A IMPLEMENTAR:
+${c.soluciones || '(sin soluciones cargadas)'}
+
+Para cada solución generá una guía de implementación práctica y concreta. Usá el contexto del cliente (industria, scores, descripción) para que cada guía sea específica para este negocio, no genérica.
+
+REGLAS:
+- Solo español. Sin tecnicismos ni palabras en inglés.
+- El responsable de cada paso es: [Melisa], [Cliente] o [Conjunto]. Siempre al inicio del paso.
+- 4 a 6 pasos por solución. Pasos concretos y accionables.
+- 1 a 3 riesgos por solución. Formato: qué puede fallar → cómo evitarlo.
+- La sección CONTEXTO explica por qué esta solución es importante para ESTE cliente específico (basate en sus scores y descripción). 1-2 líneas, directo.
+
+Respondé ÚNICAMENTE con este formato, sin texto antes ni después. Incluí TODAS las soluciones:
+
+[SOLUCION]
+DIMENSION: [Finanzas / Operaciones / Gestión / Estrategia]
+NOMBRE: [Nombre exacto de la solución]
+CONTEXTO: [1-2 líneas: por qué lo hacemos y de qué se trata, específico para este cliente]
+PASOS:
+1. [Melisa/Cliente/Conjunto] [Descripción concreta del paso]
+2. [Melisa/Cliente/Conjunto] [Descripción concreta del paso]
+3. [Melisa/Cliente/Conjunto] [Descripción concreta del paso]
+4. [Melisa/Cliente/Conjunto] [Descripción concreta del paso]
+RIESGOS:
+• [Qué puede fallar] → [cómo evitarlo]
+• [Qué puede fallar] → [cómo evitarlo]`,
+
     tracker_impl: `
 Sos una consultora estratégica especializada en PyMEs argentinas.
 

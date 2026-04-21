@@ -1198,8 +1198,10 @@ function renderCopilotStage4(email) {
   const crm = getCRM(email);
   const ao = crm.aiOutputs || {};
   const trackerDone = ao.tracker_url;
+  const guiaDone = ao.guia_url;
   return `
-    <div class="cop-intro">Implementación en curso para <strong>${esc(cl.empresa||cl.nombre)}</strong>. Generá el tracker para gestionar el avance de cada solución.</div>
+    <div class="cop-intro">Implementación en curso para <strong>${esc(cl.empresa||cl.nombre)}</strong>. Generá el tracker y la guía de implementación para gestionar el avance de cada solución.</div>
+
     <div class="cop-action" id="ca-tracker">
       <div class="cop-action-hdr">
         <div class="cop-action-title">
@@ -1216,6 +1218,25 @@ function renderCopilotStage4(email) {
           ${trackerDone ? '↺ Regenerar' : '📊 Generar tracker'}
         </button>
         ${trackerDone ? `<button class="btn-doc" onclick="window.open('${trackerDone}','_blank')">📊 Abrir Sheet</button>` : ''}
+      </div>
+    </div>
+
+    <div class="cop-action" id="ca-guia">
+      <div class="cop-action-hdr">
+        <div class="cop-action-title">
+          <span class="cop-icon">📖</span>
+          <div class="cop-title-text">
+            <strong>Guía de Implementación</strong>
+            <span>Paso a paso para implementar cada solución: contexto, responsables y riesgos</span>
+          </div>
+        </div>
+        ${guiaDone ? `<span class="relev-ok">✓ Generada</span>` : ''}
+      </div>
+      <div class="cop-result" style="padding:12px 14px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn-gen" id="bg-guia" onclick="generateGuiaImpl('${email}')">
+          ${guiaDone ? '↺ Regenerar' : '📖 Generar guía'}
+        </button>
+        ${guiaDone ? `<button class="btn-doc" onclick="window.open('${guiaDone}','_blank')">📄 Abrir Doc</button>` : ''}
       </div>
     </div>`;
 }
@@ -1610,6 +1631,57 @@ async function generateTrackerImpl(email) {
     console.error('generateTrackerImpl error:', err);
     showToast('Error al generar el tracker', true);
     if (btn) { btn.disabled = false; btn.innerHTML = '📊 Generar tracker'; }
+  }
+}
+
+async function generateGuiaImpl(email) {
+  const cl  = S.clients[email];
+  const crm = getCRM(email);
+  const btn = document.getElementById('bg-guia');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Generando...'; }
+
+  try {
+    // Step 1: AI genera la guía completa
+    const res = await fetch('/api/copilot', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'guia_impl', stage: 4,
+        client: {
+          nombre: cl.nombre, empresa: cl.empresa, industria: cl.industria,
+          descripcion: cl.descripcion,
+          scoreFinanzas: cl.scoreFinanzas, scoreOps: cl.scoreOps,
+          scoreGestion: cl.scoreGestion, scoreEst: cl.scoreEst,
+          soluciones: crm.aiOutputs?.soluciones || '',
+        }
+      })
+    });
+    const data = await res.json();
+    const raw = data.result || '';
+    if (!raw) throw new Error('Sin contenido');
+
+    if (btn) btn.innerHTML = '<span class="spinner"></span> Creando doc...';
+
+    // Step 2: Crear Google Doc via Apps Script
+    const empresa = cl.empresa || cl.nombre || email;
+    const resDoc = await fetch('/api/crm', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'createGuiaDoc', empresa, raw })
+    });
+    const docData = await resDoc.json();
+    if (!docData.url) throw new Error('No se obtuvo URL del doc');
+
+    // Step 3: Guardar URL y re-render
+    const ao = { ...(crm.aiOutputs || {}), guia_url: docData.url };
+    S.crm[email] = { ...getCRM(email), aiOutputs: ao };
+    markDirty();
+    window.open(docData.url, '_blank');
+    showToast('Guía de implementación creada');
+    renderApp();
+
+  } catch(err) {
+    console.error('generateGuiaImpl error:', err);
+    showToast('Error al generar la guía', true);
+    if (btn) { btn.disabled = false; btn.innerHTML = '📖 Generar guía'; }
   }
 }
 

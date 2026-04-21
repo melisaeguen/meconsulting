@@ -58,6 +58,7 @@ function doPost(e) {
       return jsonResponse(createPresupuestoImpl(data));
     }
     if (action === 'createTrackerSheet') return jsonResponse(createTrackerSheet(data));
+    if (action === 'createGuiaDoc') return jsonResponse(createGuiaDoc(data));
 
     return jsonResponse({ error: 'Acción no reconocida: ' + action });
   } catch (err) {
@@ -1226,6 +1227,164 @@ function createTrackerSheet(data) {
   DriveApp.getFileById(ss.getId()).moveTo(subFolder);
 
   return { url: ss.getUrl() };
+}
+
+// ── GUÍA DE IMPLEMENTACIÓN — Google Doc ─────────────────────────────
+function createGuiaDoc(data) {
+  var empresa = data.empresa || 'Cliente';
+  var mes = new Date().toLocaleDateString('es-AR', {month:'long', year:'numeric'});
+  var raw = data.raw || '';
+
+  // Parse [SOLUCION] blocks
+  var blocks = raw.split('[SOLUCION]').map(function(b){ return b.trim(); }).filter(Boolean);
+
+  // Create Doc
+  var doc = DocumentApp.create('Guía de Implementación — ' + empresa + ' — ' + mes);
+  var body = doc.getBody();
+
+  // Doc styles
+  body.setMarginTop(36).setMarginBottom(36).setMarginLeft(54).setMarginRight(54);
+
+  // Title
+  var titleP = body.appendParagraph('GUÍA DE IMPLEMENTACIÓN');
+  titleP.setHeading(DocumentApp.ParagraphHeading.TITLE);
+  titleP.editAsText()
+    .setFontFamily('Arial')
+    .setFontSize(20)
+    .setBold(true)
+    .setForegroundColor('#1b2340');
+
+  var subP = body.appendParagraph(empresa + '  ·  ' + mes + '  ·  Uso interno ME Consultora');
+  subP.setHeading(DocumentApp.ParagraphHeading.NORMAL);
+  subP.editAsText()
+    .setFontFamily('Arial')
+    .setFontSize(10)
+    .setItalic(true)
+    .setForegroundColor('#888888');
+
+  body.appendHorizontalRule();
+
+  blocks.forEach(function(block, idx) {
+    var lines = block.split('\n').map(function(l){ return l.trim(); });
+
+    // Parse fields
+    var dimension = '', nombre = '', contexto = '';
+    var pasos = [], riesgos = [];
+    var mode = '';
+
+    lines.forEach(function(line) {
+      if (!line) return;
+      if (line.startsWith('DIMENSION:')) { dimension = line.replace('DIMENSION:', '').trim(); return; }
+      if (line.startsWith('NOMBRE:'))    { nombre    = line.replace('NOMBRE:', '').trim();    return; }
+      if (line.startsWith('CONTEXTO:'))  { contexto  = line.replace('CONTEXTO:', '').trim();  return; }
+      if (line === 'PASOS:')    { mode = 'pasos';    return; }
+      if (line === 'RIESGOS:')  { mode = 'riesgos';  return; }
+      if (mode === 'pasos'  && /^\d+\./.test(line)) { pasos.push(line.replace(/^\d+\.\s*/, '')); return; }
+      if (mode === 'riesgos' && line.startsWith('•'))  { riesgos.push(line.replace(/^•\s*/, '')); return; }
+    });
+
+    if (!nombre) return;
+
+    // ── Sección heading: DIMENSIÓN | Nombre
+    var heading = body.appendParagraph((dimension ? dimension.toUpperCase() + '  |  ' : '') + nombre);
+    heading.setHeading(DocumentApp.ParagraphHeading.HEADING2);
+    heading.editAsText()
+      .setFontFamily('Arial')
+      .setFontSize(13)
+      .setBold(true)
+      .setForegroundColor('#1b2340');
+    heading.setSpacingBefore(18).setSpacingAfter(2);
+
+    // Línea dorada decorativa (simulada con texto vacío + borde)
+    var divider = body.appendParagraph('');
+    divider.editAsText().setForegroundColor('#c9a96e');
+    divider.setSpacingBefore(0).setSpacingAfter(8);
+
+    // ── ¿Para qué lo hacemos?
+    if (contexto) {
+      var ctxLabel = body.appendParagraph('¿Para qué lo hacemos y de qué se trata?');
+      ctxLabel.editAsText().setFontFamily('Arial').setFontSize(10).setBold(true).setForegroundColor('#c9a96e');
+      ctxLabel.setSpacingBefore(4).setSpacingAfter(2);
+
+      var ctxP = body.appendParagraph(contexto);
+      ctxP.editAsText().setFontFamily('Arial').setFontSize(10).setBold(false).setForegroundColor('#333333');
+      ctxP.setSpacingBefore(0).setSpacingAfter(10);
+    }
+
+    // ── Pasos de implementación
+    if (pasos.length > 0) {
+      var pasosLabel = body.appendParagraph('Pasos de implementación');
+      pasosLabel.editAsText().setFontFamily('Arial').setFontSize(10).setBold(true).setForegroundColor('#c9a96e');
+      pasosLabel.setSpacingBefore(6).setSpacingAfter(4);
+
+      pasos.forEach(function(paso, pi) {
+        // Detectar responsable entre corchetes al inicio
+        var resp = '', desc = paso;
+        var respMatch = paso.match(/^\[(Melisa|Cliente|Conjunto)\]\s*/i);
+        if (respMatch) {
+          resp = respMatch[0];
+          desc = paso.replace(respMatch[0], '');
+        }
+        var pasoP = body.appendParagraph('');
+        pasoP.setSpacingBefore(2).setSpacingAfter(2);
+        var t = pasoP.editAsText();
+        var numStr = (pi + 1) + '.  ';
+        t.appendText(numStr);
+        t.setFontFamily(0, numStr.length - 1, 'Arial');
+        t.setFontSize(0, numStr.length - 1, 10);
+        t.setBold(0, numStr.length - 1, false);
+        t.setForegroundColor(0, numStr.length - 1, '#333333');
+        if (resp) {
+          t.appendText(resp);
+          var start = numStr.length;
+          var end = start + resp.length - 1;
+          t.setFontFamily(start, end, 'Arial');
+          t.setFontSize(start, end, 10);
+          t.setBold(start, end, true);
+          t.setForegroundColor(start, end, '#1b2340');
+        }
+        var descStart = pasoP.getText().length;
+        t.appendText(desc);
+        var docLen = pasoP.getText().length - 1;
+        t.setFontFamily(descStart, docLen, 'Arial');
+        t.setFontSize(descStart, docLen, 10);
+        t.setBold(descStart, docLen, false);
+        t.setForegroundColor(descStart, docLen, '#333333');
+      });
+    }
+
+    // ── Riesgos
+    if (riesgos.length > 0) {
+      var riesgosLabel = body.appendParagraph('Riesgos y cómo prevenirlos');
+      riesgosLabel.editAsText().setFontFamily('Arial').setFontSize(10).setBold(true).setForegroundColor('#c9a96e');
+      riesgosLabel.setSpacingBefore(10).setSpacingAfter(4);
+
+      riesgos.forEach(function(r) {
+        var rP = body.appendParagraph('• ' + r);
+        rP.editAsText().setFontFamily('Arial').setFontSize(10).setBold(false).setForegroundColor('#555555');
+        rP.setSpacingBefore(2).setSpacingAfter(2);
+      });
+    }
+
+    // Separador entre soluciones (excepto la última)
+    if (idx < blocks.length - 1) {
+      body.appendHorizontalRule();
+    }
+  });
+
+  // Mover a la misma carpeta que el tracker: "Soluciones" > "[Empresa] — [Mes]"
+  var solucionesFolder;
+  var rootFolders = DriveApp.getFoldersByName('Soluciones');
+  solucionesFolder = rootFolders.hasNext() ? rootFolders.next() : DriveApp.createFolder('Soluciones');
+
+  var subName = empresa + ' — ' + mes;
+  var subFolders = solucionesFolder.getFoldersByName(subName);
+  var subFolder = subFolders.hasNext() ? subFolders.next() : solucionesFolder.createFolder(subName);
+
+  DriveApp.getFileById(doc.getId()).moveTo(subFolder);
+  doc.saveAndClose();
+
+  return { url: doc.getUrl() };
 }
 
 // ── TEST FUNCTION (run manually in editor) ───────────────────────────
