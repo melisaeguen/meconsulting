@@ -232,6 +232,19 @@ a{color:inherit;text-decoration:none}
 /* ── TRANSCRIPT MODAL ── */
 #tr-modal{position:fixed;inset:0;background:rgba(27,35,64,.4);z-index:500;display:none;align-items:center;justify-content:center;padding:20px}
 #tr-modal.open{display:flex}
+#settings-modal{position:fixed;inset:0;background:rgba(27,35,64,.4);z-index:600;display:none;align-items:center;justify-content:center;padding:20px}
+#settings-modal.open{display:flex}
+.btn-settings{background:none;border:1.5px solid rgba(255,255,255,.25);color:rgba(255,255,255,.7);border-radius:7px;padding:6px 12px;font-size:14px;line-height:1;transition:all .15s;cursor:pointer}
+.btn-settings:hover{border-color:rgba(255,255,255,.6);color:white}
+.settings-card{background:white;border-radius:12px;padding:28px;width:100%;max-width:360px;box-shadow:var(--shadow-lg)}
+.settings-title{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.settings-sub{font-size:12px;color:var(--muted);margin-bottom:20px}
+.settings-field label{font-size:12px;font-weight:600;color:var(--navy);display:block;margin-bottom:5px}
+.settings-field input{width:100%;border:1.5px solid var(--border);border-radius:7px;padding:9px 12px;font-size:14px;outline:none;box-sizing:border-box}
+.settings-field input:focus{border-color:var(--navy)}
+.settings-hint{font-size:11px;color:var(--muted);margin-top:5px}
+.settings-preview{margin-top:14px;padding:10px 14px;background:#f5f5f5;border-radius:8px;font-size:12px;color:var(--navy)}
+.settings-preview span{font-weight:700;color:var(--gold)}
 .tr-modal-card{background:white;border-radius:12px;padding:28px;width:100%;max-width:520px;box-shadow:var(--shadow-lg)}
 .tr-modal-title{font-size:15px;font-weight:700;color:var(--navy);margin-bottom:16px}
 .tr-modal-row{margin-bottom:12px}
@@ -292,6 +305,7 @@ a{color:inherit;text-decoration:none}
       <button class="btn-import" id="btn-import" onclick="importClients()">
         <span id="import-icon">⬇</span> Actualizar
       </button>
+      <button class="btn-settings" onclick="openSettings()" title="Configuración">⚙</button>
       <button class="btn-save-session" id="btn-save" onclick="saveSession()">Guardar cambios</button>
       <button class="btn-logout" onclick="doLogout()">Salir</button>
     </div>
@@ -326,6 +340,25 @@ a{color:inherit;text-decoration:none}
     <div class="tr-modal-btns">
       <button class="btn-cancel" onclick="closeTrModal()">Cancelar</button>
       <button class="btn-confirm" onclick="confirmTranscript()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div id="settings-modal">
+  <div class="settings-card">
+    <div class="settings-title">⚙ Configuración</div>
+    <div class="settings-sub">Parámetros globales del CRM</div>
+    <div class="settings-field">
+      <label>Valor hora ($ ARS)</label>
+      <input id="set-valor-hora" type="number" min="1000" step="1000" placeholder="40000"/>
+      <div class="settings-hint">Afecta las calculadoras de Diagnóstico 360° e Implementación</div>
+    </div>
+    <div class="settings-preview" id="set-preview">
+      10 hs × <span id="set-prev-hora">$40.000</span> = <span id="set-prev-total">$400.000</span>
+    </div>
+    <div class="tr-modal-btns" style="margin-top:20px">
+      <button class="btn-cancel" onclick="closeSettings()">Cancelar</button>
+      <button class="btn-confirm" onclick="saveSettings()">Guardar</button>
     </div>
   </div>
 </div>
@@ -377,6 +410,41 @@ let S = {
   trModalEmail: null,
   dirty: false,   // unsaved changes flag
 };
+
+// ── SETTINGS ─────────────────────────────────────────────────────────────────
+function getHourlyRate() {
+  const stored = localStorage.getItem('me_valor_hora');
+  return stored ? Number(stored) : 40000;
+}
+function openSettings() {
+  const rate = getHourlyRate();
+  document.getElementById('set-valor-hora').value = rate;
+  updateSettingsPreview(rate);
+  document.getElementById('settings-modal').classList.add('open');
+  document.getElementById('set-valor-hora').focus();
+}
+function closeSettings() {
+  document.getElementById('settings-modal').classList.remove('open');
+}
+function updateSettingsPreview(val) {
+  const v = Number(val) || 0;
+  document.getElementById('set-prev-hora').textContent = '$' + v.toLocaleString('es-AR');
+  document.getElementById('set-prev-total').textContent = '$' + (v * 10).toLocaleString('es-AR');
+}
+function saveSettings() {
+  const val = Number(document.getElementById('set-valor-hora').value);
+  if (!val || val < 1000) { showToast('Ingresá un valor válido', true); return; }
+  localStorage.setItem('me_valor_hora', val);
+  closeSettings();
+  showToast('Valor hora actualizado: $' + val.toLocaleString('es-AR'));
+  renderApp();
+}
+document.getElementById('set-valor-hora').addEventListener('input', function() {
+  updateSettingsPreview(this.value);
+});
+document.getElementById('settings-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeSettings();
+});
 
 // ══ AUTH ═════════════════════════════════════════════════════════════════════
 document.getElementById('l-pass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
@@ -1045,7 +1113,7 @@ function renderPresupuestoCalc(email) {
   const h = crm.aiOutputs?.presupuesto_hours || {entrevistas:8,analisis:10,informe:8,presentacion:3};
   const savedText = crm.aiOutputs?.presupuesto_text || '';
   const total = Object.values(h).reduce((a,b)=>a+Number(b),0);
-  const price = total * 40000;
+  const price = total * getHourlyRate();
   return `
   <div class="cop-action" id="ca-presupuesto">
     <div class="cop-action-hdr">
@@ -1094,7 +1162,7 @@ function updateCalc(email) {
   const el1 = document.getElementById('calc-total-hs');
   const el2 = document.getElementById('calc-total-price');
   if(el1) el1.textContent = total;
-  if(el2) el2.textContent = (total*40000).toLocaleString('es-AR');
+  if(el2) el2.textContent = (total*getHourlyRate()).toLocaleString('es-AR');
   const ao = {...(getCRM(email).aiOutputs||{}), presupuesto_hours:h};
   S.crm[email] = {...getCRM(email), aiOutputs:ao};
   markDirty();
@@ -1110,7 +1178,7 @@ async function generateAndCreatePresupuesto(email) {
     presentacion: Number(document.getElementById('h-presentacion')?.value)||3,
   };
   const total = Object.values(h).reduce((a,b)=>a+b,0);
-  const price = total * 40000;
+  const price = total * getHourlyRate();
 
   const btn = document.getElementById('bg-presupuesto');
   if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Generando...';}
@@ -1348,7 +1416,7 @@ function renderImplCalc(email) {
   const crm = getCRM(email);
   const h = crm.aiOutputs?.impl_hours || {impl_diseno:8, impl_implementacion:20, impl_capacitacion:6, impl_seguimiento:6};
   const total = Object.values(h).reduce((a,b)=>a+Number(b),0);
-  const price = total * 40000;
+  const price = total * getHourlyRate();
   const soluciones = crm.aiOutputs?.soluciones || '';
   const meses = crm.aiOutputs?.impl_meses ?? 2;
   return `
@@ -1424,7 +1492,7 @@ function updateImplCalc(email) {
   const el1 = document.getElementById('impl-total-hs');
   const el2 = document.getElementById('impl-total-price');
   if(el1) el1.textContent = total;
-  if(el2) el2.textContent = (total*40000).toLocaleString('es-AR');
+  if(el2) el2.textContent = (total*getHourlyRate()).toLocaleString('es-AR');
   const ao = {...(getCRM(email).aiOutputs||{}), impl_hours:h};
   S.crm[email] = {...getCRM(email), aiOutputs:ao};
   markDirty();
@@ -1697,7 +1765,7 @@ async function generateAndCreateImpl(email) {
   const soluciones = document.getElementById('impl-soluciones')?.value || crm.aiOutputs?.soluciones || '';
   const meses = Number(document.getElementById('hi-meses')?.value) || crm.aiOutputs?.impl_meses || 2;
   const total = Object.values(h).reduce((a,b)=>a+b,0);
-  const price = total * 40000;
+  const price = total * getHourlyRate();
 
   const btn = document.getElementById('bg-impl-presupuesto');
   if(btn){btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Generando...';}
